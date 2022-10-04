@@ -1,0 +1,439 @@
+@default: #212529;
+@primary: #86bc42;
+@secondaryColor: #7cb238;
+
+@allFontColor: ~"";
+@productTextFontColor: ~"";
+
+body {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
+        color: @allFontColor;
+    }
+    .contact-wrapper span,
+    .blog-date,
+    .home-banner-slider .slider-content h2,
+    .home-banner-slider .slider-content p,
+    .footer-mail-address i,
+    .footer-mail-address,
+    .footer-helpline i,
+    .footer-help h4,
+    .footer-helpline,
+    .footer-available-time p,
+    .footer-map-link a,
+    .footer-address p,
+    .footer-link-header,
+    .footer-link li a,
+    .ultra-th .heading .price h1,
+    .ultra-th .heading .price h3.period,
+    .ultra-th .heading > p,
+    .ultra-th.pricing-card-active-color .heading > p,
+    .pricing-card.pricing-list-new
+        .plan.pricing-card-active-color
+        .heading
+        .price
+        .sum,
+    .ultra-acc-top i,
+    .ultra-acc-top h2,
+    .marketing-table tr span,
+    .marketing-table tr,
+    .pricing-card.pricing-list-new .plan .heading .price .period,
+    .pricing-card.pricing-list-new .plan .heading p,
+    .pricing-card.pricing-list-new .plan .heading .price .sum,
+    .home-product-slider-left-image-content a,
+    .header-top-text span,
+    .home-banner-wrapper-top-cat-sample-content a,
+    .home-banner-wrapper-top-cat-sample-content h5,
+    p span {
+        color: @allFontColor;
+    }
+    .product-sample-price,
+    .product-sample-wrapper .product-tax-text div,
+    .product-sample-title h5 {
+        color: @productTextFontColor;
+    }
+
+    .product-info-content {
+        .shop-inner-page .item-price span,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        a,
+        p,
+        span {
+            color: @productTextFontColor;
+        }
+    }
+
+    .product-info-content {
+        .description {
+            p,
+            ul li,
+            li,
+            div,
+            span {
+                color: @productTextFontColor !important;
+            }
+        }
+        
+    }
+    .shop-inner-page .item-price,
+    .shop-inner-page .product-tax-text div,
+    .shop-inner-page .item-price span {
+        color: @productTextFontColor !important;
+    }
+}
+
+// Menu Options
+@menuFontColor: #fff;
+@menuFontHoverColor: #fff;
+
+@submenuContainerBackground: #fff;
+@submenuColor: #000;
+@submenuItemHoverBg: #969696;
+@submenuItemHoverColor: #000;
+@menuFontSize: 16px;
+
+// Category Options
+@categoryFontColor: #000;
+@categoryFontHoverColor: #86bc42;
+
+// Others Color
+@taxTextColor: #000;
+@settingsHeaderBg: #4592ff;
+
+//Image Opacity
+@blogImgOpacity: 1;
+@blogInnerImgOpacity: 1;
+@productImgOpacity: 1;
+@productInnerImageOpacity: 1;
+
+//Side Navigation
+@sideNavTextColor: #636363;
+@sideNavTextBGColor: #d9ecff;
+@sideNavTextHoverColor: #636363;
+@sideNavTextHoverBGColor: #57adff;
+@sideNavlistBGColor: #fff;
+@sideNavBGColor: #fff;
+
+@footerMenuColor: #fff;
+@footerMenuHoverColor: #fff;
+
+#footer_menu ul li a {
+    color: @footerMenuColor !important;
+}
+
+#footer_menu ul li a:hover {
+    color: @footerMenuHoverColor !important;
+}
+
+.menu-with-description > ul > li > ul.dropdown-menu {
+    background: @submenuContainerBackground !important;
+}
+
+#header-menu .menu-with-description ul li ul li > a {
+    color: @submenuColor !important;
+}
+
+.navigation #header-menu .menu-with-description ul li ul li > a:hover {
+    background: @submenuItemHoverBg !important;
+    color: @submenuItemHoverColor !important;
+}
+
+.header-bottom {
+    background-color: @secondaryColor;
+}
+
+.category-list ul li a:before,
+.home-banner-wrapper-top-cat-sample-content a::before {
+    background-color: @primary !important;
+}
+.category-list ul li a:hover {
+    color: @primary !important;
+}
+//Category Color
+.categorySideBar ul.nav li a {
+    color: @categoryFontColor !important;
+}
+
+.categorySideBar ul.nav li a:hover {
+    color: @categoryFontHoverColor !important;
+}
+
+// Menu CSS
+#header-menu ul li a.menu_element_link {
+    color: @menuFontColor !important;
+    font-size: @menuFontSize !important;
+}
+
+#header-menu ul li a.menu_element_link:hover {
+    color: @menuFontHoverColor !important;
+}
+
+#header-menu ul li ul {
+    background-color: @submenuContainerBackground !important;
+}
+
+#header-menu ul li ul li > a.menu_element_link {
+    color: @submenuColor !important;
+}
+
+#header-menu ul li ul li:hover > a {
+    color: @submenuItemHoverColor !important;
+}
+
+// Opacity CSS
+.product-sample-image {
+    opacity: 0;
+    opacity: @productImgOpacity;
+}
+
+.product-gallery img {
+    opacity: 0;
+    opacity: @productInnerImageOpacity;
+}
+
+.blog-sample-image {
+    opacity: 0;
+    opacity: @blogImgOpacity;
+}
+
+.blog-inner-photo img {
+    opacity: 0;
+    opacity: @blogInnerImgOpacity;
+}
+
+// Sidenav
+
+.fw-page-title-lists ul li a {
+    color: @sideNavTextColor !important;
+}
+
+.fw-page-title-lists ul li a:hover {
+    color: @sideNavTextHoverColor !important;
+}
+
+.fw-page-title-lists ul li {
+    background-color: @sideNavTextBGColor !important;
+}
+
+.fw-page-title-lists ul li:hover {
+    background-color: @sideNavTextHoverBGColor !important;
+}
+
+.fwidht-sidebar {
+    background-color: @sideNavBGColor !important;
+}
+
+.fw-sidebar-box .module {
+    background-color: @sideNavlistBGColor !important;
+}
+
+.product-tax-text span:last-child {
+    color: @taxTextColor !important;
+}
+
+.btn.btn-primary {
+    background-color: @primary !important;
+    border-color: @primary !important;
+}
+
+.header-top {
+    background-color: @primary !important;
+}
+
+.mw-dialog-skin-default .mw-dialog-header {
+    background-color: @settingsHeaderBg !important;
+}
+
+@searchInputField: #000;
+@searchButtonBg: #41544a;
+
+.product-search-box button.btn,
+.navbar-mobile-search .product-search-box.mobile-search-box button.btn {
+    background-color: @searchButtonBg !important;
+}
+
+.product-search-box select#category_list,
+.product-search-box .autocomplete input#productSearchInput {
+    border: 1px solid @searchInputField !important;
+    color: @searchInputField !important;
+}
+
+.product-search-box .autocomplete input#productSearchInput::placeholder {
+    color: @searchInputField !important;
+}
+
+@pricingtableHeadingTd: #e2e2e2;
+@pricingtableTd: #fff;
+@pricingtableHeadingTdColor: #6b7177;
+@pricingtableTdColor: #212529;
+@pricingtableHoverBgColor: #f0f1f2;
+
+.marketing-table tr {
+    background: @pricingtableTd !important;
+    color: @pricingtableTdColor !important;
+}
+
+td.pricing-table-heading {
+    background: @pricingtableHeadingTd !important;
+    color: @pricingtableHeadingTdColor !important;
+}
+
+.pricing-card.pricing-list-new .plan.pricing-card-active-color,
+th.ultra-th.pricing-card-active-color {
+    background: @primary !important;
+    box-shadow: 0 8px 32px 0 @primary !important;
+}
+
+.pricing-card.pricing-list-new .plan:hover {
+    background: @primary !important;
+    box-shadow: 0 8px 32px 0 @primary !important;
+}
+
+.readmore-icon > div {
+    border: 1px solid @primary !important;
+    color: @primary !important;
+    box-shadow: 0 0 4px 0px @primary !important;
+}
+
+.readmore-icon > div:hover {
+    background: @primary !important;
+    color: #fff !important;
+}
+
+.btn-outline-primary {
+    color: @primary !important;
+    border-color: @primary !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: @primary !important;
+    border-color: @primary !important;
+    color: #fff !important;
+}
+
+.pricing-card.pricing-list-new
+    .plan.pricing-card-active-color
+    .button-holder
+    .btn {
+    border-color: @primary !important;
+}
+
+table.marketing-table tr:hover {
+    background: @pricingtableHoverBgColor !important;
+}
+
+th.ultra-th.pricing-card-active-color {
+    border-color: @primary !important;
+}
+
+.next-content,
+.prev-content {
+    color: @primary !important;
+}
+
+@breadcumbHyperlinkColor: #000;
+@breadcumbTextColor: #6c757d;
+
+.breadcrumb-item a {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.breadcrumb-item.active {
+    color: @breadcumbTextColor !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.shop-inner-cat {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.marketing-table th.ultra-th.pricing-card-active-color .price h1,
+.pricing-table-wrapper
+    .main-table
+    .marketing-table
+    th.ultra-th.pricing-card-active-color
+    .price
+    h3,
+.container
+    .module-pricing-card
+    .pricing-card.pricing-list-new
+    .plan
+    .heading
+    .price
+    .period,
+.container
+    .pricing-card.pricing-list-new
+    .plan.pricing-card-active-color
+    .heading
+    .price
+    .sum,
+.container
+    .module-pricing-card
+    .pricing-card.pricing-list-new
+    .plan
+    .heading
+    p {
+    color: @allFontColor !important;
+}
+
+.categorySideBar .module.module-categories {
+    border-color: @primary !important;
+}
+
+@nexPrevtipbgColor: 000;
+.next-previous-tip-content {
+    background-color: @nexPrevtipbgColor;
+}
+
+.product-sample-hover-right a {
+    border: 1px solid @primary;
+    color: @primary !important;
+}
+
+.copyright-text a {
+    color: @primary !important;
+}
+
+.product-sample-hover-right a:hover {
+    background: @primary !important;
+}
+
+.contact-wrapper-right-content-box-icon {
+    color: @primary !important;
+}
+
+button#to-top {
+    background-color: @primary !important;
+}
+
+.feature-box-image {
+    background: @primary !important;
+}
+
+.mw-shop-checkout-personal-info-holder .btn {
+    background-color: @primary !important;
+    border: 1px solid @primary !important;
+}
+
+.navbar-mobile-member>ul>li.search >button,
+.navbar-mobile-member>ul>li.btn-cart a,
+.navbar-mobile-member>ul>li.btn-member>a{
+    background-color: @primary !important;
+}
+
+.module-pricing-card .modal-content .pricing-card-table-td-info p {
+    color: @primary !important;
+}

@@ -1,0 +1,23 @@
+{
+  "name": "microweber-templates/new-world",
+  "type": "microweber-template",
+  "description": "New World",
+  "keywords": [
+    "microweber",
+    "ecommerce",
+    "bootstrap",
+    "default"
+  ],
+  "homepage": "https://microweber.com/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "MW Team",
+      "email": "contacts@microweber.com"
+    }
+  ],
+  "extra": {
+    "preview_url": "http://templates.microweber.com/new-world/"
+  },
+  "target-dir": "new-world"
+}

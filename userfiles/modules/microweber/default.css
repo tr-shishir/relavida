@@ -1,0 +1,239 @@
+/*
+ * Microweber - Framework
+ *
+ * Default styles
+ *
+ */
+
+@import url("css/ui.css");
+/*
+@import url("../layouts/templates/layouts.css");
+*/
+
+/*@import url("api/libs/mw-ui/grunt/plugins/ui/css/main_with_mw.css");*/
+/*@import url("api/libs/mw-ui/grunt/plugins/ui/css/main_compiled.css");*/
+
+@import url("api/libs/mw-ui/assets/ui/plugins/css/plugins.min.css");
+
+.mw-filepicker-component-section:hover .dro\pable-zone button {
+    text-decoration: underline;
+}
+
+.mw-filepicker-component-section:hover .dropable-zone {
+    border-color: #4592ff;
+    background-color: rgba(69, 146, 255, 0.1);
+}
+
+.mw-uploader-type-holder {
+    position: relative;
+}
+
+.mw-filepicker-root .card-header .dropdown.form-control {
+    width: auto !important;
+}
+
+.mw-filepicker-component-section {
+    /*max-height: 70vh;*/
+    overflow: hidden;
+}
+
+.bootstrap-select .dropdown-menu li {
+    overflow: hidden;
+}
+
+.mw-filepicker-component-section,
+.mw-filepicker-component-section iframe {
+    min-height: 50px;
+
+}
+
+.mw-filepicker-component-navigation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.mw-user-thumb:before {
+    display: inline-block;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    content: "\F0013";
+    font-family: "Material Design Icons";
+}
+
+.mw-user-thumb {
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    display: inline-flex;
+    vertical-align: middle;
+    background-color: #F9F9F9;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    justify-content: center;
+    align-items: center;
+    color: #51acf7;
+    font-size: 30px;
+
+}
+
+
+
+/* Blank Link CLick Disable CSS */
+@media only screen and (min-width: 768px) {
+
+    #main-menu a[href=""],
+    #main-menu a[href="#"],
+    header a[href=""],
+    header a[href="#"],
+    nav a[href=""],
+    nav a[href="#"] {
+        pointer-events: none;
+        /* cursor: no-drop; */
+    }
+
+
+
+    a.dropdown-toggle,
+    #main-menu a.member-nav,
+    nav a.member-nav,
+    header a.member-nav,
+    a.btn-primary,
+    a.member-nav {
+        pointer-events: auto !important;
+    }
+
+    a[href=""].dropdown-toggle.menu_element_link,
+    a[href="#"].dropdown-toggle.menu_element_link,
+    a[href=""][class*="menu-item-parent-"] {
+        pointer-events: none !important;
+    }
+}
+
+.hide {
+    display: none !important;
+}
+
+/* Blank Link CLick Disable CSS End*/
+
+nav a[data-toggle="modal"] {
+    pointer-events: auto !important;
+}
+
+
+
+/**
+    Google SERP Snippet css
+*/
+
+.serpSnippet .snippetContainer {
+	display: block;
+	padding: 12px;
+	border: 2px solid #ccc;
+	margin: 12px;
+	background-color: #fff;
+}
+
+.serpSnippet .snippetContainer {
+	display: block;
+	/* width: 512px; */
+}
+
+.serpSnippet .title {
+	color: rgb(26, 13, 171);
+	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+    font-weight: 600;
+}
+
+
+.serpSnippet .title a {
+	display: block;
+	color: rgb(26, 13, 171);
+	cursor: pointer;
+	display: inline;
+	font-family: arial, sans-serif;
+	font-size: 18px;
+	font-weight: normal;
+	height: auto;
+	line-height: 21.600000381469727px;
+	list-style-image: none;
+	list-style-position: outside;
+	list-style-type: none;
+	text-align: left;
+	text-decoration: none solid rgb(26, 13, 171);
+	visibility: visible;
+	white-space: nowrap;
+	width: auto;
+	zoom: 1;
+}
+
+.serpSnippet .title a:hover {
+	text-decoration: underline;
+}
+
+.serpSnippet .url {
+	display: block;
+	color: rgb(0, 102, 33);
+	font-family: arial, sans-serif;
+	font-size: 13px;
+	font-style: normal;
+	font-weight: normal;
+	height: auto;
+	line-height: 16px;
+	list-style-image: none;
+	list-style-position: outside;
+	list-style-type: none;
+	text-align: left;
+	visibility: visible;
+	white-space: nowrap;
+	width: auto;
+	zoom: 1;
+	height: 16px;
+}
+
+.serpSnippet .description {
+	display: block;
+	color: rgb(84, 84, 84);
+	font-family: arial, sans-serif;
+	font-size: 13px;
+	font-weight: normal;
+	height: auto;
+	line-height: 18.200000762939453px;
+	list-style-image: none;
+	list-style-position: outside;
+	list-style-type: none;
+	text-align: left;
+	visibility: visible;
+	width: auto;
+	word-wrap: break-word;
+	zoom: 1;
+}
+.serpSnippet.desktop .description{
+    height: 36px;
+}
+.serpSnippet.mobile .description{
+    /* height: 56px; */
+}
+.serpSnippet.mobile .title{
+    white-space: break-spaces;
+    max-height: 45px;
+}
+.serpSnippet.mobile .snippetContainer{
+    width: 350px;
+}
+
+/**
+Progress Bar FOr SEO
+*/
+.line_bar{
+height: 5px;
+background: rgba(0,0,0, .1);
+}
+.line_bar .line{
+    height: inherit;
+}

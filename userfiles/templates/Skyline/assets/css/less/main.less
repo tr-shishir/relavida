@@ -1,0 +1,425 @@
+@allFontColor : ~'';
+@productTextFontColor : ~'';
+
+.head-image-layout-2 .mw-image-holder .mw-image-holder-content .content-holder h2,
+.head-image-layout-2 .mw-image-holder .mw-image-holder-content .content-holder h1,
+.nk-contact-info > li > strong,
+.nk-blog-isotope .nk-blog-post .nk-post-date,
+.nk-post-title > a,
+.mw-testimonials-slider-2 p,
+h1.element, h2.element, h3.element, h4.element, h5.element, h6.element, p.element, div.element,
+.display-1, .display-2, .display-3, .display-4,
+.blog-read-more-text span,
+.ab-banner-text p,
+.ab-hero-content-left p,
+.ab-hero-content-left h4,
+.home-banner-content h2,
+.blog-posts .description h3,
+.blog-posts .description, .blog-posts .description p,
+.member-nav-admin > a > span,
+.footer-droptienda p,
+.footer-wrapper p,
+.footer-wrapper h5,
+h1,h2,h3,h4,h5,h6,p,span,td,th,a,
+.footer-wrapper ul li a {
+    color: @allFontColor ;
+}
+body {
+    .text-white {
+        color: @allFontColor !important;
+    }
+}
+.nk-navbar ul > li > a span {
+    color: inherit !important;
+}
+.shop-inner-page .heading h1,
+.shop-inner-page .description p {
+    color: #222222;
+}
+
+
+#live_edit_toolbar_holder h1,
+#live_edit_toolbar_holder h2,
+#live_edit_toolbar_holder h3,
+#live_edit_toolbar_holder h4,
+#live_edit_toolbar_holder h5,
+#live_edit_toolbar_holder h6,
+#live_edit_toolbar_holder p,
+#live_edit_toolbar_holder span,
+#live_edit_toolbar_holder div,
+#live_edit_toolbar_holder td,
+#live_edit_toolbar_holder th,
+#live_edit_toolbar_holder a {
+    color: #222222;
+}
+
+
+.product-info-content h1,.product-info-content p,.product-info-content b, .product-info-content span,
+.product-info-content h1 ,
+.product-price .price span,
+.product-title-wrapper h2,
+.nk-portfolio-list .nk-portfolio-item .nk-portfolio-item-link,
+.product-title h5,.shop-products .product .price span,.product-tax-text .edit,
+.shop-inner-page .mw-price-item-value, .shop-inner-page .mw-price-item-key,
+.shop-inner-page p.labels,
+.shop-inner-page p.labels span,
+.shop-inner-page .heading h1,
+.shop-inner-page .description p {
+    color: @productTextFontColor;
+}
+#mw-notifications-holder div,
+#mw-notifications-holder {
+    color: #fff !important;
+}
+
+.product-info-content {
+    .description {
+        p,
+        ul li,
+        li,
+        div,
+        span {
+            color: @productTextFontColor !important;
+        }
+    }
+    
+}
+
+
+@default: #333;
+@primary: #007bff;
+@menuFontColor: #222;
+@menuFontHoverColor: #222;
+
+@submenuContainerBackground: #fff;
+@submenuColor: #222;
+@submenuHoverColor: #222;
+@submenuItemHoverBg: #969696;
+@menuFontSize: 16px;
+
+@blogImgOpacity: 1;
+@blogInnerImgOpacity: 1;
+@productImgOpacity: 1;
+@productInnerImageOpacity: 1;
+
+@settingsHeaderBg: #4592ff;
+@taxTextColor: #000;
+
+@nexPrevtipbgColor: 000;
+.next-previous-tip-content {
+    background-color: @nexPrevtipbgColor;
+}
+#main-navigation .navbar_hover ul > li:hover > ul,
+.menu-with-description > ul > li > ul.dropdown-menu {
+    background: @submenuContainerBackground !important;
+}
+
+#main-navigation .menu-with-description ul li ul li > a {
+    color: @submenuColor !important;
+}
+
+.nk-navbar #main-navigation .menu-with-description ul li ul li > a:hover {
+    background: @submenuItemHoverBg !important;
+    color: @submenuHoverColor !important;
+}
+#main-navigation ul > li > a,
+.nk-navbar .nk-nav > li > a {
+    color: @menuFontColor !important;
+}
+#main-navigation ul   li   a,
+.nk-navbar .nk-nav li a {
+    font-size: @menuFontSize !important;
+}
+
+#main-navigation ul > li.active > a,
+#main-navigation ul > li > a:hover ,
+.nk-navbar .nk-nav > li.active > a,
+.nk-navbar .nk-nav > li > a:hover {
+    color: @menuFontHoverColor !important;
+}
+
+.mw-testimonials-slider-2.slick-dotted.slick-slider,
+button.nk-btn {
+    background-color: @default !important;
+}
+
+.btn-primary {
+    background-color: @primary !important;
+    border-color: @primary !important;
+}
+
+.mw-dialog-skin-default .mw-dialog-header {
+    background-color: @settingsHeaderBg !important;
+}
+
+.product-tax-text span:nth-child(2) {
+    color: @taxTextColor !important;
+}
+
+.nk-blog-isotope .nk-blog-post .nk-post-thumb img,
+.blog-post-list-thumb {
+    opacity: 0;
+    opacity: @blogImgOpacity !important;
+}
+
+.nk-main .bg-image,
+.bg-image > div,
+.bg-video,
+.bg-video > div {
+    opacity: 0;
+    opacity: @blogInnerImgOpacity !important;
+}
+
+.nk-portfolio-list .nk-portfolio-item div.nk-portfolio-item-image > div {
+    opacity: 0;
+    opacity: @productImgOpacity !important;
+}
+
+.product-gallery-layout-1 .bxslider li img,
+.product-gallery-layout-3 .bxslider li img {
+    opacity: 0;
+    opacity: @productInnerImageOpacity !important;
+}
+
+.nk-navbar .nk-nav li ul.dropdown-menu {
+    background-color: @submenuContainerBackground !important;
+}
+
+.nk-navbar .nk-nav li ul.dropdown-menu li a {
+    color: @submenuColor !important;
+}
+
+.nk-navbar .nk-nav li ul.dropdown-menu li a:hover {
+    color: @submenuHoverColor !important;
+}
+#main-navigation ul li ul li:hover>a,
+.main-menu ul li > ul li:hover>a {
+    background-color: @submenuItemHoverBg !important;
+    color: @submenuHoverColor !important;
+}
+.upselling-item .table thead {
+    background-color: @primary !important;
+}
+
+.mw-shop-checkout-personal-info-holder .btn,
+.discount-button .btn,
+.add-cart-btn {
+    background-color: @primary !important;
+    border-color: @primary !important;
+}
+
+.mw-shop-checkout-personal-info-holder .btn:hover,
+.discount-button .btn:hover,
+.add-cart-btn:hover {
+    background-color: @primary !important;
+    border-color: @primary !important;
+}
+
+.blog-read-more-text {
+    color: @primary !important;
+}
+
+.pagination .page-link {
+    border: 1px solid @primary !important;
+}
+
+.pagination .page-item .page-link:hover,
+.pagination .page-item .page-link:focus {
+    background-color: @primary !important;
+}
+
+.pagination .page-item.active .page-link,
+.pagination .page-item.active .page-link:hover {
+    background-color: @primary !important;
+}
+
+// Category
+@categoryBgColor: #e6e6e6;
+@categoryTextColor: #222;
+@categoryBgHoverColor: #f6f6f6;
+@categoryTextHoverColor: #222;
+
+.categorySideBar .module-categories .well > ul.nav li a {
+    background-color: @categoryBgColor !important;
+    color: @categoryTextColor !important;
+}
+
+.categorySideBar .module-categories .well > ul.nav li a:hover {
+    background-color: @categoryBgHoverColor !important;
+    color: @categoryTextHoverColor !important;
+}
+
+//
+.ordreChat_Modal .modal-header {
+    background: @primary !important;
+}
+
+.ordreChat_Modal .modal-header {
+    border-bottom: 3px solid !important;
+}
+
+.Sentchat_Massage .message.my-message.float-right,
+.getChat_massage .message.my-message.float-right,
+.message.my-message {
+    background: @primary !important;
+}
+
+.message.other-message {
+    background-color: @default !important;
+}
+
+.submitOrderText {
+    background-color: @primary !important;
+    border-color: @primary !important;
+}
+
+#main-navigation ul li ul li > a {
+    color: @primary !important;
+}
+
+@footerMenuColor: #000;
+@footerMenuHoverColor: #000;
+
+.footer-menu ul li a {
+    color: @footerMenuColor !important;
+}
+
+.footer-menu ul li a:hover {
+    color: @footerMenuHoverColor !important;
+}
+
+@searchBoxBg: #fff;
+@searchInputFieldBg: #fff;
+@searchInputFieldColor: #000;
+
+.product-search-box {
+    background-color: @searchBoxBg !important;
+}
+
+.member-nav .search input#productSearchInput,
+select.searchCategoryDropdown,
+span.searchClose,
+.product-search-box button.btn,
+.navbar-mobile-search .product-search-box.mobile-search-box input#productSearchInput {
+    background-color: @searchInputFieldBg !important;
+    color: @searchInputFieldColor !important;
+    border-color: @searchInputFieldColor!important;
+}
+
+@pricingtableHeadingTd: #e2e2e2;
+@pricingtableTd: #fff;
+@pricingtableHeadingTdColor: #6b7177;
+@pricingtableTdColor: #212529;
+@pricingtableHoverBgColor: #f0f1f2;
+
+.marketing-table tr {
+    background: @pricingtableTd !important;
+    color: @pricingtableTdColor !important;
+}
+
+td.pricing-table-heading {
+    background: @pricingtableHeadingTd !important;
+    color: @pricingtableHeadingTdColor !important;
+}
+
+.pricing-card.pricing-list-new .plan.pricing-card-active-color,
+th.ultra-th.pricing-card-active-color {
+    background: @primary !important;
+    box-shadow: 0 8px 32px 0 @primary !important;
+}
+
+.pricing-card.pricing-list-new .plan:hover {
+    background: @primary !important;
+    box-shadow: 0 8px 32px 0 @primary !important;
+}
+
+.readmore-icon > div {
+    border: 1px solid @primary !important;
+    color: @primary !important;
+    box-shadow: 0 0 4px 0px @primary !important;
+}
+
+.readmore-icon > div:hover {
+    background: @primary !important;
+    color: #fff !important;
+}
+
+.btn-outline-primary {
+    color: @primary !important;
+    border-color: @primary !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: @primary !important;
+    border-color: @primary !important;
+    color: #fff !important;
+}
+
+.pricing-card.pricing-list-new
+    .plan.pricing-card-active-color
+    .button-holder
+    .btn {
+    border-color: @primary !important;
+}
+
+table.marketing-table tr:hover {
+    background: @pricingtableHoverBgColor !important;
+}
+
+th.ultra-th.pricing-card-active-color {
+    border-color: @primary !important;
+}
+
+.next-content,
+.prev-content {
+    border: 1px solid @primary !important;
+    color: @primary !important;
+}
+
+@breadcumbHyperlinkColor: #007bff;
+@breadcumbTextColor: #6c757d;
+
+.breadcrumb-item a {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.breadcrumb-item.active {
+    color: @breadcumbTextColor !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.shop-inner-cat {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+
+
+
+
+.nk-blog-post-single .nk-post-category, .nk-blog-post-single .nk-post-comments-count, .nk-blog-post-single .nk-post-date {
+    color: @allFontColor;
+}
+.mw-testimonials-slider-2 .mw-testimonials-item h5,
+.mw-testimonials-slider-2 p {
+    color: @allFontColor !important;
+}
+
+
+@headerButtonColor:#ccc;
+
+.btn-search,
+.member-nav .btn-cart,
+.btn-member,
+.navbar-mobile-member>ul>li.search >button,
+.navbar-mobile-member>ul>li.btn-cart a,
+.navbar-mobile-member>ul>li.btn-member>a{
+    border-color:@headerButtonColor !important;
+}
+
+
+.module-pricing-card .modal-content .pricing-card-table-td-info p {
+    color: @primary !important;
+}

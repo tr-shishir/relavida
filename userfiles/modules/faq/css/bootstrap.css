@@ -1,0 +1,83 @@
+.faq-holder.bootstrap h3 {
+    font-size: 22px;
+    color: #505050;
+    text-align: center;
+}
+
+.faq-holder.bootstrap .panel-heading [data-toggle="collapse"]:after {
+    font-family: 'FontAwesome';
+    content: "\f078"; /* "play" icon */
+    float: right;
+    color: #F58723;
+    font-size: 18px;
+    line-height: 22px;
+    /* rotate "play" icon from > (right arrow) to down arrow */
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-180deg);
+}
+
+.faq-holder.bootstrap .panel-heading [data-toggle="collapse"].collapsed:after {
+    /* rotate "play" icon from > (right arrow) to ^ (up arrow) */
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+    color: #454444;
+}
+
+/* new */
+#accordion {
+    display: block;
+    width: 100%;
+}
+
+.faq-card {
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.faq-card .btn-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left !important;
+    transition: 0.3s;
+}
+
+.btn-link:hover {
+    text-decoration: none !important;
+}
+
+.faq-card .btn-link {
+    color: #000 !important;
+}
+
+.faq-card .card-header {
+    padding: 0 0 !important;
+    transition: 0.3s;
+}
+
+
+.faq-card .card-header:hover,
+.faq-card .card-header.active,
+.faq-card .card-header.active:hover{
+    background: #4592ff;
+}
+
+.faq-card .card-header:hover .btn-link {
+    color: #fff !important;
+}
+
+.faq-card .btn-link.focus, .btn-link:focus {
+    text-decoration: none !important;
+}
+
+.faq-card .btn-link:not(.collapsed) {
+    color: #fff !important;
+    background-color: #4592ff;
+}
+

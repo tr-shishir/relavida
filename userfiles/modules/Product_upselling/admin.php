@@ -1,0 +1,1 @@
+<h1>Admin part my module</h1>

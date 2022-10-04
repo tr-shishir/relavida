@@ -1,0 +1,459 @@
+@import "vars";
+@import url("https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i&display=swap");
+
+
+
+@allFontColor : ~'';
+@productTextFontColor : ~'';
+
+.price-on-req .product-cart-icon {
+    color: @productTextFontColor; 
+}
+.shop-products.home-shop .single-product .product-price .product-cart-btn .price-on-req button.btn.btn-product.product-cart-icon:hover {
+    border-color: @productTextFontColor !important;
+}
+.blog-read-more-text span,
+.ab-banner-text p,
+.ab-hero-content-left p,
+.ab-hero-content-left h4,
+.home-banner-content h2,
+.blog-posts .description h3,
+.blog-posts .description, .blog-posts .description p,
+.member-nav-admin > a > span,
+.footer-droptienda p,
+.footer-wrapper p,
+.footer-wrapper h5,
+h1,h2,h3,h4,h5,h6,p,span,td,th,a,
+.footer-wrapper ul li a {
+    color: @allFontColor ;
+}
+
+
+.hit-product-name a,
+.product-info-content,
+.product-info-content h1,
+.product-info-content h2,
+.product-info-content h3,
+.product-info-content h4,
+.product-info-content h5,
+.product-info-content h6,
+.product-info-content p,
+.product-info-content span,
+.product-info-content div,
+.product-info-content a,
+.shop-inner-page .heading h1,
+.shop-inner-page .description p { 
+    color: #222222;
+}
+.product-info-content {
+    .description {
+        p,
+        ul li,
+        li,
+        div,
+        span {
+            color: @productTextFontColor !important;
+        }
+    }
+    
+}
+
+#live_edit_toolbar_holder h1,
+#live_edit_toolbar_holder h2,
+#live_edit_toolbar_holder h3,
+#live_edit_toolbar_holder h4,
+#live_edit_toolbar_holder h5,
+#live_edit_toolbar_holder h6,
+#live_edit_toolbar_holder p,
+#live_edit_toolbar_holder span,
+#live_edit_toolbar_holder div,
+#live_edit_toolbar_holder td,
+#live_edit_toolbar_holder th,
+#live_edit_toolbar_holder a {
+    color: #222222;
+}
+
+
+.product-title h5,.shop-products .product .price span,.product-tax-text .edit,
+.shop-inner-page .mw-price-item-value, .shop-inner-page .mw-price-item-key,
+.shop-inner-page p.labels,
+.shop-inner-page p.labels span,
+.hit-product-name a,
+.product-info-content,
+.product-info-content h1,
+.product-info-content h2,
+.product-info-content h3,
+.product-info-content h4,
+.product-info-content h5,
+.product-info-content h6,
+.product-info-content p,
+.product-info-content span,
+.product-info-content div,
+.product-info-content a,
+.shop-inner-page .heading h1,
+.shop-inner-page .description p {
+    color: @productTextFontColor;
+}
+#mw-notifications-holder div,
+#mw-notifications-holder {
+    color: #fff !important;
+}
+
+
+@nexPrevtipbgColor: 000;
+.next-previous-tip-content {
+    background-color: @nexPrevtipbgColor;
+}
+
+
+body {
+    font-family: @fontFamily;
+    outline: none !important;
+}
+
+// @default: #000000;
+@primary: #408bd1;
+
+.btn-primary {
+    background: @primary !important;
+    border: 1px solid @primary !important;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.mw-shop-checkout-payments-holder a.btn,
+.btn-default,
+.mw-shop-checkout-personal-info-holder .btn,
+.discount-button .btn {
+    background: @primary !important;
+    border: 1px solid @primary !important;
+}
+
+// .owl-nav button span {
+//   background:  @primary !important;
+// }
+.footer-droptienda p a {
+    color: @primary !important;
+}
+
+// Menu
+@menuTextColor: #fff;
+@menuTextHoverColor: #fff;
+@menuTextSize: 14px;
+.offCanvasNav .offCanvas-menu-row .raising-main-menu ul li a span,
+.offCanvasNav .offCanvas-menu-row .raising-main-menu ul li a,
+.offCanvasNav
+    .offCanvas-menu-row
+    .ofcanvas-menu-left
+    .raising-category-menu
+    .module-categories
+    .well
+    .nav
+    li
+    a,
+.offCanvasNav
+    .offCanvas-menu-row
+    .ofcanvas-menu-left
+    .raising-category-menu
+    .module-categories
+    .well
+    .nav
+    li
+    span.subMenuToggle:before {
+    color: @menuTextColor !important;
+    font-size: @menuTextSize !important;
+}
+
+.offCanvasNav .offCanvas-menu-row .raising-main-menu ul li a:hover,
+.offCanvasNav .offCanvas-menu-row .ofcanvas-menu-left .raising-category-menu .module-categories .well .nav li a:hover {
+    color: @menuTextHoverColor !important;
+}
+
+.raising-main-menu ul.menu-root > li:before,
+.raising-category-menu ul.nav.nav-list li:before {
+    color: @menuTextColor !important;
+}
+// Category
+@categoryBgColor: #d5ecff;
+@categoryBgHoverColor: #bde1ff;
+@categoryTextColor: #696969;
+@categoryTextHoverColor: #696969;
+
+.categorySideBar .module-categories .well ul.nav li a {
+    background-color: @categoryBgColor !important;
+    color: @categoryTextColor !important;
+}
+
+.categorySideBar .module-categories .well ul.nav li a:hover {
+    background-color: @categoryBgHoverColor !important;
+    color: @categoryTextHoverColor !important;
+}
+
+// Settings modules header
+@settingsHeaderBg: #4592ff;
+@taxTextColor: #000;
+
+.mw-dialog-skin-default .mw-dialog-header {
+    background-color: @settingsHeaderBg;
+}
+
+// Tax text color
+.product-tax-text span:last-child {
+    color: @taxTextColor !important;
+}
+
+.pagination .page-item .page-link {
+    border: 1px solid @primary !important;
+}
+
+.pagination .page-item .page-link:hover,
+.pagination .page-item .page-link:focus {
+    background-color: @primary !important;
+    border: 1px solid @primary !important;
+}
+
+.pagination .page-item.active .page-link,
+.pagination .page-item.active .page-link:hover {
+    background-color: @primary !important;
+    border: 1px solid @primary !important;
+}
+
+.price .table thead {
+    background: @primary !important;
+}
+
+.faq-card .btn-link:not(.collapsed) {
+    background-color: @primary !important;
+}
+
+.faq-card .card-header:hover,
+.faq-card .card-header.active,
+.faq-card .card-header.active:hover {
+    background: @primary !important;
+}
+
+.blog-read-more-text span {
+    color: @primary !important;
+}
+
+span.clikExpandBtn {
+    color: @categoryTextColor !important;
+    border-color: @categoryTextColor !important;
+}
+
+.categorySideBar .module-categories .well ul.nav li:hover > span.clikExpandBtn {
+    color: @categoryTextHoverColor !important;
+    border-color: @categoryTextHoverColor !important;
+}
+
+//
+.ordreChat_Modal .modal-header {
+    background: @primary !important;
+}
+
+.ordreChat_Modal .modal-header {
+    border-bottom: 3px solid !important;
+}
+
+.Sentchat_Massage .message.my-message.float-right,
+.getChat_massage .message.my-message.float-right,
+.message.my-message {
+    background: @primary !important;
+}
+
+.message.other-message {
+    background-color: #000000 !important;
+}
+
+.submitOrderText {
+    background-color: @primary !important;
+    border-color: @primary !important;
+}
+
+@blogImgOpacity: 1;
+@blogInnerImgOpacity: 1;
+@productImgOpacity: 1;
+@productInnerImageOpacity: 1;
+
+.blog-posts .post .image {
+    opacity: 0;
+    opacity: @blogImgOpacity !important;
+}
+
+.blog-inner-page img {
+    opacity: 0;
+    opacity: @blogInnerImgOpacity !important;
+}
+
+.product-thumb img,
+.hit-product-img img {
+    opacity: 0;
+    opacity: @productImgOpacity !important;
+}
+
+.shop-inner-page img {
+    opacity: 0;
+    opacity: @productInnerImageOpacity !important;
+}
+
+.product-cart-icon,
+.product-quickcheckout-icon {
+    border: 1px solid @primary !important;
+}
+
+.product-cart-icon:hover,
+.product-quickcheckout-icon:hover {
+    border: 1px solid @primary !important;
+}
+
+.item-cart-button .btn-default {
+    background-color: @primary !important;
+    border: 1px solid @primary !important;
+}
+
+@offCanvasMenuLeftBg: #000000;
+@offCanvasMenuRightBg: #111111;
+
+.offCanvasNav {
+    background-image: linear-gradient(
+        90deg,
+        @offCanvasMenuLeftBg 50%,
+        @offCanvasMenuRightBg 50%
+    ) !important;
+}
+
+@media(max-width: 1089px){
+    .offCanvasNav {
+        background-image: linear-gradient(
+            90deg,
+            @offCanvasMenuLeftBg 50%,
+            @offCanvasMenuLeftBg 50%
+        ) !important;
+    }
+    .offCanvasNav {
+        background:  @offCanvasMenuLeftBg !important;
+    }
+}
+
+@footerMenuColor: #666;
+@footerMenuHoverColor: #232323;
+
+#footer_menu ul li a {
+    color: @footerMenuColor !important;
+}
+
+#footer_menu ul li a:hover {
+    color: @footerMenuHoverColor !important;
+}
+
+@searchBoxColor: #c0c0c0;
+
+.product-search-box {
+    border-bottom: 1px solid @searchBoxColor !important;
+}
+
+.product-search-box select#category_list {
+    border-right: 1px solid @searchBoxColor !important;
+}
+
+.product-search-box button.btn,
+.product-search-box input#productSearchInput,
+.product-search-box input#productSearchInput::placeholder,
+.product-search-box select#category_list {
+    color: @searchBoxColor !important;
+}
+
+@pricingtableHeadingTd: #e2e2e2;
+@pricingtableTd: #fff;
+@pricingtableHeadingTdColor: #6b7177;
+@pricingtableTdColor: #212529;
+@pricingtableHoverBgColor: #f0f1f2;
+
+.marketing-table tr {
+    background: @pricingtableTd !important;
+    color: @pricingtableTdColor !important;
+}
+
+td.pricing-table-heading {
+    background: @pricingtableHeadingTd !important;
+    color: @pricingtableHeadingTdColor !important;
+}
+
+.pricing-card.pricing-list-new .plan.pricing-card-active-color,
+th.ultra-th.pricing-card-active-color {
+    background: @primary !important;
+    box-shadow: 0 8px 32px 0 @primary !important;
+}
+
+.pricing-card.pricing-list-new .plan:hover {
+    background: @primary !important;
+    box-shadow: 0 8px 32px 0 @primary !important;
+}
+
+.readmore-icon > div {
+    border: 1px solid @primary !important;
+    color: @primary !important;
+    box-shadow: 0 0 4px 0px @primary !important;
+}
+
+.readmore-icon > div:hover {
+    background: @primary !important;
+    color: #fff !important;
+}
+
+.btn-outline-primary {
+    color: @primary !important;
+    border-color: @primary !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: @primary !important;
+    border-color: @primary !important;
+    color: #fff !important;
+}
+
+.pricing-card.pricing-list-new
+    .plan.pricing-card-active-color
+    .button-holder
+    .btn {
+    border-color: @primary !important;
+}
+
+table.marketing-table tr:hover {
+    background: @pricingtableHoverBgColor !important;
+}
+
+th.ultra-th.pricing-card-active-color {
+    border-color: @primary !important;
+}
+
+.next-content,
+.prev-content {
+    border: 1px solid @primary !important;
+    color: @primary !important;
+}
+
+.offCanvasNav .raising-menu-social ul li a {
+    background: @primary !important;
+}
+
+.breadcrumb-item a {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.breadcrumb-item.active {
+    color: @breadcumbTextColor !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.shop-inner-cat {
+    color: @breadcumbHyperlinkColor !important;
+}
+
+.module-pricing-card .modal-content .pricing-card-table-td-info p {
+    color: @primary !important;
+}

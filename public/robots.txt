@@ -1,0 +1,2 @@
+# disallow the directories
+User-agent: Googlebot-Image

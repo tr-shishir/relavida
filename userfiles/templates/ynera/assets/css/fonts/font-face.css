@@ -1,0 +1,360 @@
+@font-face {
+    font-family: 'azo_sansregular';
+    src: url('rui_abreu_-_azosans-regular-webfont.woff2') format('woff2'),
+         url('rui_abreu_-_azosans-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  
+  }
+  
+  @font-face {
+    font-family: 'azo_sansbold';
+    src: url('rui_abreu_-_azosans-bold-webfont.woff2') format('woff2'),
+         url('rui_abreu_-_azosans-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  
+  }
+  
+  @font-face {
+    font-family: 'azo_sansthin';
+    src: url('rui_abreu_-_azosans-thin-webfont.woff2') format('woff2'),
+         url('rui_abreu_-_azosans-thin-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  
+  }
+
+
+
+@font-face {
+  font-family: 'icomoon';
+  src:  url('roomIcon.eot?5wcbp5');
+  src:  url('roomIcon.eot?5wcbp5#iefix') format('embedded-opentype'),
+    url('roomIcon.ttf?5wcbp5') format('truetype'),
+    url('roomIcon.woff?5wcbp5') format('woff'),
+    url('roomIcon.svg?5wcbp5#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-impArrow:before {
+  content: "\e903";
+}
+.icon-sofa:before {
+  content: "\e902";
+}
+.icon-bed:before {
+  content: "\e900";
+}
+.icon-bath:before {
+  content: "\e901";
+}
+
+
+
+
+@font-face {
+  font-family: 'icons';
+  src: url('icons.eot');
+  src: url('icons.eot?#iefix') format('embedded-opentype'), 
+  url('icons.woff') format('woff'), 
+  url('icons.ttf') format('truetype'), 
+  url('icons.svg#icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class*='i-']:before {
+  display: inline-block;
+  font-family: 'icons';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.i-plus:before {
+  content: '\0041';
+}
+
+.i-previous:before {
+  content: '\0042';
+}
+
+.i-print:before {
+  content: '\0043';
+}
+
+.i-register:before {
+  content: '\0044';
+}
+
+.i-save:before {
+  content: '\0045';
+}
+
+.i-share:before {
+  content: '\0046';
+}
+
+.i-speak:before {
+  content: '\0047';
+}
+
+.i-star:before {
+  content: '\0048';
+}
+
+.i-streetview:before {
+  content: '\0049';
+}
+
+.i-twitter:before {
+  content: '\004A';
+}
+
+.i-arrange:before {
+  content: '\004B';
+}
+
+.i-brochure:before {
+  content: '\004C';
+}
+
+.i-close:before {
+  content: '\004D';
+}
+
+.i-email:before {
+  content: '\004E';
+}
+
+.i-epc:before {
+  content: '\004F';
+}
+
+.i-fb:before {
+  content: '\0050';
+}
+
+.i-floorplan:before {
+  content: '\0051';
+}
+
+.i-home:before {
+  content: '\0052';
+}
+
+.i-location:before {
+  content: '\0053';
+}
+
+.i-news:before {
+  content: '\0054';
+}
+
+.i-next:before {
+  content: '\0055';
+}
+
+
+/*! css/ff460897-def9-493a-a31f-b99d39c3c8b0/1.0.0.95/tweb-affiliates.less */
+/*! assets/2047/afp/css/ff460897-def9-493a-a31f-b99d39c3c8b0/1.0.0.95/tweb-affiliates.less */
+@font-face {
+  font-family: 'Affiliates';
+  src: url('Affiliates.eot?uovn7w');
+  src: url('Affiliates.eot?uovn7w#iefix') format('embedded-opentype'), 
+  url('Affiliates.ttf?uovn7w') format('truetype'), 
+  url('Affiliates.woff?uovn7w') format('woff'), 
+  url('Affiliates.svg?uovn7w#Affiliates') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+[class^="tweb-"],
+[class*=" tweb-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'Affiliates' !important;
+  speak: none;
+  font-size: 44px;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.tweb-helpToBuy-aff:before {
+  content: "\e90f";
+}
+.tweb-PICMP-aff:before {
+  content: "\e90d";
+}
+.tweb-homeLet-aff:before {
+  content: "\e90e";
+}
+.tweb-PRSaccreditation-aff:before {
+  content: "\e90c";
+}
+.tweb-TSI-AC-aff:before {
+  content: "\e90b";
+}
+.tweb-CLA-aff:before {
+  content: "\e90a";
+}
+.tweb-SCSI-aff:before {
+  content: "\e908";
+}
+.tweb-IPAV-aff:before {
+  content: "\e909";
+}
+.tweb-irpm-aff:before {
+  content: "\e907";
+}
+.tweb-guild2017-aff:before {
+  content: "\e905";
+}
+.tweb-ombudsman-aff:before {
+  content: "\e906";
+}
+.tweb-propertylink-aff:before {
+  content: "\e904";
+}
+.tweb-letrisks-aff:before {
+  content: "\e903";
+}
+.tweb-NFOPP-aff:before {
+  content: "\e902";
+}
+.tweb-rightmove-aff:before {
+  content: "\e901";
+}
+.tweb-StuRents-aff:before {
+  content: "\e900";
+}
+.tweb-afs-aff:before {
+  content: "\e910";
+}
+.tweb-sheffieldchamber-aff:before {
+  content: "\e912";
+}
+.tweb-ARMA-aff:before {
+  content: "\e913";
+}
+.tweb-agenttracker-aff:before {
+  content: "\e914";
+}
+.tweb-cmp-aff:before {
+  content: "\e915";
+}
+.tweb-relocationagent-aff:before {
+  content: "\e916";
+}
+.tweb-londonrentalstandardtransparentbackground-aff:before {
+  content: "\e917";
+}
+.tweb-primelocation2-aff:before {
+  content: "\e801";
+}
+.tweb-ukala-aff:before {
+  content: "\e800";
+}
+.tweb-naeamember-aff:before {
+  content: "\e606";
+}
+.tweb-ts-aff:before {
+  content: "\e60d";
+}
+.tweb-gumtree-aff:before {
+  content: "\e60e";
+}
+.tweb-arlamember-aff:before {
+  content: "\e604";
+}
+.tweb-nalslicensed-aff:before {
+  content: "\e68f";
+}
+.tweb-onthemarket-aff:before {
+  content: "\e690";
+}
+.tweb-tdsmember-aff:before {
+  content: "\e691";
+}
+.tweb-tpocommercial-aff:before {
+  content: "\e602";
+}
+.tweb-tpolettings-aff:before {
+  content: "\e603";
+}
+.tweb-zoopla-aff:before {
+  content: "\e600";
+}
+.tweb-tpo-aff:before {
+  content: "\e601";
+}
+.tweb-tds-aff:before {
+  content: "\e65b";
+}
+.tweb-safeagent-aff:before {
+  content: "\e65c";
+}
+.tweb-rics-aff:before {
+  content: "\e65e";
+}
+.tweb-prs-aff:before {
+  content: "\e65f";
+}
+.tweb-nla-aff:before {
+  content: "\e661";
+}
+.tweb-nals-aff:before {
+  content: "\e662";
+}
+.tweb-naea-aff:before {
+  content: "\e663";
+}
+.tweb-mydeposits-aff:before {
+  content: "\e664";
+}
+.tweb-movewithus-aff:before {
+  content: "\e665";
+}
+.tweb-findaproperty-aff:before {
+  content: "\e666";
+}
+.tweb-dps-aff:before {
+  content: "\e667";
+}
+.tweb-arla-aff:before {
+  content: "\e668";
+}
+.tweb-allagents-aff:before {
+  content: "\e669";
+}
+
+
+
+:root{
+    --ff-primary-regular: 'azo_sansregular';
+    --ff-primary-bold: 'azo_sansbold';
+    --ff-primary-thin: 'azo_sansthin';
+}
+

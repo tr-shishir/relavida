@@ -1,0 +1,34 @@
+.services-layout-1 i {
+    color: #f79d17;
+}
+
+.services-layout-2 i {
+    color: #f79d17;
+}
+
+.services-layout-2 .btn-default,
+.services-layout-2 .btn-default:hover {
+    color: #f79d17;
+}
+
+.cards-layout-1 .cards .card .icon-wrapper {
+    border: 2px solid #f9a011;
+    color: #f9a011;
+}
+
+.cards-layout-1 .cards .card:hover .icon-wrapper {
+    color: #fff;
+}
+
+.cards-layout-1 .cards .card .btn-primary {
+    background: #f9a011;
+    border: #f9a011;
+}
+
+.cards-layout-1 .cards .card:hover .card-title {
+    color: #f9a011;
+}
+
+.cards-layout-1 .cards .card:hover .icon-wrapper {
+    background: #f9a011;
+}

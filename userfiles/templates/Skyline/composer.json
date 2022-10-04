@@ -1,0 +1,21 @@
+{
+  "name": "microweber/template-snow",
+  "type": "microweber-template",
+  "description": "Snow",
+  "keywords": [
+    "microweber",
+    "ecommerce"
+  ],
+  "homepage": "https://microweber.org/templates/microweber/template-snow",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "MW Team",
+      "email": "contacts@microweber.com"
+    }
+  ],
+  "target-dir": "snow",
+  "extra": {
+    "preview_url": "https://templates.microweber.com/snow/"
+  }
+}

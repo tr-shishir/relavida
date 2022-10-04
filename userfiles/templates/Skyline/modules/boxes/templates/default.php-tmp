@@ -1,0 +1,49 @@
+<?php
+/*
+type: layout
+name: Panels
+description: Panels
+ */
+
+?>
+<link rel="stylesheet" href="<?php print$config['url_to_module'];?>templates/assets/icon-fonts/font-awesome-4.2.0/css/font-awesome.min.css" >
+<link rel="stylesheet" href="<?php print$config['url_to_module'];?>templates/assets/bootstrap-iconpicker/css/bootstrap-iconpicker.min.css" >
+
+<script src="<?php print$config['url_to_module'];?>templates/assets/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+<script src="<?php print$config['url_to_module'];?>templates/assets/bootstrap-iconpicker/js/iconset/iconset-fontawesome-4.2.0.min.js"></script>
+<script src="<?php print$config['url_to_module'];?>templates/assets/bootstrap-iconpicker/js/bootstrap-iconpicker.min.js"></script>
+<?php $color = get_option('color', $params['id']);?>
+<div class="panel panel-<?php print$color;?> edit" field="panel<?php print$params['id'];?>" rel="panel<?php print$params['id'];?>">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="iconfeature-holder mw-icon-truck mw-icon-changeble"></i> Default Panel</h3>
+    </div>
+<button class="btn btn-default" role="iconpicker"></button>
+    <div class="panel-body">
+    <h4>Default Panel</h4>
+        <p>At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
+    </div>
+</div>
+        <div class="mw-row text-center">
+              <div class="mw-col" style="width: 33.333%">
+                <div class="mw-col-container">
+                    <p class="iconfeature-holder mw-icon-truck mw-icon-changeble">&nbsp;
+                    </p>
+                    <h4>Free Shipping</h4>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nisi augue, tempus sed pellentesque in, posuere id tortor. Vestibulum ultrices nunc pretium.</p>
+                </div>
+              </div>
+              <div class="mw-col" style="width: 33.333%">
+                <div class="mw-col-container">
+                        <p class="iconfeature-holder mw-icon-users mw-icon-changeble">&nbsp; </p>
+                    <h4>Customer service</h4>
+                    <p>Phasellus in dignissim urna, sed ornare nisi. Nam molestie velit at imperdiet aliquam. Etiam sit amet erat vitae ex maximus pulvinar.</p>
+                </div>
+              </div>
+              <div class="mw-col" style="width: 33.333%">
+                <div class="mw-col-container">
+                    <p class="iconfeature-holder mw-icon-product mw-icon-changeble">&nbsp; </p>
+                    <h4>Shop Now</h4>
+                    <p>Vivamus venenatis sem nulla, sed ullamcorper massa posuere at. Donec quis sapien semper nunc lobortis feugiat. Curabitur accumsan, nisi et ultrices.</p>
+                </div>
+              </div>
+            </div>

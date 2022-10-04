@@ -1,0 +1,42 @@
+
+<link rel="stylesheet" href="<?php print$config['url_to_module'];?>templates/assets/bootstrap-3.2.0/css/bootstrap.min.css" >
+<link rel="stylesheet" href="<?php print$config['url_to_module'];?>templates/assets/icon-fonts/font-awesome-4.2.0/css/font-awesome.min.css" >
+<link rel="stylesheet" href="<?php print$config['url_to_module'];?>templates/assets/bootstrap-iconpicker/css/bootstrap-iconpicker.min.css" >
+
+<script src="<?php print$config['url_to_module'];?>templates/assets/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+<script src="<?php print$config['url_to_module'];?>templates/assets/bootstrap-iconpicker/js/iconset/iconset-fontawesome-4.2.0.min.js"></script>
+<script src="<?php print$config['url_to_module'];?>templates/assets/bootstrap-iconpicker/js/bootstrap-iconpicker.min.js"></script>
+<?php
+
+$color = get_option('color', $params['id']);
+$icon  = get_option('icon', $params['id']);
+
+?>
+<script>mw.lib.require('bootstrap3');</script>
+<div class="mw-row tab mw-ui-box mw-ui-box-content">
+    <label> Choose color:  </label>
+    <select name="color" class="mw-ui-field mw-ui-field-medium mw_option_field">
+
+        <option value="default-dark">Default Dark</option>
+        <option value="light">Default Light</option>
+        <option value="grey">Grey</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="turquoise ">Turquoise</option>
+        <option value="green">Green</option>
+        <option value="orange">Orange </option>
+        <option value="yellow">Yellow  </option>
+        <option value="dark">Dark</option>
+        <option value="purple">Purple</option>
+        <option value="aqua">Aqua</option>
+        <option value="brown">Brown</option>
+        <option value="dark-blue">Dark Blue</option>
+        <option value="light-green">Light Green</option>
+        <option value="info">Info</option>
+        <option value="warning">Warning</option>
+        <option value="danger">Danger</option>
+        <option value="success">Success</option>
+    </select>
+    <label>Pick an icon: </label>
+    <button class="btn btn-default" name="icon" data-icon="glyphicon-camera" data-iconset="glyphicon|iconset" role="iconpicker"></button>
+</div>

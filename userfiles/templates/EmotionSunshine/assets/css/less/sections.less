@@ -1,0 +1,723 @@
+@import "vars";
+
+/* *******************************************
+ ************** Section ************** *
+ ******************************************* */
+
+.section {
+  min-height: 100px;
+  padding: 30px 0;
+}
+
+/* *******************************************
+ ************** Section 2 ************** *
+ ******************************************* */
+
+.section-2 {
+  min-height: 100px;
+  padding: 30px 0;
+
+  h1,
+  h2,
+  h3 {
+    font-size: @title-lg;
+    color: @textLight;
+    font-weight: 500;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-md;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-sm;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-xs;
+    color: @textLight;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: @textLight;
+    margin-bottom: 20px;
+    font-weight: 300;
+    font-size: @paragraph-md;
+    line-height: 1.9;
+  }
+
+  @media screen and (max-width: 991px) {
+    .slider-wrapper {
+      max-width: 100%;
+    }
+
+  }
+}
+
+.section-2.inverse {
+
+  h1,
+  h2,
+  h3 {
+    color: @textDark;
+  }
+
+  h4,
+  h5,
+  h6 {
+    color: @textDark;
+  }
+
+  p, a {
+    color: @textDark;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+/* *******************************************
+ ************** Section 3 ************** *
+ ******************************************* */
+
+.section-3 {
+  padding: 30px 0;
+
+  .container {
+    max-width: 1100px;
+    text-align: center;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: @title-lg;
+    color: @textDark;
+    font-weight: 600;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-lg;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-md;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-xs;
+    color: @textDark;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: @paragraph-xl;
+    color: @textDark;
+    margin-bottom: 10px;
+    font-weight: 300;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @paragraph-lg;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @paragraph-md;
+    }
+  }
+}
+
+.section-3.bg-pink {
+  background: #fffae9;
+}
+
+/* *******************************************
+ ************** Section 4 ************** *
+ ******************************************* */
+
+.section-4 {
+  min-height: 100px;
+  padding: 30px 0;
+
+  .container {
+    padding: 0 10%;
+    text-align: center;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: @title-lg;
+    color: @textLight;
+    font-weight: 500;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-md;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-sm;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-md;
+    color: @textLight;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: @textLight;
+    margin-bottom: 10px;
+    font-weight: 300;
+    font-size: @paragraph-md;
+  }
+
+  @media screen and (max-width: 991px) {
+    .slider-wrapper {
+      max-width: 100%;
+    }
+
+  }
+}
+
+.section-4.inverse {
+
+  h1,
+  h2,
+  h3 {
+    color: @textDark;
+    font-weight: 600;
+  }
+
+  h4,
+  h5,
+  h6 {
+    color: @textDark;
+  }
+
+  p {
+    color: @grey;
+    font-weight: 500;
+  }
+}
+
+/* *******************************************
+ ************** Section 5 ************** *
+ ******************************************* */
+
+.section-5 {
+
+}
+
+/* *******************************************
+ ************** Section 6 ************** *
+ ******************************************* */
+
+.section-6 {
+  min-height: 100vh;
+  background-color: @default;
+
+  .container {
+    text-align: center;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: @title-xl;
+    color: @textLight;
+    letter-spacing: @title-md-ls;
+    font-weight: 600;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-lg;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-md;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-xs;
+    color: @textLight;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: @paragraph-lg;
+    color: @textLight;
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+
+}
+
+.section-6.h-third {
+  min-height: 33vh;
+}
+
+.section-6.h-half {
+  min-height: 50vh;
+}
+
+.section-6.inverse {
+  h1,
+  h2,
+  h3 {
+    color: @textDark;
+  }
+
+  h4,
+  h5,
+  h6 {
+    color: @textDark;
+  }
+
+  p {
+    color: @textDark;
+  }
+}
+
+/* *******************************************
+ ************** Section 7 ************** *
+ ******************************************* */
+
+.section-7 {
+  padding: 30px 0 0 0;
+  background: #fefff3;
+
+  @media screen and (max-width: 991px) {
+    min-height: 75vh;
+  }
+
+  @media screen and (min-width: 992px) {
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: @title-xl;
+    color: @textDark;
+    font-weight: 600;
+    margin-bottom: 30px;
+    letter-spacing: @title-sm-ls;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-lg;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-md;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-xs;
+    color: @textDark;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: @textDark;
+    margin-bottom: 10px;
+    font-size: @paragraph-lg;
+    font-weight: 500;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @paragraph-md;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @paragraph-sm;
+    }
+  }
+
+  .arrow-down {
+    color: @textDark;
+    font-size: 45px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .arrow-down i {
+    font-size: 45px;
+    font-weight: bold;
+  }
+}
+
+/* *******************************************
+ ************** Section 8 ************** *
+ ******************************************* */
+
+.section-8 {
+  background: @default;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: @title-lg;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: @textDark;
+  }
+
+  p {
+    font-size: @paragraph-md;
+    margin-bottom: 35px;
+    color: @textDark;
+  }
+
+  p.lead {
+    font-size: @paragraph-lg;
+    margin-bottom: 35px;
+    color: @textDark;
+  }
+
+  .left-side {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    vertical-align: middle;
+  }
+
+  .right-side {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    vertical-align: middle;
+    padding: 0;
+
+    padding-top: 30%;
+    -webkit-background-size: cover;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+  }
+
+  /*
+  .right-side > div {
+    width: 100%;
+    height: 100%;
+  }
+  */
+
+  @media screen and (max-width: 991px) {
+    .right-side {
+      min-height: 400px;
+    }
+  }
+
+}
+
+/* *******************************************
+ ************** Section 9 ************** *
+ ******************************************* */
+
+.section-9 {
+  h1,
+  h2,
+  h3 {
+    font-size: @title-lg;
+    color: @textDark;
+    font-weight: 600;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-lg;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-md;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-xs;
+    color: @textDark;
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: @textDark;
+    margin-bottom: 5px;
+    font-size: @paragraph-lg;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+}
+
+/* *******************************************
+ ************** Section 10 ************** *
+ ******************************************* */
+
+.section-10 {
+
+}
+
+/* *******************************************
+ ************** Section 11 ************** *
+ ******************************************* */
+
+.section-11 {
+
+}
+
+/* *******************************************
+ ************** Section 12 ************** *
+ ******************************************* */
+
+.section-12 {
+
+}
+
+/* *******************************************
+ ************** Section 13 ************** *
+ ******************************************* */
+
+.section-13 {
+  padding: 30px 0;
+  text-align: center;
+
+  h1,
+  h2,
+  h3 {
+    font-size: @title-lg;
+    color: @textDark;
+    font-weight: 600;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-lg;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-md;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-xs;
+    color: @textDark;
+    font-weight: 500;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: @textDark;
+    margin-bottom: 10px;
+    font-size: @paragraph-md;
+    line-height: 1.7;
+    font-weight: 500;
+  }
+  .description p {
+    color: @textDark;
+    margin-bottom: 10px;
+    font-size: @paragraph-md;
+    line-height: 1.7;
+    font-weight: 400;
+  }
+  .title p {
+    color: @textDark;
+    margin-bottom: 20px;
+    font-size: @paragraph-md;
+    line-height: 1.7;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .container > p {
+    color: @grey;
+  }
+
+  .features {
+    text-align: center;
+
+    .feature {
+      max-width: 300px;
+      margin: 10px 25px;
+      display: inline-block;
+      .image {
+        margin-bottom: 10px;
+        i {
+          color: @textDark;
+          font-size: 75px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+.section-42 {
+  max-width: 820px;
+  margin: 0 auto;
+
+  textarea {
+    min-height: 130px;
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+  }
+
+  .form {
+    label {
+      font-size: @paragraph-md;
+      font-weight: 400;
+    }
+    input, textarea {
+      border: 1px solid @dark;
+    }
+  }
+}
+
+/* *******************************************
+ ************** Section 14 ************** *
+ ******************************************* */
+
+.section-14 {
+  min-height: calc(~"100vh - 300px");
+  padding: 30px 0;
+  background-position: right;
+
+  h1,
+  h2,
+  h3 {
+    font-size: @title-lg;
+    color: @textDark;
+    font-weight: 600;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-md;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-sm;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-md;
+    color: @textDark;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: @textDark;
+    margin-bottom: 10px;
+    font-weight: 400;
+    font-size: @paragraph-md;
+  }
+
+  .text-holder-left {
+    background: @light;
+    display: inline-block;
+    position: relative;
+    margin: 20px 0 15px 0;
+    padding: 20px 0;
+
+    @media screen and (max-width: 991px) {
+      display: block;
+      padding: 20px 0;
+    }
+  }
+  .text-holder-right {
+    background: @light;
+    display: inline-block;
+    position: relative;
+    margin: 20px 0;
+    padding: 20px;
+    @media screen and (max-width: 991px) {
+      display: block;
+    }
+  }
+
+}
+
+/* *******************************************
+ ************** Section 15 ************** *
+ ******************************************* */
+
+.section-15 {
+  padding: 30px 0;
+  .container {
+    text-align: center;
+  }
+  h1,
+  h2,
+  h3 {
+    font-size: @title-lg;
+    color: @textDark;
+    font-weight: 600;
+    margin-bottom: 30px;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @title-lg;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @title-md;
+    }
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: @title-xs;
+    color: @textDark;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: @paragraph-md;
+    color: @textDark;
+    margin-bottom: 10px;
+    font-weight: 300;
+
+    @media screen and (max-width: 1199px) {
+      font-size: @paragraph-md;
+    }
+
+    @media screen and (max-width: 767px) {
+      font-size: @paragraph-sm;
+    }
+  }
+}

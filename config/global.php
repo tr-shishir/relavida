@@ -1,0 +1,9 @@
+<?php
+
+return [
+    'exluded_url' => array('localhost'),
+    'drm_base_url' => env('DRM_API_BASE_URL', 'https://eu-dropshipping.com'),
+    'token' => env('DRM_TOKEN'),
+    // droptinda token
+    'token_dp' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiOWYxNTliNjJiYTdhZWU3YmExNDRkMzljOTBlYmIyMDA1MzU4MzNjODkwZDhkOGY2MzYyNTk2YWVjMDkyYjE2YTQ1NTcwYTA2NzdjNTUwYmYiLCJpYXQiOjE2MDQzMTk1MzEsIm5iZiI6MTYwNDMxOTUzMSwiZXhwIjoxNjM1ODU1NTMxLCJzdWIiOiIyMTEiLCJzY29wZXMiOltdfQ.VtB4g-h8fzy9h3KxqBxdv_WfONvxgj0XOK17x-UkLuuHmkjNk8EpxLkehVgXVhZcpaDjLfUnpteBs_sj3MmiYmQRe2ikQd4ABFXezwLjJT_MtUm-d_21_UCijS1MvkVFQBDz4l8fig-7vgSp60YpF536DpKen2BD2vaXoIdx8GQZpqem4Zt-BpC2UWx4P2noDtjkKCDIb5EVe8d_QzKB9ZYmmrNOrp6gNWy7TCm0xbU7Emx2UVNQ_8ese5FkEnxztDoRwWd9gO0VC7yPLvl-c2QSs0saqUvERQrmzikK5oLqibkWyr9tDiWdIoGZ4akPnzobWRiI-HCxLzMAs6_HiXmYo0JE54CqeS6FE9K2vzHea8a_qqLh5ZU8UOM3XW-efkNqn2D56YaTgZIJAgMummDITZtKuTOT3E-yT0NyKXJYQPuWwFV3GQO5oYvcBiK2HnXkgSomI71n76EcKiZcHP09E-0_Qxjfp_jYcx8DnAsza_CxOUMpSHUVmol5tfVwSinnm0qCizAUyHZfboH5COUvmAhoQWo4iRPz3ZOL80L2k2MlZdYjexVrXdimp7eNSIQatMI65KcIfsEzN02sdXBJ4CRPbP8Bh8aFGvo1tgR9tsLgSRGhC0nf6yuojenxSzRwYScX-6J2p3ozsQncOzD2I4JKN50J4qbIE-FevZ0'
+];

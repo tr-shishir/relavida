@@ -1,0 +1,1 @@
+<p class="element lipsum">Dieser Text ist standardmäßig festgelegt und kann in Echtzeit bearbeitet werden. Standardmäßig können Sie die Drag & Drop-Kernfunktion an einer beliebigen Stelle auf der Site positionieren. Werden Sie kreativ und machen Sie Web.</p>

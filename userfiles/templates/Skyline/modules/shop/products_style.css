@@ -1,0 +1,457 @@
+.dt_t_countdown_data{
+    border: 0 !important;
+    border-radius: 5px;
+}
+
+.theme-countdown{
+    background: #fff;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.dt-old-price {
+    position: relative;
+    text-align: center;
+}
+
+.dt-old-price p {
+    font-size: 15px;
+    color: #f00;
+    text-decoration: line-through;
+}
+/* Countdown Style 1 Here */
+.dt-cdown-box {
+    position: relative;
+    margin: 10px auto;
+}
+
+.dt-cdown-box .dt_t_countdown_data {
+    border: 1px solid #e8e8e8;
+    position: relative;
+    text-align: center;
+}
+
+.dt-cdown-box .dt_t_countdown_data>div {
+    position: relative;
+    display: inline-block;
+}
+
+
+.dt-countdown-style-1 {
+    width: 100%;
+    display:flex;
+    justify-content:center;
+}
+
+.dt-countdown-style-1 .dt-cdown-box .dt_t_countdown_data {
+    display:flex;
+    padding: 10px 0px!important;
+}
+
+.dt-countdown-style-1 .dt-cdown-box .dt_t_countdown_data .days-wrapper {
+    display:flex;
+    flex-direction:column;
+    min-width: 20%;
+    align-items:center;
+}
+
+.dt-countdown-style-1 .dt-cdown-box .dt_t_countdown_data>div p {
+    position: relative;
+    font-size: 12px;
+    border: 3px solid #3a4b5d;
+    color: #3a4b5d;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    font-weight: 700;
+    display: inline-block;
+    vertical-align: middle;
+    padding-top: 8px;
+}
+
+.dt-countdown-style-1 .dt-cdown-box .dt_t_countdown_data>div {
+    margin-right: 3px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.dt-countdown-style-1 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    font-size: 12px;
+    font-weight: 700;
+    color: #3a4b5d;
+    display: inline-block;
+    margin-top:5px;
+}
+
+.dt-countdown-style-1 .dt-cdown-box .dt_t_countdown_data>div:last-child {
+    margin-right: 0px;
+}
+
+
+
+/* Countdown Style 2 Here */
+.dt-countdown-style-2 {
+    width: 100%;
+    display:flex;
+    justify-content:center;
+}
+
+
+.dt-countdown-style-2 .dt-cdown-box .dt_t_countdown_data {
+    display:flex;
+    padding: 10px 5px!important;
+}
+
+.dt-countdown-style-2 .dt-cdown-box .dt_t_countdown_data .days-wrapper {
+    display:flex;
+    flex-direction:column;
+    min-width: 20%;
+    align-items:center;
+}
+
+.dt-countdown-style-2 .dt-cdown-box .dt_t_countdown_data>div p {
+    position: relative;
+    font-size: 12px;
+    border: 3px solid #bfbfbf;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    color: #353535;
+    height: 40px;
+    width: 35px;
+    border-radius: 0;
+    font-weight: 700;
+    display: inline-block;
+    vertical-align: middle;
+    padding-top: 8px;
+}
+
+.dt-countdown-style-2 .dt-cdown-box .dt_t_countdown_data>div {
+    margin-right: 2px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.dt-countdown-style-2 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    font-size: 12px;
+    font-weight: 700;
+    color: #3a4b5d;
+    display: inline-block;
+    margin-top:5px;
+}
+
+.dt-countdown-style-2 .dt-cdown-box .dt_t_countdown_data>div:last-child {
+    margin-right: 0px;
+}
+
+
+/* DT Countdown Style 3 */
+.dt-countdown-style-3 {
+    position: relative;
+    width: 100%;
+    display:flex;
+    justify-content:center;
+}
+.dt-countdown-style-3 .dt-cdown-box .dt_t_countdown_data{
+    display:flex;
+    flex-wrap: wrap;
+}
+.dt-countdown-style-3 .dt-cdown-box .dt_t_countdown_data>div {
+    position: relative;
+    margin: 5px;
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+}
+
+.dt-countdown-style-3 .dt-cdown-box .dt_t_countdown_data>div p {
+    background-color: #25374b;
+    color: #fff;
+    width: 35px;
+    height: 40px;
+    font-size: 18px;
+    padding-top: 8px;
+    text-align:center;
+}
+
+.dt-countdown-style-3 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    color: #25374b;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+
+
+/* DT Countdown Style 4 */
+.dt-countdown-style-4 {
+    position: relative;
+    width: 100%;
+    display:flex;
+    justify-content:center;
+}
+.dt-countdown-style-4 .dt-cdown-box {
+    background-color: #252014;
+}
+.dt-countdown-style-4 .dt-cdown-box .dt_t_countdown_data {
+    border-radius: 0px;
+    padding:10px 0 !important;
+    display:flex;
+    flex-wrap: wrap;
+}
+.dt-countdown-style-4 .dt-cdown-box .dt_t_countdown_data>div {
+    position: relative;
+    margin: 5px;
+    display:flex;
+    flex-direction:column;
+    align-items: center;
+}
+
+.dt-countdown-style-4 .dt-cdown-box .dt_t_countdown_data>div p {
+    color: #fff;
+    width: 30px;
+    height: 50px;
+    font-size: 20px;
+}
+
+.dt-countdown-style-4 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    color: #fff;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 500;
+    display: block;
+    margin-top: -16px;
+}
+
+.dt-countdown-style-4 .dt-cdown-box .dt_t_countdown_data>div span.su-res{
+    color: #fff;
+}
+
+/* DT Countdown Style 5 */
+.dt-countdown-style-5 {
+    position: relative;
+    width: 100%;
+    display:flex;
+    justify-content:center;
+}
+
+.dt-countdown-style-5 .dt-cdown-box {
+    background-color: #252014;
+}
+.dt-countdown-style-5 .dt-cdown-box .dt_t_countdown_data {
+    padding: 10px!important;
+    display:flex;
+    flex-wrap: wrap;
+    border-radius: 0px;
+    justify-content: space-between;
+}
+.dt-countdown-style-5 .dt-cdown-box .dt_t_countdown_data>div {
+    display:flex;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    margin: 5px;
+}
+
+.dt-countdown-style-5 .dt-cdown-box .dt_t_countdown_data>div p {
+    color: #ffd565;
+    width: 30px;
+    height: 70px;
+    font-size: 20px;
+}
+
+.dt-countdown-style-5 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    color: #ffd565;
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-top: -16px;
+}
+.dt-countdown-style-5 .dt-cdown-box .dt_t_countdown_data>div span.su-res{
+    color: #ffd565;
+}
+.dt-countdown-style-5 .dt-cdown-box .dt_t_countdown_data>div:after {
+    position: absolute;
+    content: ':';
+    color: #ffd565;
+    top: 0px;
+    right: -3px;
+    font-size: 20px;
+}
+
+.dt-countdown-style-5 .dt-cdown-box .dt_t_countdown_data>div:last-child:after {
+    display: none;
+}
+
+
+
+
+/* DT Countdown Style 6 */
+.dt-countdown-style-6{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    position: relative;
+}
+
+.dt-countdown-style-6 .dt-cdown-box {
+    background-color: #302010;
+}
+.dt-countdown-style-6 .dt-cdown-box .dt_t_countdown_data {
+    border-radius: 0px;
+    padding: 0px !important;
+    display: flex;
+    flex-wrap: wrap;
+}
+.dt-countdown-style-6 .dt-cdown-box .dt_t_countdown_data>div {
+    position: relative;
+    margin: 0px;
+    text-align: center;
+    padding: 10px 8px;
+    border-right: 1px dotted #fff;
+}
+.dt-countdown-style-6 .dt-cdown-box .dt_t_countdown_data>div p {
+    color: #fff;
+    height: 50px;
+    font-size: 18px;
+}
+
+.dt-countdown-style-6 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    color: #fff;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 500;
+    display: block;
+}
+.dt-countdown-style-6 .dt-cdown-box .dt_t_countdown_data>div:last-child {
+    border-right: none;
+}
+
+.dt-countdown-style-6 .dt-cdown-box .dt_t_countdown_data>div span.su-res{
+    color: #fff;
+}
+
+
+/* DT Countdown Style 7 */
+
+.dt-countdown-style-7{
+    width:100%;
+    display:flex;
+    justify-content:center;
+}
+
+.dt-countdown-style-7 .dt-cdown-box .dt_t_countdown_data {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px 5px!important;
+}
+
+.dt-countdown-style-7 .dt-cdown-box .dt_t_countdown_data>div p {
+    position: relative;
+    font-size: 20px;
+    border: 3px solid #bfbfbf;
+    border-top-style: double;
+    border-bottom-style: double;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    color: #353535;
+    border-radius: 0;
+    font-weight: 700;
+    display: inline-block;
+    vertical-align: middle;
+    padding:8px;
+}
+
+.dt-countdown-style-7 .dt-cdown-box .dt_t_countdown_data>div {margin: 3px;}
+
+.dt-countdown-style-7 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    font-size: 14px;
+    font-weight: 500;
+    color: #3a4b5d;
+    display: block;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+.dt-countdown-style-7 .dt-cdown-box .dt_t_countdown_data>div span.su-res{
+    margin-top: 5px;
+}
+.dt-countdown-style-7 .dt-cdown-box .dt_t_countdown_data>div:last-child {
+    margin-right: 0px;
+}
+
+
+
+/* DT Countdown Style 8 */
+
+.dt-countdown-style-8{
+    width:100%;
+    display:flex;
+    justify-content:center;
+}
+
+.dt-countdown-style-8 .dt-cdown-box .dt_t_countdown_data {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px 5px!important;
+}
+
+
+.dt-countdown-style-8 .dt-cdown-box .dt_t_countdown_data>div p {
+    position: relative;
+    font-size: 20px;
+    border: 3px solid #bfbfbf;
+    border-top-style: double;
+    border-bottom-style: double;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    color: #fff;
+    height: 40px;
+    width: 40px;
+    font-weight: 700;
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #000;
+    border-radius: 5px;
+    padding-top: 5px;
+}
+
+.dt-countdown-style-8 .dt-cdown-box .dt_t_countdown_data>div {margin: 3px;}
+
+.dt-countdown-style-8 .dt-cdown-box .dt_t_countdown_data>div span.su {
+    font-size: 14px;
+    font-weight: 500;
+    color: #3a4b5d;
+    display: block;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+.dt-countdown-style-8 .dt-cdown-box .dt_t_countdown_data>div span.su-res{
+    margin-top: 5px;
+}
+.dt-countdown-style-8 .dt-cdown-box .dt_t_countdown_data>div:last-child {
+    margin-right: 0px;
+}
+
+.dt-cdown-box .dt_t_countdown_data>div span.su-res{
+        display:block !important;
+}
+.dt-cdown-box .dt_t_countdown_data>div span.su{
+        display:none !important;
+}
+@media screen and (max-width: 1300px){
+    .dt-cdown-box .dt_t_countdown_data>div span.su{
+        display:none !important;
+    }
+    .dt-cdown-box .dt_t_countdown_data>div span.su-res{
+        display:block !important;
+    }
+}
+
+@media screen and (max-width: 767px){
+    .dt-cdown-box .dt_t_countdown_data>div span.su{
+        display:block !important;
+    }
+    .dt-cdown-box .dt_t_countdown_data>div span.su-res{
+        display:none !important;
+    }
+}

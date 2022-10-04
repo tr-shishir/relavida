@@ -1,0 +1,314 @@
+body.mw-live-edit {
+    margin-top: 0 !important;
+}
+
+.inline-block {
+    display: inline-block !important;
+}
+
+/* Q  THEME */
+.newsletter-holder .alert {
+    font-size: 16px;
+    margin-top: 13px;
+    padding: 2px 10px;
+}
+
+.leave-message-holder .captcha-holder>input,
+.leave-message-holder .captcha-holder>div {
+    margin: 0;
+}
+
+/*.material-icons:not(.mw-) {
+    margin-top: -6px !important;
+}*/
+
+.checkout-modal .js-shopping-cart .products .product .title,
+.checkout-modal .js-shopping-cart .products .product .price,
+.checkout-modal .js-shopping-cart .products .product .action {
+    padding-top: 28px;
+}
+
+.checkout-modal .js-shopping-cart .products .product .qty {
+    padding-top: 16px;
+}
+
+/* My Orders Modal */
+.my-orders-modal .modal-content {
+    border: 1px solid #c3c3c3 !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    background: #f5f5f5;
+    color: #505050;
+}
+
+.my-orders-modal .modal-header {
+    padding-bottom: 0;
+    border-color: #c3c3c3;
+    border: 0;
+}
+
+.my-orders-modal .modal-header .close {
+    margin-top: -25px;
+    margin-right: -25px;
+    background: #f5f5f5;
+    opacity: 1;
+    color: #505050;
+    padding: 1px 5px;
+    border: 1px solid #c3c3c3;
+    border-radius: 100%;
+}
+
+.my-orders-modal .modal-dialog {
+    /*max-width: 500px;*/
+}
+
+.my-orders-modal .modal-body {
+    padding: 20px 60px;
+}
+
+.my-orders-modal .modal-body .form-control {
+    background: #fff;
+    border: 1px solid #c3c3c3;
+    -webkit-border-radius: 1px;
+    -moz-border-radius: 1px;
+    border-radius: 1px;
+    color: #505050;
+    font-size: 16px;
+}
+
+.my-orders-modal .modal-body p {
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+    line-height: 24px;
+}
+
+.my-orders-modal .modal-body .icon {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.my-orders-modal .modal-body .icon i {
+    font-size: 45px;
+    color: #333;
+}
+
+.my-orders-modal .personal-data {
+    color: #bbbbbb !important;
+    text-align: justify !important;
+}
+
+.text-green {
+    color: green;
+}
+
+.text-red {
+    color: red;
+}
+
+.section-6 {
+    position: relative;
+    overflow: hidden;
+}
+
+.section-11 .btn {
+    margin: 10px 5px;
+}
+
+.pricing-list .plan {
+    padding-top: 27px;
+}
+
+.pricing-list .feature.plan {
+    padding-top: 0px;
+}
+
+.mw-live-edit .pricing-list {
+    padding-top: 20px;
+}
+
+.module-btn .btn i {
+    font-size: 1.3em;
+    line-height: 1em;
+    margin-right: 5px;
+}
+
+.module-btn .btn-lg i {
+    font-size: 1.2em;
+    line-height: 1em;
+    margin-right: 5px;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+
+@media screen and (min-width: 992px) {
+    .tabs-2 .nav-tabs {
+        /*border-bottom: 3px solid #3d00b4;*/
+        height: 49px;
+    }
+}
+
+.mw-custom-fields .mw-ui-label {
+    color: #fff;
+    font-weight: bold;
+}
+
+.modal-backdrop {
+    /* z-index: 0 !important;
+    opacity: 0 !important; */
+}
+
+.container .container {
+    max-width: 100%;
+}
+
+.dropdown-menu>li>a:focus {
+    /* background-color: #f5f5f5 !important; */
+}
+
+.navigation .menu .list.menu_1:not(.collapseNav-initialized) li {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+}
+
+.navigation .menu .list.menu_1:not(.collapseNav-initialized) li:first-child {
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    transition: none !important;
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+}
+
+
+.ofcanvas-menu-right {
+    padding: 0px 20px !important;
+    max-width: 440px;
+    margin-left: 60px;
+}
+ 
+.ofcanvas-menu-right .off-canvas-logo {
+    text-align: center;
+}
+
+.ofcanvas-menu-right .off-canvas-logo img {
+    max-width: 100%;
+}
+
+ 
+
+.rasing-ocs-wrapper .product-search-box {
+    max-width: 100%;
+}
+
+.rasing-ocs-wrapper .product-search-box .autocomplete {
+    width: 247px !important;
+    margin-right: 0px;
+}
+
+.rasing-ocs-wrapper .product-search-box .autocomplete button.btn {
+    right: 0px;
+}
+
+.rasing-ocs-wrapper .product-search-box select#category_list {
+    color: #000 !important;
+}
+
+.rasing-ocs-wrapper .product-search-box input#productSearchInput {
+    color: #000 !important;
+}
+
+
+.shop-inner-page .mw-add-to-cart-holder .price .mw-price-item {
+    text-align: left;
+    position: relative;
+}
+
+.shop-inner-page .mw-add-to-cart-holder .price .item-price {
+    text-align: left;
+}
+
+.shop-inner-page .mw-add-to-cart-holder .price .item-cart {
+    align-items: flex-start;
+}
+
+.shop-inner-page .mw-add-to-cart-holder .price .product-tax-text {
+    text-align: left;
+}
+
+/* .shop-inner-page .mw-add-to-cart-holder .price .product-tax-text {
+    display: none;
+} */
+
+.offCanvas-menu-row.offcanvasModifiedForMobile {
+    width: calc(100% - 60px);
+    margin-left: -15px;
+}
+
+
+.offCanvas-menu-row.offcanvasModifiedForMobile .rasing-ocs-wrapper {
+    max-width: 100%;
+}
+
+.offCanvas-menu-row.offcanvasModifiedForMobile .rasing-ocs-wrapper .autocomplete {
+    width: 100% !important;
+    border: 1px solid #c0c0c0;
+    border-top: none;
+    border-left: none;
+    border-bottom: none;
+}
+
+.offCanvas-menu-row.offcanvasModifiedForMobile {
+    margin-right: -15px;
+    width: calc(100% - 25px);
+}
+
+@media(max-width: 1099px) {
+    .et_pb_column.ofcanvas-menu-left {
+        padding-left: 0px;
+    }
+    .fullwidth-offcanvas-menu { 
+        padding-top: 62px !important;
+    }
+
+}
+
+
+
+
+.cart-button-thumb-area {
+    position: relative;
+}
+
+.cart-button-thumb-area a.btn.btn-product {
+    padding: 7px;
+    font-size: 10px;
+    position: relative;
+    top: 4px;
+    left: 6px;
+}
+
+
+.single-product .product-price .product-cart-btn {
+    
+}
+
+.single-product .product-price .product-cart-btn .price-on-req {
+    width: 100%;
+}
+
+.single-product .product-price .product-cart-btn .price-on-req button.btn.btn-product.product-cart-icon {
+    width: 100%;
+}
+
+.module-pricing-card .modal-content h5#exampleModalLongTitle {
+    display: none;
+}

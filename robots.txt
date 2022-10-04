@@ -1,0 +1,22 @@
+# disallow the directories
+
+User-agent: *
+Disallow: /userfiles/
+Disallow: /userfiles/media/
+Disallow: /userfiles/media/default/
+
+User-agent: Googlebot-Image
+
+#disallow specific file types
+
+User-agent: *
+Disallow: /*.gif$
+
+User-agent: *
+Disallow: /*.jpg$
+
+User-agent: *
+Disallow: /*.png$
+
+User-agent: *
+Disallow: /*.pdf$
