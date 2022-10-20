@@ -333,8 +333,22 @@ class MenuManager
         $menu_params['table'] = $menus;
         $menu_params['order_by'] = 'position ASC';
 
+        $q = \Cache::remember($menu_id.'menu_items', 200000000, function () use($menu_id) {
 
-        $q = $this->app->database_manager->get($menu_params);
+
+            return \DB::table('menus')->where('parent_id',$menu_id)
+            ->leftJoin('content','content.id','=','menus.content_id')
+            ->select('menus.*','content.url as contentUrl','content.title as contentTitle')
+            ->orderBy('position','ASC')
+            ->get()->map(function($item){
+                return (array)$item;
+            })->toArray();
+
+        });
+
+
+        // $q = $this->app->database_manager->get($menu_params);
+
         //   dd($menu_params,$q);
         $has_items = false;
 
@@ -483,7 +497,7 @@ class MenuManager
 
         }
 
-        $cur_content_id_data = get_content_by_id(CONTENT_ID);
+
 
 
 
@@ -509,7 +523,7 @@ class MenuManager
         $cur_depth = 0;
         $res_count = 0;
 
-
+        // dd($q);
 
         foreach ($q as $item) {
 			if($item['is_active'] === 0){
@@ -532,33 +546,12 @@ class MenuManager
             $url = $item['url']  = trim(  $item['url'] );
 
             if (intval($item['content_id']) > 0 ) {
-                $cont = $this->app->content_manager->get_by_id($item['content_id']);
-                if (is_array($cont) and isset($cont['is_deleted']) and $cont['is_deleted'] == 1) {
 
-                     $is_active = false;
-                     $cont = false;
-                     // skip the deleted item
-                     continue;
-                } else if (is_array($cont) and isset($cont['is_active']) and $cont['is_active'] == 0) {
-                    $is_active = false;
-                    $cont = false;
-                }
-                elseif
-                 (!$cont){
-                    continue;
-                }
-                $full_item = $item;
-              //
-                if (is_array($cont) and !empty($cont)) {
 
-                    $title = $cont['title'];
-                       $url = $this->app->content_manager->link($cont['id']);
+                $title = $item['contentTitle'];
+                $url = url($item['contentUrl']);
 
-                    if ($cont['is_active'] != 1) {
-                        $is_active = false;
-                        $cont = false;
-                    }
-                }
+
             } elseif (intval($item['categories_id']) > 0) {
                 $cont = $this->app->category_manager->get_by_id($item['categories_id']);
                 if (is_array($cont)) {
@@ -602,9 +595,6 @@ class MenuManager
                 } else {
                     $active_class = '';
                 }
-            } elseif (trim($item['url'] == '') and $cur_content_id_data and isset($cur_content_id_data['parent']) and $cur_content_id_data['parent'] and $item['content_id'] == $cur_content_id_data['parent']) {
-                $active_class = 'active';
-                 // $active_class = 'active-parent';
             } elseif (trim($item['url'] == '') and defined('CONTENT_ID') and CONTENT_ID != 0 and $item['content_id'] == CONTENT_ID) {
                 $active_class = 'active';
              } elseif (trim($item['url'] == '') and defined('PAGE_ID') and PAGE_ID != 0 and $item['content_id'] == PAGE_ID) {
@@ -622,7 +612,7 @@ class MenuManager
                 $active_class = 'active';
                 $active_class = 'active-parent';
             } elseif (trim($item['url'] == '') and $item['content_id'] != 0 and defined('PAGE_ID') and PAGE_ID != 0) {
-                 $cont_link = $this->app->content_manager->link(PAGE_ID);
+                 $cont_link = url();
                  if ($item['content_id'] == PAGE_ID and $cont_link == $item['url']) {
                     $active_class = 'active';
                 } elseif ($cont_link == $item['url']) {
@@ -804,23 +794,22 @@ class MenuManager
                     if ($maxdepth == false) {
                         if (isset($params) and is_array($params)) {
 
-//                            if (isset($item['auto_populate']) and $item['auto_populate'] !=false) {
-//                                $menu_item = $item;
-////dd($menu_item);
-//                                if(isset($menu_item['content_id']) and intval($menu_item['content_id']) != 0){
-//                                    $pt = $params_o;
-//                                    $pt['parent'] = intval($menu_item['content_id']);
-//                                    $pt['include_all_content'] = intval($menu_item['content_id']);
-//
-//                                    $to_print .= $this->app->content_manager->pages_tree($pt);
-//
-//                                    //$to_print .= strval($test1);
-//
-//                                }
-//
-//
-//
-//                            } else {
+                        //    if (isset($item['auto_populate']) and $item['auto_populate'] !=false) {
+                        //        $menu_item = $item;
+                        //        if(isset($menu_item['content_id']) and intval($menu_item['content_id']) != 0){
+                        //            $pt = $params_o;
+                        //            $pt['parent'] = intval($menu_item['content_id']);
+                        //            $pt['include_all_content'] = intval($menu_item['content_id']);
+
+                        //            $to_print .= $this->app->content_manager->pages_tree($pt);
+
+                        //            //$to_print .= strval($test1);
+
+                        //        }
+
+
+
+                        //    } else {
 
 
                             $menu_params['menu_id'] = $item['id'];
@@ -910,7 +899,7 @@ class MenuManager
                 $to_print = str_replace('{tooltip}', $tooltip, $to_print);
 
 
-/*
+                /*
                 if(isset($item['auto_populate']) and $item['auto_populate'] and $item['auto_populate'] == 'all') {
 
                     if(isset($item['content_id']) and intval($item['content_id']) != 0){
@@ -935,7 +924,7 @@ class MenuManager
 
                     }
                 }
-*/
+                */
 
                 if (isset($test1) and strval($test1) != '') {
                     $to_print .= strval($test1);

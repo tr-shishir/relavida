@@ -200,6 +200,22 @@ class DatabaseManager extends DbUtils
             unset($params['orderby']);
         }
 
+        if (isset($params['group_id'])) {
+            $product_ids = DB::table('group_product')->where('group_id',$params['group_id'])->pluck('product_id')->toArray();
+            $category_ids = DB::table('group_category')->where('group_id',user_group_id())->pluck('category_id')->toArray();
+            $cat_products = DB::table('categories_items')->whereIn('parent_id',$category_ids)->pluck('rel_id')->toArray();
+            $product_ids = array_unique(array_merge($product_ids,$cat_products));
+            $params['ids'] = $product_ids;
+        }
+
+        if(isset($params['exclude_group'])){
+            $product_ids = DB::table('group_product')->pluck('product_id')->toArray();
+            $category_ids = DB::table('group_category')->pluck('category_id')->toArray();
+            $cat_products = DB::table('categories_items')->whereIn('parent_id',$category_ids)->pluck('rel_id')->toArray();
+            $product_ids = array_unique(array_merge($product_ids,$cat_products));
+            $params['exclude_ids'] = $product_ids;
+        }
+
         if (isset($orig_params['count']) and ($orig_params['count']) and isset($params['order_by'])) {
             unset($params['order_by']);
         }
@@ -252,6 +268,11 @@ class DatabaseManager extends DbUtils
                 $query = $query->where($table . '.' . $k, '=', $v);
             }
         }
+        $key = json_encode($orig_params);
+        $key = sha1($table . "_" . $key);
+        if(array_key_exists($key, $GLOBALS)){
+            return $GLOBALS[$key];
+        }
 
         if (isset($orig_params['count']) and ($orig_params['count'])) {
             if ($use_cache == false) {
@@ -265,32 +286,42 @@ class DatabaseManager extends DbUtils
                 // return the pages count
                 $query = intval(ceil($query / $items_per_page));
             }
-
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key => $query
+            ));
             return $query;
         }
 
         if (isset($orig_params['min']) and ($orig_params['min'])) {
             $column = $orig_params['min'];
             $query = $query->min($column);
-
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key => $query
+            ));
             return $query;
         }
         if (isset($orig_params['max']) and ($orig_params['max'])) {
             $column = $orig_params['max'];
             $query = $query->max($column);
-
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key => $query
+            ));
             return $query;
         }
         if (isset($orig_params['avg']) and ($orig_params['avg'])) {
             $column = $orig_params['avg'];
             $query = $query->avg($column);
-
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key => $query
+            ));
             return $query;
         }
         if (isset($orig_params['sum']) and ($orig_params['sum'])) {
             $column = $orig_params['sum'];
             $query = $query->sum($column);
-
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key => $query
+            ));
             return $query;
         }
 
@@ -329,9 +360,11 @@ class DatabaseManager extends DbUtils
             return false;
         }
 
-        if (is_object($data)
-        ) {
+        if (is_object($data)) {
             if (isset($orig_params['collection']) and ($orig_params['collection'])) {
+                $GLOBALS = array_merge($GLOBALS, array(
+                    $key => $data
+                ));
                 return $data;
             } else {
                 $data = $this->_collection_to_array($data);
@@ -358,6 +391,9 @@ class DatabaseManager extends DbUtils
 
 
         if (!is_array($data)) {
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key => $data
+            ));
             return $data;
         }
 
@@ -375,11 +411,15 @@ class DatabaseManager extends DbUtils
                 // might be a bug here?
                 return (array)$data[0];
             }
-
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key => $data[0]
+            ));
             return $data[0];
         }
 
-
+        $GLOBALS = array_merge($GLOBALS, array(
+            $key => $data
+        ));
         return $data;
     }
 
@@ -520,9 +560,9 @@ class DatabaseManager extends DbUtils
             }
 
 
-//            if (isset($data['created_at']) == false) {
-//                $data['created_at'] = date('Y-m-d H:i:s');
-//            }
+            //    if (isset($data['created_at']) == false) {
+            //        $data['created_at'] = date('Y-m-d H:i:s');
+            //    }
             if ($the_user_id) {
                 $data['created_by'] = $the_user_id;
             }

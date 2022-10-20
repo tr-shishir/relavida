@@ -1,7 +1,8 @@
 <?php
 
 namespace MicroweberPackages\App\Managers;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 class PermalinkManager
 {
     /** @var \MicroweberPackages\App\LaravelApplication */
@@ -27,8 +28,117 @@ class PermalinkManager
     }
 
 
-    public function slug($link, $type)
+    public function slug($link, $type, $status = false)
     {
+        $key = sha1($link ."_" . $type);
+
+        return Cache::remember($key, 200, function () use($link, $type, $status) {
+
+            if (!$link) {
+                $link = $this->app->url_manager->current(true);
+            }
+
+            $linkSegments = url_segment(-1, $link);
+            $linkSegments = array_filter($linkSegments, 'strlen');
+
+            if (empty($linkSegments)) {
+                return false;
+            }
+
+            $structureMap = $this->getStructuresReadMap();
+            foreach ($structureMap as $structureMapIndex => $structureMapItem) {
+                if (strpos($structureMapItem, $type) !== false) {
+                    if (isset($linkSegments[$structureMapIndex])) {
+
+                        $findSlugByType = $linkSegments[$structureMapIndex];
+
+                        $override = $this->app->event_manager->trigger('app.permalink.slug.before', ['type' => $type, 'slug' => $findSlugByType]);
+                        if ($override and is_array($override) and isset($override[0]) and $override[0]) {
+                            return $override[0];
+                        }
+
+                        if ($type == 'category') {
+                            $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
+                            if ($findCategoryBySlug) {
+                                return $findCategoryBySlug['url'];
+                            }
+                        }
+
+                        if ($type == 'page') {
+
+                            // If page found return slug
+                            $findPageBySlug = get_pages('url=' . $findSlugByType . '&single=1');
+                            if ($findPageBySlug) {
+                                return $findPageBySlug['url'];
+                            }
+
+                            // If page not found try to find page from category
+                            $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
+                            if ($findCategoryBySlug) {
+                                $findCategoryPage = get_page_for_category($findCategoryBySlug['id']);
+                                if ($findCategoryPage && isset($findCategoryPage['url'])) {
+                                    return $findCategoryPage['url'];
+                                }
+                            }
+
+                            // If page not fond & category not found we try to find post
+                            $findPostBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
+                            if ($findPostBySlug && isset($findPostBySlug['parent']) && $findPostBySlug['parent'] != false) {
+                                $findPostPageBySlug = get_pages('id=' . $findPostBySlug['parent'] . '&single=1');
+                                if ($findPostPageBySlug) {
+                                    return $findPostPageBySlug['url'];
+                                }
+                            }
+
+                            /*   var_dump([
+                                    'link'=>$link,
+                                    'type'=>$type,
+                                    'findSlugByType'=>$findSlugByType,
+                                    'linkSegments'=>$linkSegments,
+                                    'structureMapIndex'=>$structureMapIndex
+                                ]);*/
+                        }
+
+                        if ($type == 'post') {
+                            $findPostsBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
+
+                            if ($findPostsBySlug) {
+                                return $findPostsBySlug['url'];
+                            }
+
+                            $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
+                            if ($findPostsBySlug && isset($findPostsBySlug['content_type']) && $findPostsBySlug['content_type'] != 'page') {
+                                return $findPostsBySlug['url'];
+                            }
+                        }
+
+
+                        if ($type == 'content') {
+                            $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
+
+                            if ($findPostsBySlug) {
+                                return $findPostsBySlug['url'];
+                            }
+                        }
+
+
+                        /*
+                            * Here it must not return anything if not found slug in database.
+                            * Case we brake many cases.
+                            *
+                            return $findSlugByType;
+                        */
+                    }
+                }
+            }
+
+            return false;
+        });
+    }
+
+    public function slugll($link, $type, $status = false)
+    {
+
         if (!$link) {
             $link = $this->app->url_manager->current(true);
         }

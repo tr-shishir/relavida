@@ -1527,7 +1527,6 @@ class ContentManager
     {
 
 
-
         if ((is_ajax() or defined('MW_API_CALL')) && isset($_SERVER['HTTP_REFERER'])) {
             $ref_page = $_SERVER['HTTP_REFERER'];
         } else {
@@ -1552,7 +1551,7 @@ class ContentManager
         $page = false;
         if (is_array($content)) {
             if (!isset($content['active_site_template']) and isset($content['id']) and $content['id'] != 0) {
-                $content = $this->get_by_id($content['id']);
+                // $content = $this->get_by_id($content['id']);
                 $page = $content;
             } elseif (isset($content['id']) and $content['id'] == 0) {
                 $page = $content;
@@ -1568,14 +1567,14 @@ class ContentManager
         if (defined('CATEGORY_ID') == false) {
 
             $cat_url = $this->app->category_manager->get_category_id_from_url();
-            if ($cat_url != false) {
+            if ($cat_url !== false) {
                 define('CATEGORY_ID', intval($cat_url));
             }
         }
-       // dd(debug_backtrace(1));
-     //    dd(debug_backtrace(1));
-//    //    dd(__METHOD__,$content,__LINE__);
-//
+        // dd(debug_backtrace(1));
+        //    dd(debug_backtrace(1));
+        //    dd(__METHOD__,$content,__LINE__);
+        //
         if (is_array($page)) {
             if (isset($page['content_type']) and ($page['content_type'] != 'page')) {
                 if (isset($page['id']) and $page['id'] != 0) {
@@ -1629,7 +1628,7 @@ class ContentManager
                 define('PAGE_ID', $page['id']);
             }
 
-            if (isset($page['parent'])) {
+            if (isset($page['parent']) and $page > 0) {
                 $parent_page_check_if_inherited = $this->get_by_id($page['parent']);
 
                 if (isset($parent_page_check_if_inherited['layout_file']) and $parent_page_check_if_inherited['layout_file'] == 'inherit') {
@@ -1676,7 +1675,7 @@ class ContentManager
         if (defined('ACTIVE_PAGE_ID') == false) {
             define('ACTIVE_PAGE_ID', false);
         }
-        if (defined('CATEGORY_ID') == false) {
+        if (defined('CATEGORY_ID') === false) {
             $cat_id = $this->app->category_manager->get_category_id_from_url();
             if ($cat_id != false) {
                 define('CATEGORY_ID', intval($cat_id));
@@ -1685,8 +1684,7 @@ class ContentManager
         if (!defined('CATEGORY_ID')) {
             define('CATEGORY_ID', false);
         }
- ;
-        if (defined('PAGE_ID') == false) {
+        if (defined('PAGE_ID') === false) {
             $getPageSlug = $this->app->permalink_manager->slug($ref_page, 'page');
             $pageFromSlug = $this->app->content_manager->get_by_url($getPageSlug);
             if ($pageFromSlug) {
@@ -2108,7 +2106,7 @@ class ContentManager
         if ($cur_category != false) {
             $cur_category_data = $this->app->category_manager->get_by_id($cur_category);
             $get_content = get_content('url=' . $urth);
-            if ($cur_category_data != false and isset($cur_category_data['id'])) {               
+            if ($cur_category_data != false and isset($cur_category_data['id'])) {
                 if($get_content && $get_content[0]['content_type']=='product'){
                     $cat_all = collect(get_categories_for_content('content_id=' . $get_content[0]['id']))->map(function ($q) {
                         return $q['id'];
@@ -2122,14 +2120,14 @@ class ContentManager
                                     $result_item = array();
                                     $result_item['title'] = $content['title'];
                                     $result_item['description'] = $content['description'];
-    
+
                                     if (isset($params['current-page-as-root']) and $params['current-page-as-root'] != false) {
                                         $result_item['url'] = page_link() . '/category:' . $content['id'];
                                     } else {
                                         $result_item['url'] = $this->app->category_manager->link($content['id']);
                                     }
-    
-    
+
+
                                     $result_item['content_type'] = 'category';
                                     if ($cur_content == false and $cur_category == $content['id']) {
                                         $result_item['is_active'] = true;
@@ -2153,14 +2151,14 @@ class ContentManager
                                     $result_item = array();
                                     $result_item['title'] = $content['title'];
                                     $result_item['description'] = $content['description'];
-    
+
                                     if (isset($params['current-page-as-root']) and $params['current-page-as-root'] != false) {
                                         $result_item['url'] = page_link() . '/category:' . $content['id'];
                                     } else {
                                         $result_item['url'] = $this->app->category_manager->link($content['id']);
                                     }
-    
-    
+
+
                                     $result_item['content_type'] = 'category';
                                     if ($cur_content == false and $cur_category == $content['id']) {
                                         $result_item['is_active'] = true;
@@ -2177,13 +2175,13 @@ class ContentManager
                             $result_item['title'] = $res['title'];
                             $result_item['description'] = $res['description'];
                             $result_item['url'] = $res['url'];
-                            $result_item['content_type'] = 'category';                       
+                            $result_item['content_type'] = 'category';
                             $result_item['is_active'] = $res['is_active'];
-                            
+
                             $result[] = $result_item;
                         }
                     }
-                }                
+                }
             }
             if(!$get_content||$get_content[0]['content_type']!='product'){
                 $content = $cur_category_data;
@@ -2199,7 +2197,7 @@ class ContentManager
                         $result_item['is_active'] = false;
                     }
                     $result[] = $result_item;
-                }    
+                }
             }
         }
 
@@ -2312,8 +2310,15 @@ class ContentManager
         $get = array();
         $get['is_home'] = 1;
         $get['single'] = 1;
-        $data = $this->get($get);
-
+        // $data = $this->get($get);
+        $data = DB::table('content')
+                        ->where('url', 'home')
+                        ->where('content_type', 'page')
+                        ->orWhere(function($query) {
+                            $query->where('layout_file', 'index.php')
+                            ->where('content_type', 'page');
+                        })->first();
+        $data = collect($data)->toArray();
         return $data;
     }
 

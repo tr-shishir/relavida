@@ -26,6 +26,11 @@ use MicroweberPackages\Category\Models\Category;
 */
 $is_installed = mw_is_installed();
 if ($is_installed) {
+    $user_country_name = user_country(user_id());
+    if(!$user_country_name){
+       $tax= mw()->tax_manager->get();
+       $user_country_name = $tax['0']['name'];
+    }
     $GLOBALS['all_options'] =  DB::table('options')->get()->map(function($item){
         return (array)$item;
     })->keyBy(function($item) {
@@ -46,6 +51,7 @@ if ($is_installed) {
         'custom_shop_category_header_ignore' => get_option('custom_shop_category_header_ignore','category_customization'),
         'custom_active_category' => get_option('custom_active_category','category_customization'),
         'custom_sidebar' => get_option('custom_sidebar','category_customization'),
+        'tax' => DB::table('tax_rates')->where('country','LIKE','%'.$user_country_name.'%')->first(),
         'custom_header' => get_option('custom_header','category_customization'),
 
     ));
@@ -203,6 +209,7 @@ Route::post('drm_token_get',function(){
 });
 
 Route::get('test', function() {
+    dd(DB::table('content')->firstToArray());
     return mw()->cache_manager->delete('categories');
     clearcache();
     //$query = Order::whereHas('carts')->with('carts.content:id,ean,drm_ref_id')->get()->toArray();
@@ -2132,7 +2139,7 @@ Route::post('product_sync_drm__v2', function(Request $request){
             $response = json_encode($status);
             $delete_from = $request->input('delete_from') ?? '';
         }
-        
+
     } else{
         $msg = "Authentication failed";
         $status['message'] = $msg;
@@ -2408,14 +2415,14 @@ Route::get('get-export-data', function(){
             if(count($sync_data) > 0){
                 foreach($sync_data as $item){
                     $arraySet = [];
-                    $arraySet['item_id'] = $item->sync_id; 
+                    $arraySet['item_id'] = $item->sync_id;
                     $arraySet['status'] = $item->sync_status;
                     $arraySet['finished'] = $item->updated_at;
                     $arraySet['process_id'] = $item->id;
                     $arraySet['item_type'] = $item->data_type;
                     $arraySet['event'] = $item->action;
                     $arraySet['trigered'] = $item->created_at;
-                    $data_set[] = $arraySet; 
+                    $data_set[] = $arraySet;
                 }
                 // dump($data_set);
                 return json_encode($data_set);

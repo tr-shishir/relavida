@@ -69,13 +69,9 @@ description: Default
         });
     </script>
 <?php if (!empty($data) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])):
-         $user_country_name = user_country(user_id());
-         if($user_country_name){
-            $tax_rate_list = DB::table('tax_rates')->where('country','LIKE','%'.$user_country_name.'%')->first();
-         }else{
-            $tax= mw()->tax_manager->get();
-            $tax_rate_list = DB::table('tax_rates')->where('country','LIKE','%'.$tax['0']['name'].'%')->first();
-         }
+
+        $tax_rate_list = $GLOBALS['tax'];
+
          if(isset($tax_rate_list)){
              $original_tax = $tax_rate_list->charge;
              $reduced_tax = $tax_rate_list->reduced_charge;
