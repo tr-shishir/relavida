@@ -1165,10 +1165,9 @@ class FrontendController extends Controller
             }
         }
         $category_sl = $this->app->permalink_manager->slug($this->app->url_manager->string(), 'category');
-
         if (isset($category_sl) && $category_sl != false) {
-            $category_hide = DB::table('categories')->where('url',$category_sl)->first();
-            if(isset($category_hide->status) && $category_hide->status == 0)
+            $category_hide = DB::table('categories')->where('url',$category_sl)->pluck('status')->first();
+            if(isset($category_hide) && $category_hide == 0)
             {
                 $this->render_this_url =  url('/');
             }
@@ -1195,7 +1194,8 @@ class FrontendController extends Controller
         }
 
 
-        $favicon_image = get_option('favicon_image', 'website'); //return $favicon_image;
+        $favicon_image = get_option('favicon_image', 'website');
+        
         if (!$favicon_image) {
             $ui_favicon = mw()->ui->brand_favicon();
             if ($ui_favicon and trim($ui_favicon) != '') {
@@ -1328,14 +1328,10 @@ class FrontendController extends Controller
             $page_url = $this->app->url_manager->param_unset('preview_layout', $page_url);
         }
 
-        if (isset($_REQUEST['content_id']) and intval($_REQUEST['content_id']) != 0) {
-            $page = $this->app->content_manager->get_by_id($_REQUEST['content_id']);
-        }
 
         $output_cache_timeout = false;
 
         if ($is_quick_edit or $is_preview_template == true or isset($_REQUEST['isolate_content_field']) or $this->create_new_page == true) {
-            // dd('here');
             if (isset($_REQUEST['content_id']) and intval($_REQUEST['content_id']) != 0) {
                 $page = $this->app->content_manager->get_by_id($_REQUEST['content_id']);
             } else {
@@ -1413,6 +1409,7 @@ class FrontendController extends Controller
                 }
             }
         }
+
         if (isset($is_preview_template) and $is_preview_template != false) {
             if (!defined('MW_NO_SESSION')) {
                 define('MW_NO_SESSION', true);
@@ -1506,9 +1503,13 @@ class FrontendController extends Controller
                 if($page_url == 'shop'){
                     $slug_page = $this->app->permalink_manager->slug($page_url, 'page', true);
                 }else{
-                    $slug_page = $this->app->permalink_manager->slug($page_url, 'page', true);
                     $slug_post = $this->app->permalink_manager->slug($page_url, 'post', true);
-                    $slug_category = $this->app->permalink_manager->slug($page_url, 'category', true);
+                    if(!$slug_post){
+                        $slug_page = $this->app->permalink_manager->slug($page_url, 'page', true);
+                        if(!$slug_page){
+                            $slug_category = $this->app->permalink_manager->slug($page_url, 'category', true);
+                        }
+                    }
                 }
 
                 $found_mod = false;
@@ -1519,12 +1520,11 @@ class FrontendController extends Controller
                 if ($slug_post) {
                     // $page = $this->app->content_manager->get_by_url($slug_post);
                     // $page_exact = $this->app->content_manager->get_by_url($slug_post, true);
-                    $page = $page_exact = DB::table('content')->where('url',$slug_post)->get()->map(function($i){
-                        return (array)$i;
-                    })->toArray()[0];
-                    // $page_exact = $this->app->content_manager->get_by_url($slug_post, true);
+                    // $page = DB::table('content')->where('url', $slug_post)->where('is_active', 1)->where('is_deleted', 0)->first();
+                    // $page = collect($page)->toArray();
+                    $page = $slug_post;
+                    $page_exact = $page;
                 }
-
 
                 // dd($slug_post);
                 // if (true) {
@@ -1533,12 +1533,10 @@ class FrontendController extends Controller
                 // dd($slug_post);
 
                 if (isset($slug_page) and $slug_page and !$page) {
-                    $page = $page_exact = DB::table('content')->where('url',$page_url)->get()->map(function($i){
-                        return (array)$i;
-                    })->toArray()[0];
+                    // $page = $this->app->content_manager->get_by_url($page_url);
                     // $page_exact = $this->app->content_manager->get_by_url($page_url, true);
-                    // $page = $slug_page;
-                    // $page_exact = $page;
+                    $page = $slug_page;
+                    $page_exact = $page;
                 }
 
                 if (isset($slug_category) and $slug_category and !$page) {
@@ -1825,12 +1823,17 @@ class FrontendController extends Controller
             $content = $page;
             // $page = $this->app->content_manager->get_by_id($page['parent']);
             $page = DB::table('content')->where('id',$page['parent'])->get()->map(function($i){
-                        return (array)$i;
-                    })->toArray()[0];
+                return (array)$i;
+            })->toArray()[0];
 
             // dd($page, 'test');
         } elseif (isset($page['id']) and $page['id'] != 0) {
 
+            // return true;
+            // if(!isset($page['layout_file']) or $page['layout_file'] == false){
+            // $page = $this->app->content_manager->get_by_id($page['id']);
+            // return true;
+            // }
             if ($page['content_type'] == 'post' and isset($page['parent'])) {
 
                 $content = $page;
@@ -2647,7 +2650,7 @@ class FrontendController extends Controller
                 $page = DB::table('content')->where('url',$url)->get()->map(function($i){
                         return (array)$i;
                     })->toArray()[0];
-
+                    
             }
         } else {
             $url = $this->app->url_manager->string();

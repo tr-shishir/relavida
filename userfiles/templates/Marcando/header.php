@@ -178,6 +178,10 @@
                                         });
                                     }
                                 });
+
+                                $.get("<?=url('api/v1/get_total_products_count') ?>", function(res){
+                                    $(".cart-modal-primary .lead").text("Über " + res + " Produkte warten auf Sie!");
+                                });
                             });
                         </script>
                         <style>

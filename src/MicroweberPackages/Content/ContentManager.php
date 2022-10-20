@@ -1571,10 +1571,10 @@ class ContentManager
                 define('CATEGORY_ID', intval($cat_url));
             }
         }
-        // dd(debug_backtrace(1));
-        //    dd(debug_backtrace(1));
-        //    dd(__METHOD__,$content,__LINE__);
-        //
+       // dd(debug_backtrace(1));
+     //    dd(debug_backtrace(1));
+//    dd(__METHOD__,$content,__LINE__);
+//
         if (is_array($page)) {
             if (isset($page['content_type']) and ($page['content_type'] != 'page')) {
                 if (isset($page['id']) and $page['id'] != 0) {
@@ -1675,22 +1675,27 @@ class ContentManager
         if (defined('ACTIVE_PAGE_ID') == false) {
             define('ACTIVE_PAGE_ID', false);
         }
-        if (defined('CATEGORY_ID') === false) {
-            $cat_id = $this->app->category_manager->get_category_id_from_url();
-            if ($cat_id != false) {
-                define('CATEGORY_ID', intval($cat_id));
-            }
-        }
+        // if (defined('CATEGORY_ID') === false) {
+        //     $cat_id = $this->app->category_manager->get_category_id_from_url();
+        //     if ($cat_id != false) {
+        //         define('CATEGORY_ID', intval($cat_id));
+        //     }
+        // }
         if (!defined('CATEGORY_ID')) {
             define('CATEGORY_ID', false);
         }
-        if (defined('PAGE_ID') === false) {
-            $getPageSlug = $this->app->permalink_manager->slug($ref_page, 'page');
-            $pageFromSlug = $this->app->content_manager->get_by_url($getPageSlug);
-            if ($pageFromSlug) {
-                $page = $pageFromSlug;
-                $content = $pageFromSlug;
+
+        if (defined('PAGE_ID') == false) {
+            if(isset($page['id'])){
                 define('PAGE_ID', intval($page['id']));
+            }else{
+                $getPageSlug = $this->app->permalink_manager->slug($ref_page, 'page');
+                $pageFromSlug = $this->app->content_manager->get_by_url($getPageSlug);
+                if ($pageFromSlug) {
+                    $page = $pageFromSlug;
+                    $content = $pageFromSlug;
+                    define('PAGE_ID', intval($page['id']));
+                }
             }
         }
 

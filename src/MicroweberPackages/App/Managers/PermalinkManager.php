@@ -30,7 +30,7 @@ class PermalinkManager
 
     public function slug($link, $type, $status = false)
     {
-        $key = sha1($link ."_" . $type);
+        $key = sha1($link ."_" . $type . "_" . $status);
 
         return Cache::remember($key, 200, function () use($link, $type, $status) {
 
@@ -58,37 +58,75 @@ class PermalinkManager
                         }
 
                         if ($type == 'category') {
-                            $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
-                            if ($findCategoryBySlug) {
-                                return $findCategoryBySlug['url'];
-                            }
-                        }
+                            // $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
+                                $findCategoryBySlug = DB::table('categories')->where('url', $findSlugByType)->first();
+                                $findCategoryBySlug = collect($findCategoryBySlug)->toArray();
+                                if ($findCategoryBySlug) {
+                                    if($status){
+                                        return $findCategoryBySlug;
+                                    } else{
+                                        return $findCategoryBySlug['url'];
+                                    }
+                                }
 
+                        }
+                        
                         if ($type == 'page') {
 
-                            // If page found return slug
-                            $findPageBySlug = get_pages('url=' . $findSlugByType . '&single=1');
-                            if ($findPageBySlug) {
-                                return $findPageBySlug['url'];
-                            }
+                                if($status){
+                                    // If page found return slug
+                                    // $findPageBySlug = get_pages('url=' . $findSlugByType . '&single=1');
+                                    $findPageBySlug = DB::table('content')->where('url', $findSlugByType)->where('content_type', 'page')->first();
+                                    $findPageBySlug = collect($findPageBySlug)->toArray();
+                                    if ($findPageBySlug) {
+                                        return $findPageBySlug;
+                                    }
 
-                            // If page not found try to find page from category
-                            $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
-                            if ($findCategoryBySlug) {
-                                $findCategoryPage = get_page_for_category($findCategoryBySlug['id']);
-                                if ($findCategoryPage && isset($findCategoryPage['url'])) {
-                                    return $findCategoryPage['url'];
-                                }
-                            }
+                                    // If page not found try to find page from category
+                                    $findCategoryBySlug = DB::table('categories')->where('url', $findSlugByType)->pluck('id')->first();
+                                    if ($findCategoryBySlug) {
+                                        $findCategoryPage = get_page_for_category($findCategoryBySlug['id']);
+                                        if ($findCategoryPage && isset($findCategoryPage['url'])) {
+                                            return $findCategoryPage;
+                                        }
+                                    }
 
-                            // If page not fond & category not found we try to find post
-                            $findPostBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
-                            if ($findPostBySlug && isset($findPostBySlug['parent']) && $findPostBySlug['parent'] != false) {
-                                $findPostPageBySlug = get_pages('id=' . $findPostBySlug['parent'] . '&single=1');
-                                if ($findPostPageBySlug) {
-                                    return $findPostPageBySlug['url'];
+                                    // If page not fond & category not found we try to find post
+                                    $findPostBySlug = DB::table('content')->where('subtype', 'post')->where('url', $findSlugByType)->pluck('parent')->first();
+                                    if ($findPostBySlug != false) {
+                                        $findPostPageBySlug = DB::table('content')->where('subtype', 'page')->where('id', $findPostBySlug)->first();
+                                        $findPostPageBySlug = collect($findPostPageBySlug)->toArray();
+                                        if ($findPostPageBySlug) {
+                                            return $findPostPageBySlug;
+                                        }
+                                    }
+                                }else{
+                                    // If page found return slug
+                                    $findPageBySlug = get_pages('url=' . $findSlugByType . '&single=1');
+                                    // $findPageBySlug = DB::table('content')->where('url', $findSlugByType)->where('content_type', 'page')->where('is_active', 1)->where('is_deleted', 0)->pluck('url')->first();
+                                    if ($findPageBySlug) {
+                                        return $findPageBySlug['url'];
+                                    }
+
+                                    // If page not found try to find page from category
+                                    $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
+                                    if ($findCategoryBySlug) {
+                                        $findCategoryPage = get_page_for_category($findCategoryBySlug['id']);
+                                        if ($findCategoryPage && isset($findCategoryPage['url'])) {
+                                            return $findCategoryPage['url'];
+                                        }
+                                    }
+
+                                    // If page not fond & category not found we try to find post
+                                    $findPostBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
+                                    if ($findPostBySlug && isset($findPostBySlug['parent']) && $findPostBySlug['parent'] != false) {
+                                        $findPostPageBySlug = get_pages('id=' . $findPostBySlug['parent'] . '&single=1');
+                                        if ($findPostPageBySlug) {
+                                            return $findPostPageBySlug['url'];
+                                        }
+                                    }
                                 }
-                            }
+
 
                             /*   var_dump([
                                     'link'=>$link,
@@ -100,24 +138,40 @@ class PermalinkManager
                         }
 
                         if ($type == 'post') {
-                            $findPostsBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
 
-                            if ($findPostsBySlug) {
-                                return $findPostsBySlug['url'];
-                            }
+                                if($status){
+                                    $findPostsBySlug = DB::table('content')->where('subtype', 'post')->where('url', $findSlugByType)->first();
+                                    $findPostsBySlug = collect($findPostsBySlug)->toArray();
+                                    if ($findPostsBySlug) {
+                                        return $findPostsBySlug;
+                                    }
+                                    $findPostsBySlug = DB::table('content')->where('url', $findSlugByType)->first();
+                                    $findPostsBySlug = collect($findPostsBySlug)->toArray();
+                                    if ($findPostsBySlug && isset($findPostsBySlug['content_type']) && $findPostsBySlug['content_type'] != 'page'){
+                                        return $findPostsBySlug;
+                                    }
+                                } else{
+                                    $findPostsBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
+                                    if ($findPostsBySlug) {
+                                        return $findPostsBySlug['url'];
+                                    }
+                                    $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
+                                    if ($findPostsBySlug && isset($findPostsBySlug['content_type']) && $findPostsBySlug['content_type'] != 'page') {
+                                        return $findPostsBySlug['url'];
+                                    }
 
-                            $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
-                            if ($findPostsBySlug && isset($findPostsBySlug['content_type']) && $findPostsBySlug['content_type'] != 'page') {
-                                return $findPostsBySlug['url'];
-                            }
+                                }
+
+
                         }
 
-
                         if ($type == 'content') {
-                            $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
+                            // $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
+                            $findPostsBySlug = DB::table('content')->where('url', $findSlugByType)->pluck('url')->first();
 
                             if ($findPostsBySlug) {
-                                return $findPostsBySlug['url'];
+                                return $findPostsBySlug;
+                                // return $findPostsBySlug['url'];
                             }
                         }
 
@@ -134,110 +188,6 @@ class PermalinkManager
 
             return false;
         });
-    }
-
-    public function slugll($link, $type, $status = false)
-    {
-
-        if (!$link) {
-            $link = $this->app->url_manager->current(true);
-        }
-
-        $linkSegments = url_segment(-1, $link);
-        $linkSegments = array_filter($linkSegments, 'strlen');
-
-        if (empty($linkSegments)) {
-            return false;
-        }
-
-        $structureMap = $this->getStructuresReadMap();
-        foreach ($structureMap as $structureMapIndex => $structureMapItem) {
-            if (strpos($structureMapItem, $type) !== false) {
-                if (isset($linkSegments[$structureMapIndex])) {
-
-                    $findSlugByType = $linkSegments[$structureMapIndex];
-
-                    $override = $this->app->event_manager->trigger('app.permalink.slug.before', ['type' => $type, 'slug' => $findSlugByType]);
-                    if ($override and is_array($override) and isset($override[0]) and $override[0]) {
-                        return $override[0];
-                    }
-
-                    if ($type == 'category') {
-                        $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
-                        if ($findCategoryBySlug) {
-                            return $findCategoryBySlug['url'];
-                        }
-                    }
-
-                    if ($type == 'page') {
-
-                        // If page found return slug
-                        $findPageBySlug = get_pages('url=' . $findSlugByType . '&single=1');
-                        if ($findPageBySlug) {
-                            return $findPageBySlug['url'];
-                        }
-
-                        // If page not found try to find page from category
-                        $findCategoryBySlug = get_categories('url=' . $findSlugByType . '&single=1');
-                        if ($findCategoryBySlug) {
-                            $findCategoryPage = get_page_for_category($findCategoryBySlug['id']);
-                            if ($findCategoryPage && isset($findCategoryPage['url'])) {
-                                return $findCategoryPage['url'];
-                            }
-                        }
-
-                        // If page not fond & category not found we try to find post
-                        $findPostBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
-                        if ($findPostBySlug && isset($findPostBySlug['parent']) && $findPostBySlug['parent'] != false) {
-                            $findPostPageBySlug = get_pages('id=' . $findPostBySlug['parent'] . '&single=1');
-                            if ($findPostPageBySlug) {
-                                return $findPostPageBySlug['url'];
-                            }
-                        }
-
-                        /*   var_dump([
-                                'link'=>$link,
-                                'type'=>$type,
-                                'findSlugByType'=>$findSlugByType,
-                                'linkSegments'=>$linkSegments,
-                                'structureMapIndex'=>$structureMapIndex
-                            ]);*/
-                    }
-
-                    if ($type == 'post') {
-                        $findPostsBySlug = get_content('subtype=post&url=' . $findSlugByType . '&single=1');
-
-                        if ($findPostsBySlug) {
-                            return $findPostsBySlug['url'];
-                        }
-
-                        $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
-                        if ($findPostsBySlug && isset($findPostsBySlug['content_type']) && $findPostsBySlug['content_type'] != 'page') {
-                            return $findPostsBySlug['url'];
-                        }
-                    }
-
-
-                    if ($type == 'content') {
-                        $findPostsBySlug = get_content('url=' . $findSlugByType . '&single=1');
-
-                        if ($findPostsBySlug) {
-                            return $findPostsBySlug['url'];
-                        }
-                    }
-
-
-                    /*
-                        * Here it must not return anything if not found slug in database.
-                        * Case we brake many cases.
-                        *
-                        return $findSlugByType;
-                    */
-                }
-            }
-        }
-
-        return false;
     }
 
     public function link($id, $type, $returnSlug = false)

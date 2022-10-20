@@ -51,7 +51,16 @@ class CartManager extends Crud
         $get_params['order_completed'] = 0;
         $get_params['session_id'] = $sid;
         //$get_params['no_cache'] = true;
-        $sumq = $this->app->database_manager->get($this->table, $get_params);
+        $key1 = json_encode($get_params);
+        $key1 = sha1($this->table . "_" . $key1);
+        if(array_key_exists($key1, $GLOBALS)){
+            $sumq = $GLOBALS[$key1];
+        }else{
+            $sumq = $this->app->database_manager->get($this->table, $get_params);
+            $GLOBALS = array_merge($GLOBALS, array(
+                $key1 => $sumq
+            ));
+        }
 
         $get_id=null;
         if (is_array($sumq)) {
@@ -70,9 +79,27 @@ class CartManager extends Crud
                 }
                 $u_session = session_id();
                 $u_id = user_id();
-                $get_id=DB::table('subscription_order_status')->where('order_id',null)->where('product_id',$value['rel_id'])->where('user_id', $u_id)->where('session_id', $u_session)->first();
+                $key2 = sha1($value['rel_id'] . "_" . $u_id . "_" . $u_session . "_subscription");
+                if(array_key_exists($key2, $GLOBALS)){
+                    $get_id = $GLOBALS[$key2];
+                }else{
+                    $get_id = DB::table('subscription_order_status')->where('order_id',null)->where('product_id',$value['rel_id'])->where('user_id', $u_id)->where('session_id', $u_session)->first();
+                    $GLOBALS = array_merge($GLOBALS, array(
+                        $key2 => $get_id
+                    ));
+                }
+                $key3 = sha1($value['rel_id'] . "_" . $u_id . "_" . $u_session . "_upselling");
+                if(array_key_exists($key3, $GLOBALS)){
+                    $selectedUpselling = $GLOBALS[$key3];
+                }else{
+                    $selectedUpselling = DB::table("selected_product_upselling_item")->where('product_id', $value['rel_id'] )->where('user_id',user_id())->get();
+                    $GLOBALS = array_merge($GLOBALS, array(
+                        $key3 => $selectedUpselling
+                    ));
+                }
+                // $get_id=DB::table('subscription_order_status')->where('order_id',null)->where('product_id',$value['rel_id'])->where('user_id', $u_id)->where('session_id', $u_session)->first();
+                // $selectedUpselling = DB::table("selected_product_upselling_item")->where('product_id', $value['rel_id'] )->where('user_id',user_id())->get();
                 $sprice = 0;
-                $selectedUpselling = DB::table("selected_product_upselling_item")->where('product_id', $value['rel_id'] )->where('user_id',user_id())->get();
                 if($selectedUpselling->count()){
                     foreach($selectedUpselling as $selectValue){
                         $sprice = $sprice + $selectValue->service_price;
