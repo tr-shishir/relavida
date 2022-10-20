@@ -65,7 +65,12 @@ class FrontendController extends Controller
         // if(get_option('vacation_mode', 'website') == "yes"){
         //     return view('vacation');
         // }
-        $get_url_d = Content::where('url' ,'=', url_segment(0))->where('is_active','=',0)->first();
+
+        //old query
+        // $get_url_d = Content::where('url' ,'=', url_segment(0))->where('is_active','=',0)->first();
+
+        //new query
+        $get_url_d = DB::table('content')->select('id')->where('url' ,'=', url_segment(0))->where('is_active','=',0)->pluck('id')->first();
         if($get_url_d){
             return redirect('/');
         }
@@ -99,10 +104,10 @@ class FrontendController extends Controller
                 if ($embed_images) {
                     $item['image'] = get_picture($item['id']);
                     if ($item['image'] and $item['image'] != '') {
-//                    $imageSize = getimagesize($item['image']);
+            //                    $imageSize = getimagesize($item['image']);
                         $item['image_tag'] = '<img src="' . $item['image'] . '" width="100%" /> ';
-//                    $item['image_mime'] = $imageSize['mime'];
-//                    $item['image_bits'] = $imageSize['bits'];
+            //                    $item['image_mime'] = $imageSize['mime'];
+            //                    $item['image_bits'] = $imageSize['bits'];
 
                         $item['image_mime'] = '';
                         $item['image_bits'] = '';
@@ -739,7 +744,10 @@ class FrontendController extends Controller
                 $page = array();
                 $page['id'] = $content_id;
                 if ($content_id) {
-                    $page = $this->app->content_manager->get_by_id($content_id);
+                    $page = DB::table('content')->where('id',$content_id)->get()->map(function($i){
+                        return (array)$i;
+                    })->toArray()[0];
+                    // $page = $this->app->content_manager->get_by_id($content_id);
                     $url = $page['url'];
                 }
             } else {
@@ -1049,10 +1057,10 @@ class FrontendController extends Controller
         }
 
         if ($has_id == false) {
-//            if (defined('MW_MODULE_ONDROP')) {
-//                $mod_n = $this->app->url_manager->slug($mod_n) . '-' . date("YmdHis").unquid();
-//                $tags .= "id=\"$mod_n\" ";
-//            }
+        //            if (defined('MW_MODULE_ONDROP')) {
+        //                $mod_n = $this->app->url_manager->slug($mod_n) . '-' . date("YmdHis").unquid();
+        //                $tags .= "id=\"$mod_n\" ";
+        //            }
             //  $mod_n = $this->app->url_manager->slug($mod_n) . '-' . date("YmdHis");
             //  $tags .= "id=\"$mod_n\" ";
         }
@@ -1149,9 +1157,9 @@ class FrontendController extends Controller
         if (get_option('vacation_mode', 'website') == "yes") {
             if (!is_admin()) {
 
-                $page = DB::table('content')->where('url','vacation')->first();
+                $page = DB::table('content')->where('url','vacation')->pluck('url')->first();
                 if(isset($page) && !empty($page)){
-                    $this->render_this_url =  url($page->url);
+                    $this->render_this_url =  url($page);
                 }
                 // return $vacation;
             }
@@ -1187,8 +1195,7 @@ class FrontendController extends Controller
         }
 
 
-        $favicon_image = get_option('favicon_image', 'website');
-
+        $favicon_image = get_option('favicon_image', 'website'); //return $favicon_image;
         if (!$favicon_image) {
             $ui_favicon = mw()->ui->brand_favicon();
             if ($ui_favicon and trim($ui_favicon) != '') {
@@ -1210,7 +1217,7 @@ class FrontendController extends Controller
 
         $page_url = rtrim($page_url, '/');
         $is_admin = $this->app->user_manager->is_admin();
-        $page_url_orig = $page_url;
+        // $page_url_orig = $page_url;
         $simply_a_file = false;
         $show_404_to_non_admin = false;
         $enable_full_page_cache = false;
@@ -1296,11 +1303,11 @@ class FrontendController extends Controller
         $preview_module_template = false;
         $is_preview_module_skin = false;
         $preview_module_id = false;
-        $template_relative_layout_file_from_url = false;
+        // $template_relative_layout_file_from_url = false;
         $is_preview_module = $this->app->url_manager->param('preview_module');
 
         if ($is_preview_module != false) {
-            if ($this->app->user_manager->is_admin()) {
+            if ($is_admin) {
                 $is_preview_module = module_name_decode($is_preview_module);
                 if (is_module($is_preview_module)) {
                     $is_preview_module_skin = $this->app->url_manager->param('preview_module_template');
@@ -1327,8 +1334,8 @@ class FrontendController extends Controller
 
         $output_cache_timeout = false;
 
-
         if ($is_quick_edit or $is_preview_template == true or isset($_REQUEST['isolate_content_field']) or $this->create_new_page == true) {
+            // dd('here');
             if (isset($_REQUEST['content_id']) and intval($_REQUEST['content_id']) != 0) {
                 $page = $this->app->content_manager->get_by_id($_REQUEST['content_id']);
             } else {
@@ -1475,13 +1482,11 @@ class FrontendController extends Controller
             } elseif ($urlend == 'rss') {
                 $rslug=false;
                 $page_exact = false;
-                $slug_page = $this->app->permalink_manager->slug($page_url, 'page');
                 $rslug = $this->app->permalink_manager->slug($page_url, 'post');
                 if($rslug==false){
                     $rslug=$rss_slug[0];
                 }
                 $slug_post =  $rslug . '/rss';
-                $slug_category = $this->app->permalink_manager->slug($page_url, 'category');
                 $found_mod = false;
 
                 $try_content = false;
@@ -1495,10 +1500,16 @@ class FrontendController extends Controller
             } else {
 
                 $page_exact = false;
-                $slug_page = $this->app->permalink_manager->slug($page_url, 'page');
-                $slug_post = $this->app->permalink_manager->slug($page_url, 'post');
+                $slug_page = false;
+                $slug_post = false;
 
-                $slug_category = $this->app->permalink_manager->slug($page_url, 'category');
+                if($page_url == 'shop'){
+                    $slug_page = $this->app->permalink_manager->slug($page_url, 'page', true);
+                }else{
+                    $slug_page = $this->app->permalink_manager->slug($page_url, 'page', true);
+                    $slug_post = $this->app->permalink_manager->slug($page_url, 'post', true);
+                    $slug_category = $this->app->permalink_manager->slug($page_url, 'category', true);
+                }
 
                 $found_mod = false;
 
@@ -1506,9 +1517,14 @@ class FrontendController extends Controller
 
 
                 if ($slug_post) {
-                    $page = $this->app->content_manager->get_by_url($slug_post);
-                    $page_exact = $this->app->content_manager->get_by_url($slug_post, true);
+                    // $page = $this->app->content_manager->get_by_url($slug_post);
+                    // $page_exact = $this->app->content_manager->get_by_url($slug_post, true);
+                    $page = $page_exact = DB::table('content')->where('url',$slug_post)->get()->map(function($i){
+                        return (array)$i;
+                    })->toArray()[0];
+                    // $page_exact = $this->app->content_manager->get_by_url($slug_post, true);
                 }
+
 
                 // dd($slug_post);
                 // if (true) {
@@ -1516,18 +1532,19 @@ class FrontendController extends Controller
                 // }
                 // dd($slug_post);
 
-                if ($slug_page and !$page) {
-                    $page = $this->app->content_manager->get_by_url($page_url);
-                    $page_exact = $this->app->content_manager->get_by_url($page_url, true);
+                if (isset($slug_page) and $slug_page and !$page) {
+                    $page = $page_exact = DB::table('content')->where('url',$page_url)->get()->map(function($i){
+                        return (array)$i;
+                    })->toArray()[0];
+                    // $page_exact = $this->app->content_manager->get_by_url($page_url, true);
+                    // $page = $slug_page;
+                    // $page_exact = $page;
                 }
 
-                if ($slug_category and !$page) {
-                    $cat = $this->app->category_manager->get_by_url($slug_category);
-                    if ($cat) {
-                        $content_for_cat = $this->app->category_manager->get_page($cat['id']);
-                        if ($content_for_cat) {
-                            $page = $page_exact = $content_for_cat;
-                        }
+                if (isset($slug_category) and $slug_category and !$page) {
+                    $content_for_cat = $this->app->category_manager->get_page($slug_category['id']);
+                    if ($content_for_cat) {
+                        $page = $page_exact = $content_for_cat;
                     }
                 }
 
@@ -1801,22 +1818,25 @@ class FrontendController extends Controller
                 // }
             }
         }
+
+
         if (isset($urlend) && $urlend == 'rss') {
             $page = $this->rssContent($rslug);
             $content = $page;
-            $page = $this->app->content_manager->get_by_id($page['parent']);
+            // $page = $this->app->content_manager->get_by_id($page['parent']);
+            $page = DB::table('content')->where('id',$page['parent'])->get()->map(function($i){
+                        return (array)$i;
+                    })->toArray()[0];
+
             // dd($page, 'test');
         } elseif (isset($page['id']) and $page['id'] != 0) {
 
-
-            // if(!isset($page['layout_file']) or $page['layout_file'] == false){
-            $page = $this->app->content_manager->get_by_id($page['id']);
-
-            // }
             if ($page['content_type'] == 'post' and isset($page['parent'])) {
 
                 $content = $page;
-                $page = $this->app->content_manager->get_by_id($page['parent']);
+                $page = DB::table('content')->where('id',$page['parent'])->get()->map(function($i){
+                        return (array)$i;
+                    })->toArray()[0];
             } else {
                 $content = $page;
             }
@@ -1866,7 +1886,7 @@ class FrontendController extends Controller
 
         if (isset($content['is_active']) and ($content['is_active'] == 'n' or $content['is_active'] == 0)) {
 
-            if ($this->app->user_manager->is_admin() == false) {
+            if ($is_admin == false) {
                 $page_non_active = array();
                 $page_non_active['id'] = 0;
                 $page_non_active['content_type'] = 'page';
@@ -1881,7 +1901,7 @@ class FrontendController extends Controller
             }
         } elseif (isset($content['is_deleted']) and $content['is_deleted'] == 1) {
 
-            if ($this->app->user_manager->is_admin() == false) {
+            if ($is_admin == false) {
                 $page_non_active = array();
                 $page_non_active['id'] = 0;
                 $page_non_active['content_type'] = 'page';
@@ -1920,7 +1940,7 @@ class FrontendController extends Controller
             if (isset($content['is_home']) and $content['is_home'] == 1) {
 
                 define('IS_HOME', true);
-                $this->app->template->head('<link rel="canonical" href="' . site_url() . '">');
+                $this->app->template->head('<link rel="canonical" href="' . $site . '">');
             }
         }
 
@@ -1948,7 +1968,12 @@ class FrontendController extends Controller
             $aa = explode('post', $render_file);
             $render_file = template_dir() . 'layouts/blog_inner.php';
         } else {
+            // dd($content);
             $render_file = $this->app->template->get_layout($content);
+        }
+
+        if(isset($_GET['render_file'])){
+            $render_file = $_GET['render_file'];
         }
 
 
@@ -1983,7 +2008,8 @@ class FrontendController extends Controller
             $content['title'] = 'New content';
         }
         $category = false;
-        if (defined('CATEGORY_ID')) {
+
+        if (defined('CATEGORY_ID') and CATEGORY_ID) {
             $category = $this->app->category_manager->get_by_id(CATEGORY_ID);
         }
         if ($is_editmode == true and !defined('IN_EDIT')) {
@@ -2054,6 +2080,7 @@ class FrontendController extends Controller
             $render_params['meta_tags'] = true;
 
             $l = $this->app->template->render($render_params);
+
             if (is_object($l)) {
                 return $l;
             }
@@ -2072,7 +2099,7 @@ class FrontendController extends Controller
                     }
                 }
 
-                $is_admin = $this->app->user_manager->is_admin();
+
                 if ($is_admin == true and isset($isolated_el) != false) {
                     $tb = mw_includes_path() . DS . 'toolbar' . DS . 'editor_tools' . DS . 'wysiwyg' . DS . 'index.php';
 
@@ -2094,6 +2121,7 @@ class FrontendController extends Controller
                     }
                 }
             }
+
             $modify_content = event_trigger('on_load', $content);
 
 
@@ -2124,7 +2152,6 @@ class FrontendController extends Controller
 
             //$apijs_loaded = $this->app->template->get_apijs_url() . '?id=' . CONTENT_ID;
 
-            $is_admin = $this->app->user_manager->is_admin();
             // $default_css = '<link rel="stylesheet" href="' . mw_includes_url() . 'default.css?v=' . MW_VERSION . '" type="text/css" />';
 
             $default_css_url = $this->app->template->get_default_system_ui_css_url();
@@ -2146,7 +2173,7 @@ class FrontendController extends Controller
             }
 
             $template_headers_src = $this->app->template->head(true);
-            $template_footer_src = $this->app->template->foot(true);
+            //$template_footer_src = $this->app->template->foot(true);
 
             $template_headers_src_callback = $this->app->template->head_callback($page);
             if (is_array($template_headers_src_callback) and !empty($template_headers_src_callback)) {
@@ -2273,17 +2300,16 @@ class FrontendController extends Controller
                 }
             }
 
-
             if (isset($content['original_link']) and $content['original_link'] != '') {
                 $content['original_link'] = str_ireplace('{site_url}', $this->app->url_manager->site(), $content['original_link']);
                 $redirect = $this->app->format->prep_url($content['original_link']);
-                if ($redirect != '' and $redirect != site_url() and $redirect . '/' != site_url()) {
+                if ($redirect != '' and $redirect != $site and $redirect . '/' != $site) {
                     return $this->app->url_manager->redirect($redirect);
                 }
             }
 
             if ($is_editmode == true and $this->isolate_by_html_id == false and !isset($_REQUEST['isolate_content_field'])) {
-                if ($is_admin == true) {
+                if ($is_admin == true && $page_url != 'shop') {
                     $tb = mw_includes_path() . DS . 'toolbar' . DS . 'toolbar.php';
 
                     $layout_toolbar = new View($tb);
@@ -2392,7 +2418,6 @@ class FrontendController extends Controller
             }
             if (isset($_REQUEST['debug'])) {
                 if ($this->app->make('config')->get('app.debug')) {
-                    $is_admin = $this->app->user_manager->is_admin();
                     if ($is_admin == true) {
                         include mw_includes_path() . 'debug.php';
                     }
@@ -2412,9 +2437,19 @@ class FrontendController extends Controller
                 $response->header('Expires', 'Fri, 01 Jan 1990 00:00:00 GMT');
                 $response->header('Cache-Control', 'no-cache, must-revalidate, no-store, max-age=0, private');
             }
-
+            // dd();
+            if(isset($_GET['render_file'])){
+                $file = TEMPLATE_DIR.'/headerll.php';
+                if (!file_exists($file)) {
+                    touch($file);
+                    file_put_contents($file, str_replace(["</body>","</html>"],"",$response->original));
+                }else{
+                    file_put_contents($file, str_replace(["</body>","</html>"],"",$response->original));
+                }
+            }
 
             return $response;
+
         } else {
             echo 'Error! Page is not found? Please login in the admin and make a page.';
 
@@ -2608,7 +2643,11 @@ class FrontendController extends Controller
                 //$page = $this->app->content_manager->get_by_url($url);
                 $page = $this->app->content_manager->homepage();
             } else {
-                $page = $this->app->content_manager->get_by_url($url);
+                // $page = $this->app->content_manager->get_by_url($url);
+                $page = DB::table('content')->where('url',$url)->get()->map(function($i){
+                        return (array)$i;
+                    })->toArray()[0];
+
             }
         } else {
             $url = $this->app->url_manager->string();

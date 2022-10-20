@@ -358,6 +358,56 @@ class CategoryManager
         return $get_category;
     }
 
+    public function get_for_dt_product($content_id, $data_type = 'categories')
+    {
+        if (intval($content_id) == 0) {
+            return false;
+        }
+
+        if ($data_type == 'categories') {
+            $data_type = 'category';
+        }
+        if ($data_type == 'tags') {
+            $data_type = 'tag';
+        }
+
+        $get_category = Category::where('data_type', $data_type)
+            ->where('rel_id', $content_id)
+            ->where('rel_type', 'product')
+            ->orderBy('position', 'asc')
+            ->get();
+
+        // $get_category = $this->get('order_by=position asc&data_type=' . $data_type . '&rel_type=content&rel_id=' . ($content_id));
+        if (empty($get_category)) {
+            $get_category = array();
+        } else {
+            $get_category = $get_category->toArray();
+        }
+
+        if (!empty($include_parents)) {
+            $include_parents_str = 'order_by=position asc&data_type=' . $data_type . '&rel_type=content&ids=' . implode(',', $include_parents);
+            $get_category2 = $this->get($include_parents_str);
+
+            if (!empty($get_category2)) {
+                foreach ($get_category2 as $item) {
+                    $get_category[] = $item;
+                }
+            }
+        }
+
+        if (is_array($get_category) and !empty($get_category)) {
+            //array_unique($get_category);
+
+            $get_category = array_unique_recursive($get_category);
+        }
+
+        if (empty($get_category)) {
+            return false;
+        }
+
+        return $get_category;
+    }
+
     /**
      * Gets category items count.
      *

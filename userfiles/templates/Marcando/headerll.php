@@ -1,32 +1,27 @@
 <!DOCTYPE html>
-<html prefix="og: http://ogp.me/ns#" <?php print lang_attributes(); ?>>
-
+<html prefix="og: http://ogp.me/ns#" lang="en" dir="ltr">
 <head>
-
-    <title>{content_meta_title}</title>
-    <?php if (Config::get('custom.disableGoggleIndex') == 1) : ?>
-        <meta name="robots" content="noimageindex,nomediaindex" />
-    <?php endif; ?>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <meta property="og:title" content="{content_meta_title}" />
-    <meta name="keywords" content="{content_meta_keywords}" />
-    <meta name="description" content="{content_meta_description}" />
-    <meta property="og:type" content="{og_type}" />
-    <meta property="og:url" content="{content_url}" />
-    <meta property="og:image" content="{content_image}" />
-    <meta property="og:description" content="{og_description}" />
-    <meta property="og:site_name" content="{og_site_name}" />
-
-    <script>
+<script src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/apijs_combined?mwv=1.2.0"></script>
+<link rel="stylesheet" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/modules/microweber/default.css" type="text/css" />
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<title>Blog</title>
+<meta name="robots" content="noimageindex,nomediaindex">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:title" content="Blog">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<meta property="og:type" content="page">
+<meta property="og:url" content="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/blog">
+<meta property="og:image" content="">
+<meta property="og:description" content="">
+<meta property="og:site_name" content="RelaVida">
+<script>
         mw.require('icon_selector.js');
         mw.lib.require('bootstrap4');
         mw.lib.require('bootstrap_select');
-    </script>
-
-    <script>
+    </script><script>
         $(document).ready(function() {
             $('.selectpicker').selectpicker();
             mw.iconLoader()
@@ -36,105 +31,107 @@
             .addIconSet('mwIcons')
             .addIconSet('materialIcons');
         });
-    </script>
-    <?php
-    print(template_head(true));
-    //Seo data for google anaylytical
-    $is_installed_status = Config::get('microweber.is_installed');
-    (@$is_installed_status) ? basicGoogleAnalytical() : '';
-    //end code
-    ?>
-
-    <!-- Plugins Styles -->
-    <link href="<?php print template_url(); ?>assets/plugins/magnific-popup/magnific-popup.css" rel="stylesheet" />
-
-    <link href="<?php print template_url(); ?>assets/js/libs/swiper/css/swiper.min.css" rel="stylesheet" />
-
-
-    <link rel="stylesheet" href="<?php print template_url(); ?>assets/css/material_icons/material_icons.css" type="text/css" />
-    <link href="<?php print template_url(); ?>assets/css/style.css" rel="stylesheet" />
-    <link href="<?php print template_url(); ?>assets/css/main-style.css" rel="stylesheet" />
-    <link href="<?php print template_url(); ?>assets/css/responsive.css" rel="stylesheet" />
-
-    <?php print get_template_stylesheet(); ?>
-
-
-    <script type="text/javascript" src="<?php print template_url(); ?>assets/plugins/meanmenu/jquery.meanmenu.min.js"></script>
-
-    <script src="<?php print template_url(); ?>assets/js/jquery.smartmenus.min.js"></script>
-
-    <link href="<?php print template_url(); ?>assets/css/sm-core-css.min.css" rel="stylesheet" />
-
-    <link rel="stylesheet" href="<?php print template_url(); ?>assets/css/sm-simple.css" />
-    <link rel="stylesheet" href="<?php print template_url(); ?>assets/plugins/meanmenu/meanmenu.min.css" />
-    <?php $url_segment = url_segment(); ?>
-    <?php if(isset($url_segment[0]) and $url_segment[0] == 'shop'): ?>
-        <?php if(is_logged()): ?>
-            <script src="<?php print template_url(); ?>assets/js/select2.min.js"></script>
-            <link href="<?php print template_url(); ?>assets/css/select2.min.css" rel="stylesheet"/>
-            <script type="text/javascript" src="<?php print template_url(); ?>assets/js/jquery-ui.js"></script>
-        <?php endif; ?>
-    <?php else: ?>
-        <script src="<?php print template_url(); ?>assets/js/select2.min.js"></script>
-        <link href="<?php print template_url(); ?>assets/css/select2.min.css" rel="stylesheet"/>
-        <script type="text/javascript" src="<?php print template_url(); ?>assets/js/jquery-ui.js"></script>
-    <?php endif; ?>
-    <?php include('template_settings.php'); ?>
-</head>
-
-<body class="<?php print helper_body_classes(); print 'member-nav-inverse ' . $header_style . ' ' . $sticky_navigation;  if(defined('IS_HOME')){ print ' homepage'; }?> " >
-
-    <input type="hidden" id="page_id_for_layout_copy" value="<?= PAGE_ID; ?>">
-    <?php
-
-    ?>
-    <div class="main">
-        <?php
-            $hide_header_page_id = DB::table('header_show_hides')->select('id')->where('page_id', PAGE_ID)->first();
-            if ($hide_header_page_id) {
-                $headerShowCss = "none";
-            } else {
-                $headerShowCss = "block";
+    </script><link rel="shortcut icon" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/media/default/favicon-klein.png">
+<!-- Plugins Styles --><link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/plugins/magnific-popup/magnific-popup.css" rel="stylesheet">
+<link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/js/libs/swiper/css/swiper.min.css" rel="stylesheet">
+<link rel="stylesheet" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/css/material_icons/material_icons.css" type="text/css">
+<link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/css/style.css" rel="stylesheet">
+<link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/css/main-style.css" rel="stylesheet">
+<link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/css/responsive.css" rel="stylesheet">
+<link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/media/default/css/assets/css/less/main.less.1.2.0-1.2.5.css?t=1658818583" id="theme-style" rel="stylesheet" type="text/css" media="all">
+<script type="text/javascript" src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/plugins/meanmenu/jquery.meanmenu.min.js"></script><script src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/js/jquery.smartmenus.min.js"></script><link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/css/sm-core-css.min.css" rel="stylesheet">
+<link rel="stylesheet" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/css/sm-simple.css">
+<link rel="stylesheet" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/plugins/meanmenu/meanmenu.min.css">
+<script src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/js/select2.min.js"></script><link href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/css/select2.min.css" rel="stylesheet">
+<script type="text/javascript" src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/templates/Marcando/assets/js/jquery-ui.js"></script>
+<link rel="shortcut icon" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/media/default/favicon-klein.png" />
+<link rel="stylesheet" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/css/Marcando/live_edit.css?version=1662740614" id="mw-template-settings" type="text/css" /><link rel="stylesheet" href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/cache/custom_css.a100caaeefb5ae78ca3e8a1c1c8885ae.1.2.0.css?ver=1665035377" id="mw-custom-user-css" type="text/css" /><meta name="google-site-verification" content="5uvR0rFsvSNPO7b-T2bgwFGZDFVM2oqp1Q65M9uLTGk" />
+<meta name="generator" content="Dropienda" />
+<script>
+            async function doAjax() {
+                $( document ).ready(function() {
+                    $.get( "http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/csrf", function( data ) {
+                    $('meta[name="csrf-token"]').attr('content',data.token)
+                        $.ajaxSetup({
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            }
+                        });
+                    })
+                },10);
             }
-            $shop_cat = $GLOBALS['shop_data'][0]['id'];
-            $blog_cat = $GLOBALS['blog_data'][0]['id'];
-            $active = intval($GLOBALS['custom_active_category']);
-            if (!empty($active)) {
-                $showHeader = header_cate_status();
-            }
-            if($headerShowCss == 'block'):
-        ?>
-        <header class="header">
-            <div class="header-top">
+
+            doAjax();
+        </script>
+        <meta name="csrf-token" content="" /></head>
+<body class="page-id-11 content-id-11 page-blog Marcandomember-nav-inverse header-inverse sticky-nav ">
+
+    <input type="hidden" id="page_id_for_layout_copy" value="11"><div class="main">
+                <header class="header"><div class="header-top">
                 <div class="container">
                     <div class="logo">
-                        <module type="logo" class="logo" id="header-logo" />
-                    </div>
+                        <div class='logo module module-logo '   data-mw-title="Logo" id="header-logo"   data-type="logo"   parent-module="logo"   parent-module-id="header-logo"  >
+
+
+<a href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/">
+    
+        <img src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/media/default/relavida-logo-ededed.png" alt="" style="max-width: 100%; width: 200px;" />
+    
+        </a></div>
+</div>
                     <div class="menu">
-                        <module type="menu" id="header-menu" template="navbar" />
-                    </div>
+                        <div class=' module module-menu '   data-mw-title="Menu" id="header-menu"   template="navbar"   data-type="menu"   parent-module="menu"   parent-module-id="header-menu"  >
+<script>
+
+    /*    $(document).ready(function () {
+     $('ul.nav .dropdown').hover(function () {
+     $(this).find('.dropdown-menu:first', this).stop(true, true).delay(200).fadeIn();
+     }, function () {
+     $(this).find('.dropdown-menu:first', this).stop(true, true).delay(200).fadeOut();
+     });
+     });*/
+
+</script>
+<style>
+    .custom_hover_menu span.expandCat {
+        display: none !important;
+    }
+    @media (min-width: 1000px){
+        #header-menu li>ul li a.dropdown-toggle::after {
+            margin-left: 0 !important;
+        }
+    }
+
+    .leftSubmenu ul li ul.dropdown-menu {
+        left: auto !important;
+        right: 100% !important;
+    }
+    .leftSubmenu ul li a.dropdown-toggle::after{
+        transform: unset !important;
+    }
+    .navbar_new ul.list>li:nth-last-child(2) ul li ul.dropdown-menu,
+    .navbar_new ul.list>li:last-child ul li ul.dropdown-menu {
+        left: auto !important;
+        right: 100% !important;
+    }
+    .navbar_new ul.list>li:nth-last-child(2) ul li a.dropdown-toggle::after,
+    .navbar_new ul.list>li:last-child ul li a.dropdown-toggle::after{
+        transform: unset !important;
+    }
+</style>
+<div class="add_more_nav custom_hover_menu navbar_new">
+<ul role="menu"  id=""  class="list menu_1  menu-root menu-item-id-2 menu-item-parent-1" ><li role="menuitem" class="    depth-0" data-item-id="2" ><a itemprop="url" data-item-id="2" class="menu_element_link   menu-root menu-item-id-2 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/" ><span>Home</span></a></li><li role="menuitem" class="    depth-0" data-item-id="5" ><a itemprop="url" data-item-id="5" class="menu_element_link   first-child child-0 menu-item-id-5 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/shop" ><span>Shop</span></a></li><li role="menuitem" class=" active   depth-0" data-item-id="8" ><a itemprop="url" data-item-id="8" class="menu_element_link active  first-child child-0 menu-item-id-8 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/blog" ><span>Blog</span></a></li><li role="menuitem" class="    depth-0" data-item-id="15" ><a itemprop="url" data-item-id="15" class="menu_element_link   first-child child-0 menu-item-id-15 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/leistungen-fuer-verbraucher" ><span>Kundenvorteile</span></a></li></ul></div></div>
+</div>
                     <div class="header-top-text edit" field="header_top_text" rel="global">
-                        <span>
-                            <i class="fa fa-phone" aria-hidden="true"></i>
-                            HOTLINE 12-888-88-87
-                        </span>
-                    </div>
+                        <span staticdesign="true">
+                            <i class="fa fa-envelope-o" aria-hidden="true"></i> Kontakt: info@relavida.com</span>
+</div>
                 </div>
             </div>
             <div class="header-category">
-                <div class="smartheader-cat header-cat <?php print  @$showHeader['header'] ?? 'hide'; ?>">
+                <div class="smartheader-cat header-cat hide">
                     <div class="header-categories">
-                        <?php if (@$shop_cat == @$active) {
-                        ?>
-                            <module type="shop_categories" content-id="<?php print $active; ?>" />
-                        <?php
-                        }
-                        if (@$blog_cat == @$active) {
-                        ?>
-                            <module type="categories" content-id="<?php print $active; ?>" />
-                        <?php
-                        } ?>
-                    </div>
+                                            </div>
                 </div>
             </div>
             <div class="header-bottom">
@@ -144,13 +141,13 @@
                         <script>
 
                             $(document).ready(function() {
-                                $.get("<?= url('api/v1/get_category_for_search') ?>", function (res) {
+                                $.get("http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/api/v1/get_category_for_search", function (res) {
                                     if(res.success){
                                         $("#category_list").html(res.data)
                                         $("#productSearchInput").on('click',function(){
                                             var selectItem = $("#category_list").val();
                                             if(selectItem == 'all'){
-                                                $.post("<?= url('api/v1/get_content_by_category') ?>", {
+                                                $.post("http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/api/v1/get_content_by_category", {
                                                     cat_id: selectItem
                                                 },(res) => {
                                                     if(res.success){
@@ -160,7 +157,7 @@
                                                 });
                                             }else{
                                                 var cat_id = selectItem;
-                                                $.post("<?= url('api/v1/get_content_by_category') ?>", {
+                                                $.post("http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/api/v1/get_content_by_category", {
                                                     cat_id: cat_id
                                                 },(res) => {
                                                     if(res.success){
@@ -179,8 +176,7 @@
                                     }
                                 });
                             });
-                        </script>
-                        <style>
+                        </script><style>
                             .autocomplete {
                                     position: relative;
                                     display: inline-block;
@@ -335,22 +331,18 @@
                                 bottom: 0;
                                 z-index: -1;
                             }
-                        </style>
-                        <!-- <form class="search-header-form" action="<?php print site_url(); ?>search" method="get">
+                        </style><!-- <form class="search-header-form" action="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/search" method="get">
                             <input type="search" class="form-control" placeholder="" id="keywords" name="keywords" />
                             <button class="btn" type="submit">
                                 <i class="fa fa-search" aria-hidden="true"></i>
                             </button>
-                        </form> -->
-
-                        <div class="product-search-box">
-                            <form autocomplete="off" id="formSearch" action="<?php print site_url(); ?>search" method="get">
+                        </form> --><div class="product-search-box">
+                            <form autocomplete="off" id="formSearch" action="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/search" method="get">
                                 <select class="searchCategoryDropdown" name="category_list" id="category_list">
 
-                                </select>
-                                <div class="autocomplete" style="width:300px;">
-                                    <input id="productSearchInput" type="text" name="keywords" placeholder="<?php _e('Search Here'); ?>">
-                                </div>
+                                </select><div class="autocomplete" style="width:300px;">
+                                    <input id="productSearchInput" type="text" name="keywords" placeholder="Search Here">
+</div>
                                 <button class="btn" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
                             </form>
                         </div>
@@ -461,43 +453,29 @@
 
 
                                 </script>
-                    </div>
+</div>
 
 
                     <div class="header-member">
                         <ul>
-                            <li class="header-member-user">
+<li class="header-member-user">
                                 <i class="fa fa-user" aria-hidden="true"></i>
                                 <ul class="header-user-dropdown">
-                                        <?php if (user_id()) : ?>
-                                            <li><a href="" data-toggle="modal" data-target="#loginModal">Profil</a></li>
-                                            <li><a href="" data-toggle="modal" data-target="#addressbook">Adressbuch</a></li>
-                                            <li><a href="" data-toggle="modal" data-target="#ordersModal">Meine Bestellungen</a></li>
-                                        <?php else : ?>
-                                            <li><a href="" data-toggle="modal" data-target="#loginModal" class="login_register"><?php _lang("Anmeldung"); ?></a></li>
-                                        <?php endif; ?>
+<li><a href="" data-toggle="modal" data-target="#loginModal" class="login_register">Anmeldung</a></li>
+                                        
 
-                                        <?php if (is_admin()) : ?>
-                                            <li><a href="<?php print admin_url() ?>">Adminbereich</a></li>
-                                        <?php endif; ?>
 
-                                        <?php if (user_id()) : ?>
-                                            <li><a href="<?php print api_link('logout') ?>">Ausloggen</a></li>
-                                        <?php endif; ?>
-                                    </ul>
-                            </li>
-                            <?php if ($shopping_cart == 'true') : ?>
-                            <li class="header-member-cart preloader-cart-icon" onclick="carttoggolee('cart')">
+                                                                            </ul>
+</li>
+                                                        <li class="header-member-cart preloader-cart-icon" onclick="carttoggolee('cart')">
                                 <span class="cart-icon">
                                     <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                                 </span>
                                 <span id="shopping-cart-quantity" class="cart-quantity js-shopping-cart-quantity">
-                                    <?php print cart_sum(false); ?>
-                                </span>
+                                    0                                </span>
                             </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
+                                                    </ul>
+</div>
 
                 </div>
             </div>
@@ -505,11 +483,18 @@
 
                 <div class="navbar-mobile-top">
                     <div class="navbar-mobile-logo">
-                        <module type="logo" class="logo" id="header-logo" />
-                    </div>
+                        <div class='logo module module-logo '   data-mw-title="Logo" id="header-logo"   data-type="logo"   parent-module="logo"   parent-module-id="header-logo"  >
+
+
+<a href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/">
+    
+        <img src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/media/default/relavida-logo-ededed.png" alt="" style="max-width: 100%; width: 200px;" />
+    
+        </a></div>
+</div>
                     <div class="navbar-mobile-member">
                         <ul class="">
-                            <li class="search">
+<li class="search">
                                 <button class="mobile-search" type="button" id="dropdown_search" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <i class="fa fa-search"></i>
                                 </button>
@@ -587,8 +572,7 @@
                                         list-style-type: none;
                                     }
                                 </style>
-
-                            </div>
+</div>
                             <script>
                                 $('.mobile-search').on('click', function() {
                                     $('.navbar-mobile-search').removeClass('hide');
@@ -605,103 +589,92 @@
                                     })
                                 });
                             </script>
-                            </li>
+</li>
                             <li class="dropdown btn-cart">
                                 <a href="#" class="dropdown-toggle preloader-cart-icon" onclick="carttoggolee('cart')">
                                     <span class="material-icons cart-icon">shopping_cart</span>
-                                    <span id="shopping-cart-quantity" class="js-shopping-cart-quantity">(<?php print cart_sum(false); ?>)</span>
+                                    <span id="shopping-cart-quantity" class="js-shopping-cart-quantity">(0)</span>
                                 </a>
                             </li>
                             <li class="dropdown btn-member">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span><?php if (user_id()): ?><?php print user_name(); ?><?php else: ?><?php echo _e('Einloggen'); ?><?php endif; ?> <span class="caret"></span></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span>Einloggen <span class="caret"></span></span></a>
                                 <ul class="dropdown-menu">
-                                    <?php if (user_id()): ?>
-                                        <li><a href="#" data-toggle="modal" data-target="#loginModal">Profil</a></li>
-                                        <li><a href="" data-toggle="modal" data-target="#addressbook">Adressbuch</a></li>
-                                        <li><a href="#" data-toggle="modal" data-target="#ordersModal">Meine Bestellungen</a></li>
-                                    <?php else: ?>
-                                        <li><a href="#" data-toggle="modal" data-target="#loginModal" class="login_register"><?php _lang("Anmeldung", 'templates/bamboo'); ?></a></li>
-                                    <?php endif; ?>
+<li><a href="#" data-toggle="modal" data-target="#loginModal" class="login_register">Anmeldung</a></li>
+                                    
 
-                                    <?php if (is_admin()): ?>
-                                        <li><a href="<?php print admin_url() ?>">Adminbereich</a></li>
-                                    <?php endif; ?>
-
-                                    <?php if (user_id()): ?>
-                                        <li><a href="<?php print api_link('logout') ?>">Ausloggen</a></li>
-                                    <?php endif; ?>
-                                </ul>
-                            </li>
+                                                                    </ul>
+</li>
                         </ul>
-                        <div class="header-top-text edit" field="header_top_text" rel="global">
-                            <span>
-                                <i class="fa fa-phone" aria-hidden="true"></i>
-                                HOTLINE 12-888-88-87
-                            </span>
-                        </div>
+<div class="header-top-text edit" field="header_top_text" rel="global">
+                        <span staticdesign="true">
+                            <i class="fa fa-envelope-o" aria-hidden="true"></i> Kontakt: info@relavida.com</span>
+</div>
                     </div>
                 </div>
                 <div class="nav-for-mobile">
-                    <module type="menu" id="header-menu-mobile" template="navbar" />
-                </div>
+                    <div class=' module module-menu '   data-mw-title="Menu" id="header-menu-mobile"   template="navbar"   data-type="menu"   parent-module="menu"   parent-module-id="header-menu-mobile"  >
+<script>
+
+    /*    $(document).ready(function () {
+     $('ul.nav .dropdown').hover(function () {
+     $(this).find('.dropdown-menu:first', this).stop(true, true).delay(200).fadeIn();
+     }, function () {
+     $(this).find('.dropdown-menu:first', this).stop(true, true).delay(200).fadeOut();
+     });
+     });*/
+
+</script>
+<style>
+    .custom_hover_menu span.expandCat {
+        display: none !important;
+    }
+    @media (min-width: 1000px){
+        #header-menu li>ul li a.dropdown-toggle::after {
+            margin-left: 0 !important;
+        }
+    }
+
+    .leftSubmenu ul li ul.dropdown-menu {
+        left: auto !important;
+        right: 100% !important;
+    }
+    .leftSubmenu ul li a.dropdown-toggle::after{
+        transform: unset !important;
+    }
+    .navbar_new ul.list>li:nth-last-child(2) ul li ul.dropdown-menu,
+    .navbar_new ul.list>li:last-child ul li ul.dropdown-menu {
+        left: auto !important;
+        right: 100% !important;
+    }
+    .navbar_new ul.list>li:nth-last-child(2) ul li a.dropdown-toggle::after,
+    .navbar_new ul.list>li:last-child ul li a.dropdown-toggle::after{
+        transform: unset !important;
+    }
+</style>
+<div class="add_more_nav custom_hover_menu navbar_new">
+<ul role="menu"  id=""  class="list menu_1  first-child child-0 menu-item-id-2 menu-item-parent-1" ><li role="menuitem" class="    depth-0" data-item-id="2" ><a itemprop="url" data-item-id="2" class="menu_element_link   first-child child-0 menu-item-id-2 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/" ><span>Home</span></a></li><li role="menuitem" class="    depth-0" data-item-id="5" ><a itemprop="url" data-item-id="5" class="menu_element_link   first-child child-0 menu-item-id-5 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/shop" ><span>Shop</span></a></li><li role="menuitem" class=" active   depth-0" data-item-id="8" ><a itemprop="url" data-item-id="8" class="menu_element_link active  first-child child-0 menu-item-id-8 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/blog" ><span>Blog</span></a></li><li role="menuitem" class="    depth-0" data-item-id="15" ><a itemprop="url" data-item-id="15" class="menu_element_link   first-child child-0 menu-item-id-15 menu-item-parent-1 depth-0 "  href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/leistungen-fuer-verbraucher" ><span>Kundenvorteile</span></a></li></ul></div></div>
+</div>
             </div>
 
-        </header>
-        <?php endif; ?>
-        <?php
-            $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
-        ?>
-        <script>
+        </header><script>
             $(document).ready(function() {
                 $('.js-example-basic-multiple').select2();
             });
             function carttoggole(add_cart_id) {
                 // $("#cartModal").modal('show');
-                <?php
-
-                if(isset(mw()->user_manager->session_get('bundle_product_checkout')[0]) && $update_global_bundle_discount_condition == 0){?>
-                    var dialog = confirm("<?php _e('If you increase the product quantity then you won\'t get the bundle offer! Do you still want to increase the quantity'); ?>?");
-                    if (dialog) {
-                        $("#cartModal").modal('show');
-                        mw.notification.success('<?php _e('You have changed the product quantity. So now the further process will be managed from general cart.'); ?>');
-                        $.post("<?php print url('api/v1/remove_session') ?>",{ key:'bundle_product_checkout'},function(){}).then(function(){
-                            if(add_cart_id != null){
-                                if(Number.isInteger(parseInt(add_cart_id))){
-                                    mw.cart.add_item(add_cart_id);
-                                }else{
-                                    mw.cart.add(add_cart_id);
-                                }
                             }
-                            mw.reload_module('shop/cart/quick_checkout');
-
-                        });
-
-                    }
-                <?php } ?>
-            }
 
             function remove_cart_data(id){
                 if(sessionStorage.getItem('cart_update_for_bundle_product') == 'true'){
-                    $.post("<?php print url('api/v1/remove_session') ?>",{ key:'bundle_product_checkout'},function(){}).then(function(){
+                    $.post("http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/api/v1/remove_session",{ key:'bundle_product_checkout'},function(){}).then(function(){
                         sessionStorage.setItem('cart_update_for_bundle_product', 'false');
                         mw.cart.remove(id)
                         mw.reload_module('shop/cart/quick_checkout');
 
                     });
                 }else{
-                    <?php if(isset(mw()->user_manager->session_get('bundle_product_checkout')[0]) && $update_global_bundle_discount_condition == 0){?>
-                        $.post("<?php print url('api/v1/remove_session') ?>",{ key:'bundle_product_checkout'},function(){}).then(function(){
-                            mw.cart.remove(id)
-                            mw.reload_module('shop/cart');
-                            mw.reload_module('shop/cart/quick_checkout');
-
-                        });
-                    <?php }else{
-                        ?>
-                        mw.cart.remove(id)
-                        <?php
-                    } ?>
-                }
+                                            mw.cart.remove(id)
+                                        }
 
 
             }
@@ -714,13 +687,13 @@
                     return false;
                 }
                 if(sessionStorage.getItem('cart_update_for_bundle_product') == 'true'){
-                    var dialog = confirm("<?php _e('If you increase the product quantity then you won\'t get the bundle offer! Do you still want to increase the quantity'); ?>?");
+                    var dialog = confirm("If you increase the product quantity then you won't get the bundle offer! Do you still want to increase the quantity?");
                     if (dialog) {
                         $("#cartModal").modal('show');
 
                         sessionStorage.setItem('cart_update_for_bundle_product', 'false');
-                        mw.notification.success('<?php _e('You have changed the product quantity. So now the further process will be managed from general cart.'); ?>');
-                        $.post("<?php print url('api/v1/remove_session') ?>",{ key:'bundle_product_checkout'},function(){}).then(function(){
+                        mw.notification.success('You have changed the product quantity. So now the further process will be managed from general cart.');
+                        $.post("http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/api/v1/remove_session",{ key:'bundle_product_checkout'},function(){}).then(function(){
                             if(add_cart_id != null){
                                 if(Number.isInteger(parseInt(add_cart_id))){
                                     mw.cart.add_item(add_cart_id);
@@ -760,22 +733,123 @@
                     meanMenuContainer: '.nav-for-mobile'
                 });
             });
-        </script>
-
-        <!-- Login Modal -->
-        <div class="modal login-modal" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel">
+        </script><!-- Login Modal --><div class="modal login-modal" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                     </div>
 
                     <div class="modal-body">
                         <div class="js-login-window">
                             <div class="icon"><i class="fa fa-user" aria-hidden="true"></i></div>
-                            <module type="users/login" id="loginModalModuleLogin" />
-                            <!-- <div type="users/login" id="loginModalModuleLogin"></div> -->
-                        </div>
+                            <div class=' module module-users-login '   data-mw-title="Login" id="loginModalModuleLogin"   data-type="users/login"   parent-module="users/login"   parent-module-id="loginModalModuleLogin"  >
+    <script type="text/javascript">
+        mw.require('forms.js', true);
+    </script><script type="text/javascript">
+        $(document).ready(function () {
+            if (!mw.$('#user_login_loginModalModuleLogin').hasClass("custom-submit")) {
+                mw.$('#user_login_loginModalModuleLogin').submit(function () {
+                    var subm = mw.$('[type="submit"]', this);
+                    if (!subm.hasClass("disabled")) {
+                        mw.tools.disable(subm, 'Signing in...');
+                        mw.form.post(mw.$('#user_login_loginModalModuleLogin'), 'http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/api/user_login', function (a, b) {
+                            // mw.response('#user_login_loginModalModuleLogin',this);
+                            if (typeof this.success === 'string') {
+                                var c = mw.$('#user_login_loginModalModuleLogin').dataset("callback");
+                                if (c == undefined || c == '') {
+                                    var c = mw.$('#loginModalModuleLogin').dataset("callback");
+                                }
+                                                                
+                                if (typeof this.return === 'string') {
+                                    window.location.href = this.return;
+                                    return false;
+                                } else if (typeof this.redirect === 'string') {
+                                    window.location.href = this.redirect;
+                                    return false;
+
+                                }
+
+                                mw.reload_module('[data-type="users/login"]', function () {
+                                    if (c == '') {
+                                        window.location.reload();
+                                        // window.location.href ='http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/';
+                                    }
+                                    else {
+                                        if (typeof window[c] === 'function') {
+                                            window[c]();
+                                        } else {
+                                            //window.location.href ='http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/';
+                                            window.location.reload();
+                                        }
+                                    }
+                                });
+
+                                                                return false;
+                            }
+                            mw.notification.msg(this, 5000);
+                            mw.tools.enable(subm);
+                        });
+                    }
+                    return false;
+                });
+            }
+        });
+    </script><script>
+        $('.js-show-register-window', '#loginModalModuleLogin').on('click', function () {
+            $('.js-login-window').hide();
+            $('.js-register-window').show();
+            mw.load_module('captcha/templates/skin-1', '#captcha_register');
+        })
+        $('.js-show-login-window', '#loginModalModuleLogin').on('click', function () {
+            $('.js-register-window').hide();
+            $('.js-login-window').show();
+            mw.load_module('captcha', '#captcha_login');
+        })
+    </script><div id="user_login_holder_loginModalModuleLogin">
+
+        <p style="text-align:center" class="edit" field="login_massage" rel="module">Wenn Sie bereits ein Kundenkonto bei uns haben,<br>
+        können Sie sich jetzt anmelden.<br><br></p>
+
+        <form method="post" id="user_login_loginModalModuleLogin" action="#" autocomplete="off">
+
+            <div class="alert alert-mini alert-danger margin-bottom-30" style="margin: 0;display: none;"></div>
+
+            <div class="form-group">
+                <input class="form-control input-lg" type="text" name="username" placeholder="Benutzername oder E-Mail-Adresse">
+</div>
+
+            <div class="form-group m-t-20">
+                <input class="form-control input-lg" type="password" name="password" placeholder="Passwort">
+</div>
+
+            
+            <div class="login-modal-wrapper">
+                <div class="remember-btn">
+                    <div class="form-group">
+                        <label class="styled-checkbox edit" field="login_checkbox" rel="module"> Zugangsdaten speichern
+                            <input type="checkbox" checked><span class="checkmark"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="forgot-btn">
+                    <p><a href="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/forgot-password">Passwort vergessen ?</a></p>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-default btn-lg btn-block m-t-10">Einloggen</button>
+        </form>
+
+        
+        
+        <br><p class="or"><span>oder</span></p>
+
+        <div class="act create">
+            <a href="#" class="js-show-register-window"><span field="login_massage_two" rel="module">Einen neuen Account erstellen <i class="fa fa-forward" style="margin-right: 10px;" aria-hidden="true"></i></span></a>
+        </div>
+    </div>
+</div><!-- <div type="users/login" id="loginModalModuleLogin"></div> -->
+</div>
 
                         <div class="js-register-window" style="display:none;">
                             <div class="icon"><i class="fa fa-user" aria-hidden="true"></i></div>
@@ -795,14 +869,198 @@
         </div>
 
 
-        <!--Cart Modal -->
-        <div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <!--Cart Modal --><div class="modal fade" id="cartModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-body">
                         <div id="checkout-product">
-                            <module type="shop/cart" template="quick_checkout" />
-                        </div>
+                            <div class=' module module-shop-cart ' id='module-shop-cart-11'  data-mw-title="Shopping Cart" template="quick_checkout"   data-type="shop/cart"   id="module-shop-cart-11"   parent-module="shop/cart"   parent-module-id="module-shop-cart-11"  >
+<script>mw.require("shop.js", true);</script><script src="http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/userfiles/modules/admin/sweetalert/sweetalert.min.js"></script><style>
+    .bundle-cart-heading strong{
+        margin-left: 5px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .bundle-cart{
+        margin-bottom: 30px;
+        box-shadow: 0 0 5px 2px #d9d9d9;
+        padding: 5px;
+    }
+
+    .dropdown-menu.shopping-cart {
+        min-width: 25rem;
+    }
+
+    /* cart-modal */
+    .cart-modal-primary i {
+        font-size: 80px;
+        margin: 25px 0;
+    }
+
+    .cart-modal-primary h4 {
+        font-size: 40px;
+        color: #757575;
+        font-weight: 800;
+    }
+
+    .cart-modal-primary p {
+        font-size: 30px;
+        margin-bottom: 50px;
+    }
+
+    .cart-modal-primary h5 {
+        font-size: 28px;
+        font-weight: 600;
+        margin: 35px 0;
+    }
+    .cart-modal-primary a {
+        font-size: 25px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        width: 50%;
+        color: #fff;
+        text-decoration: none;
+    }
+
+
+    @media screen and (max-width:767px){
+    .cart-modal-primary h4 {
+        font-size: 25px;
+    }
+
+    .cart-modal-primary p {
+        font-size: 21px;
+    }
+
+    .cart-modal-primary h5 {
+        font-size: 19px;
+    }
+
+    .cart-modal-primary a {
+        font-size: 18px;
+        width: 100%;
+    }
+    }
+    @media screen and (max-width:526px){
+        .cart-modal-primary i {
+        font-size: 50px;
+        margin: 20px 0;
+    }
+
+    .cart-modal-primary h4 {
+        font-size: 19px;
+    }
+
+    .cart-modal-primary p {
+        font-size: 15px;
+        margin-bottom:30px;
+    }
+
+    .cart-modal-primary h5 {
+        font-size: 15px;
+        margin: 18px 0;
+    }
+
+    .cart-modal-primary a {
+        font-size: 14px;
+        width: 100%;
+    }
+    }
+
+    @media screen and (max-width:414px){
+    .cart-modal-primary h4 {
+        margin-bottom: 10px;
+    }
+    }
+
+
+    .blankCartBox {
+        position: relative;
+    }
+    .checkoutloader:before {
+        position: absolute;
+        content: '';
+        height: 100%;
+        width: 100%;
+        background-color: #fff;
+        z-index: 1;
+    }
+    .checkoutloader:after {
+        position: absolute;
+        content: '';
+        border: 16px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 16px solid #3498db;
+        width: 60px;
+        height: 60px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+        z-index: 9;
+        top: 50%;
+        right: 50%;
+        transform: translate(50%,-50%);
+    }
+    .checkoutloaderWith5opacity:before {
+      opacity: .5;
+    }
+    /* Safari */
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .product-cart-modal{
+        position: relative;
+    }
+</style><div class="col-12 blankCartBox">
+            <div class="cart-modal-primary text-center">
+                <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                <h4 class="edit" field="empty_cart_first_part" rel="global">Ihr Warenkorb ist noch leer.</h4>
+                <p class="lead">Über 43173 Produkte warten auf Sie!</p>
+                <hr>
+<h5 class="edit" field="empty_cart_second_part" rel="global">Mit Ihrem Kundenkonto einkaufen?</h5>
+                    <a class="btn btn-secondary btn-lg" data-dismiss="modal" id="login_Modal" href="" data-toggle="modal" data-target="#loginModal">Jetzt anmelden</a>
+                            </div>
+    </div>
+
+
+
+<div class="products-amount">
+    <div class="row">
+    <input type="hidden" id="bundle_offer" value="false"><input type="hidden" id="bundle_offer_total" value="">
+</div>
+
+</div>
+
+
+<script>
+
+    $(".icon-trash").on("click", function(){
+        sessionStorage.setItem('delete_cart',false);
+
+        $(".text_q_c_o").html(`Gesamtbetrag: <br class="d-none d-sm-block"> 0,00 €`);
+
+        // preloader added
+        if($(".product-cart-modal tbody tr").length == 1 ) {
+            $(".product-cart-modal").addClass('checkoutloader');
+            $(".products-amount").css("opacity","0");
+        } else{
+            $(".product-cart-modal").addClass('checkoutloader');
+            $(".product-cart-modal").addClass('checkoutloaderWith5opacity');
+            $(".products-amount").css("opacity",".5");
+        }
+
+
+     });
+
+</script>
+</div>
+</div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Schließen</button>
@@ -827,11 +1085,7 @@
 
                 })
 
-                <?php if (isset($_GET['mw_payment_success'])) { ?>
-                    $('#js-ajax-cart-checkout-process').attr('mw_payment_success', true);
-
-                <?php } ?>
-
+                
                 $('.js-show-register-window').on('click', function() {
                     $('.js-login-window').hide();
                     $('.js-register-window').show();
@@ -856,44 +1110,37 @@
                 $('.header-cat .well>ul').addClass('sm sm-simple sm-luminous');
                 $('.header-cat .well>ul').smartmenus();
             });
-        </script>
-        <?php if (user_id()) : ?>
-            <script>
-                $(document).ready(function() {
-                    $('#ordersModal').on('shown.bs.modal', function(e) {
-                        mw.reload_module('#user_orders_modal')
-                    });
+        </script><script>
+    $(document).ready(function (e) {
+        //   Show overlay on search foucs
+        $('#productSearchInput').on('focus', function(){
+            $('.header-search').addClass('overlay-show');
+        })
+
+        $('#productSearchInput').on('focusout', function(){
+            $('.header-search').removeClass('overlay-show');
+        })
+
+        $('.searchCategoryDropdown').on('focus', function(){
+            $('.header-search').addClass('overlay-show');
+        })
+
+        $('.searchCategoryDropdown').on('focusout', function(){
+            $('.header-search').removeClass('overlay-show');
+        })
+    })
+</script>
+</div>
+
+<script async>$(document).ready(function () {
+            setTimeout(function () {
+                var track = {referrer: document.referrer}
+                $.ajax({
+                    url: mw.settings.api_url+'pingstats',
+                    data: track,
+                    type: "POST",
+                    dataType: "json"
                 });
-            </script>
-            <!-- Address book -->
-            <div class="modal login-modal" id="addressbook" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel">
-                <module type="users/address_book">
-            </div>
+            }, 1337);
+        });</script>
 
-            <!-- Orders Modal -->
-            <div class="modal fade my-orders-modal" id="ordersModal" tabindex="-1" role="dialog" aria-labelledby="ordersModalLabel">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-                    <div class="modal-content" style="overflow: unset;">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div type="users/orders" id="user_orders_modal"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-
-
-        <?php
-        $url =  url_segment();
-        $last_url =  end($url);
-        $last_url = (!empty($last_url)) ? $last_url : 'home';
-        $pages = DB::table('content')->select('id')->where('content_type', 'page')->where('url', $last_url)->first();
-
-        if (!isset($pages)) {
-            dt_url_redirect_redirectUrl();
-        }
-        ?>

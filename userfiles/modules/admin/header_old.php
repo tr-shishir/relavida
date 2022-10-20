@@ -458,10 +458,10 @@ if (!$shop_disabled) {
                         <?php if ($shop_disabled == false AND mw()->module_manager->is_installed('shop') == true): ?>
                             <a
                                     class="dropdown-item <?php if ($action == 'products'): ?> active <?php endif; ?>"
-                                    href="<?php print admin_url(); ?>view:content/action:products">
+                                    href="<?php print admin_url(); ?>view:shop/action:products">
                                 <?php _e("Products"); ?>
                                 <span
-                                        data-href="<?php print admin_url('view:content#action=new:product'); ?>"
+                                        data-href="<?php print admin_url('view:shop#action=new:product'); ?>"
                                         class="btn btn-primary btn-rounded btn-icon btn-sm add-new"
                                         data-toggle="tooltip" title="<?php _e("Add new product") ?>"><i class="mdi mdi-plus"></i></span>
                             </a>

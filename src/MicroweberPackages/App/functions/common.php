@@ -1364,6 +1364,17 @@ function hide_delete(){
     );
 }
 
+function hide_edite(){
+    return array(
+        "checkout"
+    );
+}
+
+function hide_page(){
+    return array(
+        "checkout"
+    );
+}
 
 function delivery_bill_url($order_id){
     $userToken = Config::get('microweber.userToken');
@@ -3122,7 +3133,7 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                         if($active_card_number == $k):
                             $pricing_card_active_color = 'pricing-card-active-color';
                         endif;
-                        $strForCache .= '<div class="plan $pricing_card_active_color">';
+                        $strForCache .= '<div class="plan '.$pricing_card_active_color.'">';
                         $strForCache .= '<div class="heading edit  allow-drop  parent-heading parent-heading-'.$i.$k.'" data-id="'.$i.$k.'" field="card_heading_'.$i.$k.'_'.$params['id'].'" rel="content">';
                         $strForCache .= '<p class="">Early Bird</p>';
                         $strForCache .= '<div class="price">';
@@ -3166,6 +3177,7 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                         $strForCache .= '<tr class="first-tr step-'.$i.'-div-'.$params['id'].'" style="display:none;">';
                         $strForCache .= '<th class="ultra-th ultra-th-empty"></th>';
                         for($k=1; $k <=$card_limit_quantity; $k++):
+                            $pricing_card_active_color = '';
                             if($active_card_number == $k):
                                 $pricing_card_active_color = 'pricing-card-active-color';
                             endif;
@@ -3194,6 +3206,18 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                     $column_default_value = "Test Content";
                     for($i=1; $i <= $table_limit_quantity; $i++):
                         $table_row_limit_quantity = get_option('table_'.$i.'_'.$params['id'],'pricing_table_row_limit_quantity');
+                        $tr_serial_array=[];
+                        if($i){
+                            $dataSerial = DB::table('pricing_table_serial')->where('table_serial',$i)->where('table_layouts',$params['id'])->first();
+                            if($dataSerial != null){
+                                $dataSerial = json_decode($dataSerial->table_data);
+                                foreach($dataSerial as $data){
+                                    $tr_serial = explode("_",$data);
+                                    $tr_serial_array[] = (int)$tr_serial[1];
+                                }
+                            }
+
+                        }
                         if($table_row_limit_quantity):
                             $strForCache .= '<tr class="pricing-table-heading-tr">';
                             $strForCache .= '<td class="pricing-table-heading" colspan="'.($card_limit_quantity+1).'">';
@@ -3203,13 +3227,31 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                             $strForCache .= '</div>';
                             $strForCache .= '</td>';
                             $strForCache .= '</tr>';
-                            for($j=1;$j<=$table_row_limit_quantity;$j++):
+                            $strForCache .= '<tbody class="pricing-table-body pricing-table-body-'.$i.'">';
+                            $total_row = range(1, $table_row_limit_quantity);
+                            uksort($total_row,function ($a, $b) use ($tr_serial_array) {
+                            foreach($tr_serial_array as $key => $value){
+                                if($a==$value){
+                                    return 0;
+                                    break;
+                                }
+                                if($b==$value){
+                                    return 1;
+                                    break;
+                                    }
+                                }
+                            });
+
+
+                            // for($j=1;$j<=$table_row_limit_quantity;$j++):
+                            foreach($total_row  as $key =>$value) { $j=$key;
                                 $class = '';
                                 if($j>$table_readmore_limit && $table_readmore_limit != 'off'):
-                                    $class = 'class="table-row-hide-".$i style="display:none"';
+                                    $class = 'class="tbl_row_4 table-row-hide-'.$i.'" style="display:none"';
                                 endif;
-                                $strForCache .= '<tr '.$class.'>';
-                                $strForCache .= '<td>';
+
+                                $strForCache .= '<tr '.$class.' data-serial="'.$i.'_'.$j.'_'.$params["id"].'">';
+                                $strForCache .= '<td class="sort-icon-wrapper">';
                                 $strForCache .= '<div class="row-heading">';
                                 $strForCache .= '<div class="row-description edit allow-drop" field="table_row_heading_'.$i.$j.'_'.$params['id'].'" rel="module">';
                                 $strForCache .= '<p>Unbegrenzte Produkte</p>';
@@ -3220,10 +3262,13 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                                     $strForCache .= '<i class="fa fa-info-circle row-icon-des-info" onclick="description_show_modal(`'.$description_popup_id.'`);"> </i>';
                                 endif;
                                 if(is_live_edit()):
-                                    $strForCache .= '<span class="layout-edit-icon" onclick="description_set_modal(`'.$description_popup_id.'`);">Description Popup <i class="fa fa-pencil-square" aria-hidden="true"></i></span>';
+                                    $strForCache .= '<span class="layout-edit-icon" onclick="description_set_modal(`'.$description_popup_id.'`)">Description Popup <i class="fa fa-pencil-square" aria-hidden="true"></i></span>';
                                 endif;
                                 $strForCache .= '</div>';
                                 $strForCache .= '</div>';
+                                $strForCache .= '<span class="sort-icon">';
+                                $strForCache .= '<i class="fa fa-arrows" aria-hidden="true"></i>';
+                                $strForCache .= '</span>';
                                 $strForCache .= '</td>';
                                 if($card_limit_quantity):
                                     for($k=1; $k <=$card_limit_quantity; $k++):
@@ -3235,7 +3280,8 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                                     endfor;
                                 endif;
                                 $strForCache .= '</tr>';
-                            endfor;
+                            }
+                            $strForCache .= '</tbody>';
                             if($table_readmore_limit && $table_row_limit_quantity > $table_readmore_limit):
                                 $strForCache .= '<tr class="readmore-td">';
                                 $strForCache .= '<td colspan="'.($card_limit_quantity+1).'">';
@@ -3253,13 +3299,55 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                                 $strForCache .= '</tr>';
                             endif;
                         endif;
-                        $strForCache .= '<script>function table_row_readmore_option(index_number){if($(".table-row-hide-"+index_number).css("display") == "table-row") {$(".table-row-hide-"+index_number).css("display", "none");$(".readmore-icon-show-"+index_number).show();$(".readless-icon-show-"+index_number).hide();}else{$(".table-row-hide-"+index_number).css("display", "table-row");$(".readmore-icon-show-"+index_number).hide();$(".readless-icon-show-"+index_number).show();}}</script>';
+                        $strForCache .= '<script>function table_row_readmore_option(index_number){if ($("tbody.table-row-allShow.pricing-table-body-"+index_number).length > 0) {$("tbody.pricing-table-body-"+index_number).removeClass("table-row-allShow");$(".readmore-icon-show-"+index_number).show();$(".readless-icon-show-"+index_number).hide();}else{$("tbody.pricing-table-body-"+index_number).addClass("table-row-allShow");$(".readmore-icon-show-"+index_number).hide();$(".readless-icon-show-"+index_number).show();}}</script>';
                     endfor;
-                    $strForCache .= '<script> function description_set_modal(row_description_id){ $("#description_popup_id").val(row_description_id); $.ajax({ type: "POST", url: "'.api_url('pricing_card_table_row_description_value').'", data:{ row_description_id }, success: function(response) { if(response.message["on_off"] == "on"){ $("#pricing-card-table-row-description-show-hide").prop("checked",true); CKEDITOR.instances.row_description.setData(response.message["value"]); $("#pricing_card_description_add_for_table_row").modal("show"); }else{ $("#pricing-card-table-row-description-show-hide").prop("checked",false); CKEDITOR.instances.row_description.setData(" "); $("#pricing_card_description_add_for_table_row").modal("show"); } } }); } function description_show_modal(row_description_id){ $.ajax({ type: "POST", url: "'.api_url('pricing_card_table_row_description_value').'", data:{ row_description_id }, success: function(response) { $("#row_description_value").html(response.message["value"]); $("#pricing_card_row_description_show").modal("show"); } }); } </script>';
+                    $pricing_card_table_row_description_value = api_url("pricing_card_table_row_description_value");
+                    $strForCache .= <<<EOD
+                                    <script>
+                                    function description_set_modal(row_description_id){
+                                        $("#description_popup_id").val(row_description_id);
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "$pricing_card_table_row_description_value",
+                                            data:{ row_description_id },
+                                            success: function(response) {
+                                                if(response.message["on_off"] == "on"){
+                                                    $("#pricing-card-table-row-description-show-hide").prop("checked",true);
+                                                    CKEDITOR.instances.row_description.setData(response.message["value"]);
+                                                    $("#pricing_card_description_add_for_table_row").modal("show");
+                                                }else{
+                                                    $("#pricing-card-table-row-description-show-hide").prop("checked",false);
+                                                    CKEDITOR.instances.row_description.setData(" ");
+                                                    $("#pricing_card_description_add_for_table_row").modal("show");
+                                                }
+                                            }
+                                        });
+                                    }
+                                    function description_show_modal(row_description_id){
+                                        $.ajax({
+                                            type: "POST",
+                                            url: "$pricing_card_table_row_description_value",
+                                            data:{ row_description_id },
+                                            success: function(response) {
+                                                $("#row_description_value").html(response.message["value"]);
+                                                $("#pricing_card_row_description_show").modal("show");
+                                            }
+                                        });
+                                    }
+                                    </script>
+                                    EOD;
                 endif;
                 $strForCache .= '</table>';
                 $strForCache .= '</div>';
                 $strForCache .= '</div>';
+                if($table_readmore_limit != 'off'):
+                    $strForCache .= '<style>tbody.pricing-table-body tr {display: none !important;}';
+                    for($i=1; $i <=$table_readmore_limit; $i++):
+                        $strForCache .= 'tbody.pricing-table-body tr:nth-child('.$i.') {display: table-row !important;}';
+                    endfor;
+                    $strForCache .= 'tbody.pricing-table-body.table-row-allShow tr {display: table-row !important;}';
+                    $strForCache .= '</style>';
+                endif;
                 $strForCache .= '</div>';
             else:
                 $strForCache .= '<div class="col-md-12">';
@@ -3279,7 +3367,7 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
         endif;
 
         $strForCache .= '</div>';
-        cache_save($strForCache, 'pricingCardString', 'pricingCardString');
+        cache_save(str_replace('Description Popup <i class="fa fa-pencil-square" aria-hidden="true"></i>','',$strForCache), 'pricingCardString', 'pricingCardString');
     }else{
         $strForCache = cache_get('pricingCardString', 'pricingCardString');
         if(!$strForCache){
@@ -3347,7 +3435,7 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                             if($active_card_number == $k):
                                 $pricing_card_active_color = 'pricing-card-active-color';
                             endif;
-                            $strForCache .= '<div class="plan $pricing_card_active_color">';
+                            $strForCache .= '<div class="plan '.$pricing_card_active_color.'">';
                             $strForCache .= '<div class="heading edit  allow-drop  parent-heading parent-heading-'.$i.$k.'" data-id="'.$i.$k.'" field="card_heading_'.$i.$k.'_'.$params['id'].'" rel="content">';
                             $strForCache .= '<p class="">Early Bird</p>';
                             $strForCache .= '<div class="price">';
@@ -3391,6 +3479,7 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                             $strForCache .= '<tr class="first-tr step-'.$i.'-div-'.$params['id'].'" style="display:none;">';
                             $strForCache .= '<th class="ultra-th ultra-th-empty"></th>';
                             for($k=1; $k <=$card_limit_quantity; $k++):
+                                $pricing_card_active_color = '';
                                 if($active_card_number == $k):
                                     $pricing_card_active_color = 'pricing-card-active-color';
                                 endif;
@@ -3419,6 +3508,18 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                         $column_default_value = "Test Content";
                         for($i=1; $i <= $table_limit_quantity; $i++):
                             $table_row_limit_quantity = get_option('table_'.$i.'_'.$params['id'],'pricing_table_row_limit_quantity');
+                            $tr_serial_array=[];
+                            if($i){
+                                $dataSerial = DB::table('pricing_table_serial')->where('table_serial',$i)->where('table_layouts',$params['id'])->first();
+                                if($dataSerial != null){
+                                    $dataSerial = json_decode($dataSerial->table_data);
+                                    foreach($dataSerial as $data){
+                                        $tr_serial = explode("_",$data);
+                                        $tr_serial_array[] = (int)$tr_serial[1];
+                                    }
+                                }
+
+                            }
                             if($table_row_limit_quantity):
                                 $strForCache .= '<tr class="pricing-table-heading-tr">';
                                 $strForCache .= '<td class="pricing-table-heading" colspan="'.($card_limit_quantity+1).'">';
@@ -3428,13 +3529,31 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                                 $strForCache .= '</div>';
                                 $strForCache .= '</td>';
                                 $strForCache .= '</tr>';
-                                for($j=1;$j<=$table_row_limit_quantity;$j++):
+                                $strForCache .= '<tbody class="pricing-table-body pricing-table-body-'.$i.'">';
+                                $total_row = range(1, $table_row_limit_quantity);
+                                uksort($total_row,function ($a, $b) use ($tr_serial_array) {
+                                foreach($tr_serial_array as $key => $value){
+                                    if($a==$value){
+                                        return 0;
+                                        break;
+                                    }
+                                    if($b==$value){
+                                        return 1;
+                                        break;
+                                        }
+                                    }
+                                });
+
+
+                                // for($j=1;$j<=$table_row_limit_quantity;$j++):
+                                foreach($total_row  as $key =>$value) { $j=$key;
                                     $class = '';
                                     if($j>$table_readmore_limit && $table_readmore_limit != 'off'):
-                                        $class = 'class="table-row-hide-".$i style="display:none"';
+                                        $class = 'class="tbl_row_4 table-row-hide-'.$i.'" style="display:none"';
                                     endif;
-                                    $strForCache .= '<tr '.$class.'>';
-                                    $strForCache .= '<td>';
+
+                                    $strForCache .= '<tr '.$class.' data-serial="'.$i.'_'.$j.'_'.$params["id"].'">';
+                                    $strForCache .= '<td class="sort-icon-wrapper">';
                                     $strForCache .= '<div class="row-heading">';
                                     $strForCache .= '<div class="row-description edit allow-drop" field="table_row_heading_'.$i.$j.'_'.$params['id'].'" rel="module">';
                                     $strForCache .= '<p>Unbegrenzte Produkte</p>';
@@ -3445,10 +3564,13 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                                         $strForCache .= '<i class="fa fa-info-circle row-icon-des-info" onclick="description_show_modal(`'.$description_popup_id.'`);"> </i>';
                                     endif;
                                     if(is_live_edit()):
-                                        $strForCache .= '<span class="layout-edit-icon" onclick="description_set_modal(`'.$description_popup_id.'`);">Description Popup <i class="fa fa-pencil-square" aria-hidden="true"></i></span>';
+                                        $strForCache .= '<span class="layout-edit-icon" onclick="description_set_modal(`'.$description_popup_id.'`)">Description Popup <i class="fa fa-pencil-square" aria-hidden="true"></i></span>';
                                     endif;
                                     $strForCache .= '</div>';
                                     $strForCache .= '</div>';
+                                    $strForCache .= '<span class="sort-icon">';
+                                    $strForCache .= '<i class="fa fa-arrows" aria-hidden="true"></i>';
+                                    $strForCache .= '</span>';
                                     $strForCache .= '</td>';
                                     if($card_limit_quantity):
                                         for($k=1; $k <=$card_limit_quantity; $k++):
@@ -3460,7 +3582,8 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                                         endfor;
                                     endif;
                                     $strForCache .= '</tr>';
-                                endfor;
+                                }
+                                $strForCache .= '</tbody>';
                                 if($table_readmore_limit && $table_row_limit_quantity > $table_readmore_limit):
                                     $strForCache .= '<tr class="readmore-td">';
                                     $strForCache .= '<td colspan="'.($card_limit_quantity+1).'">';
@@ -3478,13 +3601,54 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
                                     $strForCache .= '</tr>';
                                 endif;
                             endif;
-                            $strForCache .= '<script>function table_row_readmore_option(index_number){if($(".table-row-hide-"+index_number).css("display") == "table-row") {$(".table-row-hide-"+index_number).css("display", "none");$(".readmore-icon-show-"+index_number).show();$(".readless-icon-show-"+index_number).hide();}else{$(".table-row-hide-"+index_number).css("display", "table-row");$(".readmore-icon-show-"+index_number).hide();$(".readless-icon-show-"+index_number).show();}}</script>';
+                            $strForCache .= '<script>function table_row_readmore_option(index_number){if ($("tbody.table-row-allShow.pricing-table-body-"+index_number).length > 0) {$("tbody.pricing-table-body-"+index_number).removeClass("table-row-allShow");$(".readmore-icon-show-"+index_number).show();$(".readless-icon-show-"+index_number).hide();}else{$("tbody.pricing-table-body-"+index_number).addClass("table-row-allShow");$(".readmore-icon-show-"+index_number).hide();$(".readless-icon-show-"+index_number).show();}}</script>';
                         endfor;
-                        $strForCache .= '<script> function description_set_modal(row_description_id){ $("#description_popup_id").val(row_description_id); $.ajax({ type: "POST", url: "'.api_url('pricing_card_table_row_description_value').'", data:{ row_description_id }, success: function(response) { if(response.message["on_off"] == "on"){ $("#pricing-card-table-row-description-show-hide").prop("checked",true); CKEDITOR.instances.row_description.setData(response.message["value"]); $("#pricing_card_description_add_for_table_row").modal("show"); }else{ $("#pricing-card-table-row-description-show-hide").prop("checked",false); CKEDITOR.instances.row_description.setData(" "); $("#pricing_card_description_add_for_table_row").modal("show"); } } }); } function description_show_modal(row_description_id){ $.ajax({ type: "POST", url: "'.api_url('pricing_card_table_row_description_value').'", data:{ row_description_id }, success: function(response) { $("#row_description_value").html(response.message["value"]); $("#pricing_card_row_description_show").modal("show"); } }); } </script>';
-                    endif;
+                        $pricing_card_table_row_description_value = api_url("pricing_card_table_row_description_value");
+                        $strForCache .= <<<EOD
+                                        <script>
+                                        function description_set_modal(row_description_id){
+                                            $("#description_popup_id").val(row_description_id);
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "$pricing_card_table_row_description_value",
+                                                data:{ row_description_id },
+                                                success: function(response) {
+                                                    if(response.message["on_off"] == "on"){
+                                                        $("#pricing-card-table-row-description-show-hide").prop("checked",true);
+                                                        CKEDITOR.instances.row_description.setData(response.message["value"]);
+                                                        $("#pricing_card_description_add_for_table_row").modal("show");
+                                                    }else{
+                                                        $("#pricing-card-table-row-description-show-hide").prop("checked",false);
+                                                        CKEDITOR.instances.row_description.setData(" ");
+                                                        $("#pricing_card_description_add_for_table_row").modal("show");
+                                                    }
+                                                }
+                                            });
+                                        }
+                                        function description_show_modal(row_description_id){
+                                            $.ajax({
+                                                type: "POST",
+                                                url: "$pricing_card_table_row_description_value",
+                                                data:{ row_description_id },
+                                                success: function(response) {
+                                                    $("#row_description_value").html(response.message["value"]);
+                                                    $("#pricing_card_row_description_show").modal("show");
+                                                }
+                                            });
+                                        }
+                                        </script>
+                                        EOD;                    endif;
                     $strForCache .= '</table>';
                     $strForCache .= '</div>';
                     $strForCache .= '</div>';
+                    if($table_readmore_limit != 'off'):
+                        $strForCache .= '<style>tbody.pricing-table-body tr {display: none !important;}';
+                        for($i=1; $i <=$table_readmore_limit; $i++):
+                            $strForCache .= 'tbody.pricing-table-body tr:nth-child('.$i.') {display: table-row !important;}';
+                        endfor;
+                        $strForCache .= 'tbody.pricing-table-body.table-row-allShow tr {display: table-row !important;}';
+                        $strForCache .= '</style>';
+                    endif;
                     $strForCache .= '</div>';
                 else:
                     $strForCache .= '<div class="col-md-12">';
@@ -3504,7 +3668,7 @@ function pricingCardString($params,$interval_information,$card_limit_quantity,$a
             endif;
 
             $strForCache .= '</div>';
-            cache_save($strForCache, 'pricingCardString', 'pricingCardString');
+            cache_save(str_replace('Description Popup <i class="fa fa-pencil-square" aria-hidden="true"></i>','',$strForCache), 'pricingCardString', 'pricingCardString');
         }
     }
     return $strForCache;

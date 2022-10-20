@@ -68,12 +68,15 @@ class OptionManager
         $data['table'] = $table;
 
         // dd($data);
-        $get = collect($GLOBALS['all_options'])->filter(function($item,$key) use($data){
-            if(isset($data['option_group']) && str_starts_with($key,$data['option_group'])){
-                return $item;
-            }
-        })->toArray();
-        // $get = $this->app->database_manager->get($data);
+        if(isset($GLOBALS['all_options'])){
+            $get = collect($GLOBALS['all_options'])->filter(function($item,$key) use($data){
+                if(isset($data['option_group']) && str_starts_with($key,$data['option_group'])){
+                    return $item;
+                }
+            })->toArray();
+        }else{
+            $get = $this->app->database_manager->get($data);
+        }
 
         if (!empty($get)) {
             foreach ($get as $key => $value) {
