@@ -2555,7 +2555,7 @@ Route::get('update-blogs-url', function(){
 });
 
 Route::get('get_total_products_count', function (){
-    if(isset(mw()->template->get_config()['optimized_template']) && mw()->template->get_config()['optimized_template'] =='yes'){
+    if(Schema::hasTable('products')){
         $product_limit = DB::table('products')->get()->count() ?? 0;
     }else{
         $product_limit = DB::table('content')->where('content_type','product')->where('is_active',1)->where('is_deleted',0)->get()->count() ?? 0;
