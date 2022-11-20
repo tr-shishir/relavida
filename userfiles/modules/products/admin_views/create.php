@@ -1815,7 +1815,8 @@ if (isset($params['quick_edit'])) {
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
-
+                            <module type="content/views/advanced_settings" content-id="<?php print $data['id']; ?>" content-type="<?php print $data['content_type']; ?>" subtype="<?php print $data['subtype']; ?>"/>
+                            <?php event_trigger('content/views/advanced_settings', $data); ?>
                         </div>
 
 
@@ -2646,8 +2647,8 @@ if (isset($params['quick_edit'])) {
                             <?php if (isset($data['id']) and $data['id'] != 0): ?>
                                 <div class="col-12">
                                     <?php
-                                    $time_info = DB::table('content')->where('id', $data['id'])->first();
-                                    $post_time = strtotime($time_info->created_at);
+                                    $time_info = $data;
+                                    $post_time = strtotime($time_info['created_at']);
                                     $current_time = strtotime((date("Y-m-d H:i:s")));
                                     // echo $post_time."==".$current_time."\n";
                                     if($post_time <= $current_time):  ?>

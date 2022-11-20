@@ -169,13 +169,15 @@ class ProductController
         //product upselling add in new product
         if ($request->content_type == 'product') {
             $all_upselling_item = db_get('table=product_upselling');
-            foreach($all_upselling_item as $upselling_item){
-                if($request['upselling'.$upselling_item['id']]){
-                    $select_item = array(
-                        'product_id' => $result['id'],
-                        'item_id' => $upselling_item['id']
-                    );
-                    db_save('product_upselling_item', $select_item);
+            if(isset($all_upselling_item) && $all_upselling_item !== false){
+                foreach($all_upselling_item as $upselling_item){
+                    if($request['upselling'.$upselling_item['id']]){
+                        $select_item = array(
+                            'product_id' => $result['id'],
+                            'item_id' => $upselling_item['id']
+                        );
+                        db_save('product_upselling_item', $select_item);
+                    }
                 }
             }
         }
@@ -215,8 +217,8 @@ class ProductController
         }
 
         // products_transfer_from_content();
-        cat_reset_logic();
-        cat_product_hide();
+        // cat_reset_logic();
+        // cat_product_hide();
 
         return (new JsonResource($result))->response();
     }
