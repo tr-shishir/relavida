@@ -1520,13 +1520,14 @@ function chat_footer(){
     curl_close($curl);
     $chat_answers = @json_decode($response, true)['data'] ?? [];
 
-    $all_orders = get_orders('no_limit=true');
+    // $all_orders = get_orders('no_limit=true');
+    $all_orders = DB::table('cart_orders')->where('created_by', user_id())->select('id')->get()->pluck('id')->toArray();
 
     $chat_modal = '';
     if(isset($all_orders) && $all_orders != false) {
         foreach (@$all_orders as $order) {
 
-            $chat_modal .= '<div class="modal chat-modal ordreChat_Modal" id="order-chat-modal-' . $order["id"] . '" data-order-id="' . $order["id"] . '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            $chat_modal .= '<div class="modal chat-modal ordreChat_Modal" id="order-chat-modal-' . $order . '" data-order-id="' . $order . '" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -1547,21 +1548,21 @@ function chat_footer(){
 
                         <div class="order-chat-box-wrapper">
 
-                            <div class="chat-popup" id="chat-popup-' . $order["id"] . '">
+                            <div class="chat-popup" id="chat-popup-' . $order . '">
 
-                                <div class="chat-area" id="chat-area' . $order["id"] . '">
+                                <div class="chat-area" id="chat-area' . $order . '">
                                 </div>
                                 <div class="input-area">
-                                    <input type="text" class="ordermsg emojionearea1" placeholder="Type Massage ..." id="emojionearea' . $order["id"] . '">
-                                    <button class="submitOrderText btn btn-success" data-id="' . $order["id"] . '" id="submitOrderText' . $order["id"] . '"> Send</button>
+                                    <input type="text" class="ordermsg emojionearea1" placeholder="Type Massage ..." id="emojionearea' . $order . '">
+                                    <button class="submitOrderText btn btn-success" data-id="' . $order . '" id="submitOrderText' . $order . '"> Send</button>
                                 </div>
 
                                 <div class="question-area pull-right">
                                     <div class="dropdown">
-                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton'.$order["id"].'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton'.$order.'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <i class="fa fa-question-circle-o"></i>
                                         </button>
-                                        <div class="dropdown-menu known-questions" aria-labelledby="dropdownMenuButton'.$order["id"].'">';
+                                        <div class="dropdown-menu known-questions" aria-labelledby="dropdownMenuButton'.$order.'">';
                                             foreach ($chat_answers as $key => $answer):
                                                 $answer = (object) $answer;
                                                 $chat_modal .= "<button type='button' class='dropdown-item'>$answer->question</button>";

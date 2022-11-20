@@ -1915,6 +1915,7 @@ function upshipping($data){
             'description' => $data['shipping']
         )
     );
+    \Cache::forget('legals_shipping');
     return back();
 
 

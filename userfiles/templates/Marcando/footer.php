@@ -263,25 +263,6 @@ if(is_logged()){
 <script src="<?php print template_url(); ?>assets/js/fx.js"></script>
 
 
-<!--Pricing Ultra Layout-->
-<script>
-// const ultraToggleBtn = document.querySelector('#ultra-toggle-btn');
-// const ultraToggleTable = document.querySelector('#ultra-toggle-table');
-// const accToggle = document.querySelector('.acc-toggle');
-
-// ultraToggleBtn.addEventListener('click', function(){
-//     ultraToggleTable.classList.toggle("show-table");
-
-//     if (accToggle.innerText === "+") {
-//         accToggle.innerText = "-";
-//     } else {
-//         accToggle.innerText = "+";
-//     }
-// });
-</script>
-
-
-
 <?php
     if(file_exists(module_dir('')."global_code_add_for_template.php")){
         include module_dir('') . "global_code_add_for_template.php";
