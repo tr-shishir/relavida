@@ -664,9 +664,10 @@
         }
 
         this.createItem = function(item){
+            console.log(item);
             let opened = '';
             let hideShop = '';
-            if(item.type == 'page' && item.title == 'Shop' && this.options.id == 'mw-tree-2'){
+            if(item.type == 'page' && item.title == 'Shop' && (this.options.id == 'mw-tree-2' || this.options.id == 'mw-tree-1')){
                 opened = 'opened';
                 hideShop = 'hide';
             }
@@ -689,7 +690,22 @@
             $(container).wrap('<span class="mw-tree-item-content-root '+(hideShop||'')+'"></span>')
             if(!skip){
                 container.onclick = function(){
-                    if(scope.options.selectable) scope.toggleSelect(li)
+                    if(scope.isSelected(li)){
+                        let selectedData = scope.options.selectedData.length
+                        if(selectedData == 2 && scope.options.selectedData[0].title == 'Shop'){
+                            mw.tools.confirm("Wenn du diese Kategorie entfernst dann wird das Produkt den Status unvollständig erhalten. Wenn du die Kategorie ändern möchtest, solltest du zuerst die neue zuweisen. So vermeidest du einen 'unvollständigen Status'. Nachdem chdem die neue Kategorie zugewiesen wurde, kannst du die alte (nicht mehr benötigte) entfernen.", function () {
+                                if(scope.options.selectable) scope.toggleSelect(li)
+                            });
+                        }else if(selectedData == 1 && scope.options.selectedData[0].title != 'Shop'){
+                            mw.tools.confirm("Wenn du diese Kategorie entfernst dann wird das Produkt den Status unvollständig erhalten. Wenn du die Kategorie ändern möchtest, solltest du zuerst die neue zuweisen. So vermeidest du einen 'unvollständigen Status'. Nachdem chdem die neue Kategorie zugewiesen wurde, kannst du die alte (nicht mehr benötigte) entfernen.", function () {
+                                if(scope.options.selectable) scope.toggleSelect(li)
+                            });
+                        }else{
+                            if(scope.options.selectable) scope.toggleSelect(li)
+                        }
+                    }else{
+                        if(scope.options.selectable) scope.toggleSelect(li)
+                    }
                 };
                 this.decorate(li);
             }

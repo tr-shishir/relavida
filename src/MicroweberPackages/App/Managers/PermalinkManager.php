@@ -208,6 +208,13 @@ class PermalinkManager
             }
         }
 
+        if ($type == 'shop') {
+            $linkCategory = $this->_linkContent($id);
+            if ($linkCategory) {
+                $segments = array_merge($segments, $linkCategory);
+            }
+        }
+
         if (empty($segments)) {
             return false;
         }

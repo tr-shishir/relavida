@@ -1360,7 +1360,28 @@ $user = get_user_by_id($user_id);
                 <?php endif; ?>
 
                 <!-- End Profile and teriff management menu item -->
-
+                <?php
+                    $products_active='';
+                    if ($view == 'products') {
+                        $products_active = "active";
+                    }
+                ?>
+                <?php if(is_admin()): ?>
+                <li class="nav-item dropdown-no-js <?php echo $products_active; ?>">
+                    <a href="<?php print admin_url(); ?>view:products/action:view" class="nav-link dropdown-toggle <?php echo $products_active; ?>">
+                        <i class="mdi mdi-account"></i>
+                        <span class="badge-holder" style="white-space: break-spaces;"><?php _e('Products'); ?></span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="<?php print admin_url(); ?>view:products/action:view" class="dropdown-item <?php if ($view == 'products' and $action == 'view'): ?>active<?php endif; ?>">
+                            <?php _e('View'); ?>
+                        </a>
+                        <a href="<?php print admin_url(); ?>view:products/action:create" class="dropdown-item <?php if ($view == 'products' and $action == 'create'): ?>active<?php endif; ?>">
+                            <?php _e('Create'); ?>
+                        </a>
+                    </div>
+                </li>
+                <?php endif; ?>
 
                 <li class="nav-item">
                     <a href="https://www.youtube.com/channel/UCwIT78TfHENKEIZ6aZoPXxw" class="nav-link" target="_blank" style="display: flex;align-items:center">
@@ -1368,6 +1389,7 @@ $user = get_user_by_id($user_id);
                         <span><?php _e("Tutorials"); ?></span>
                     </a>
                 </li>
+                
                 <?php /*
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle <?php if (!url_param('has_core_update') and ($view == 'settings')): ?> active <?php endif; ?>" href="<?php print admin_url(); ?>view:settings#option_group=website">

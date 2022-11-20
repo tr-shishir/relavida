@@ -8,12 +8,12 @@ use MicroweberPackages\Product\Events\ProductIsUpdating;
 use MicroweberPackages\Product\Events\ProductWasCreated;
 use MicroweberPackages\Product\Events\ProductWasDeleted;
 use MicroweberPackages\Product\Events\ProductWasUpdated;
-use MicroweberPackages\Product\Models\Product;
+use MicroweberPackages\Product\Models\ProductDt;
 
 class ProductRepository extends BaseRepository
 {
 
-    public function __construct(Product $product)
+    public function __construct(ProductDt $product)
     {
         $this->model = $product;
     }
@@ -21,6 +21,15 @@ class ProductRepository extends BaseRepository
     public function create($data)
     {
         event($event = new ProductIsCreating($data));
+        
+        $data = collect(array($data))->map(function($item){
+            $item['vk_price'] = $item['price'];
+            $item['sku'] = $item['content_data']['sku'];
+            $item['quantity'] = $item['content_data']['qty'];
+            $item['special_price'] = $item['content_data']['special_price'];
+            $item['description'] = $item['content_body'];
+            return $item;
+        })->toArray()[0];
 
         $product = $this->model->create($data);
 

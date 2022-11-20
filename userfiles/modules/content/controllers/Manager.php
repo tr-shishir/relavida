@@ -6,6 +6,7 @@ namespace content\controllers;
 use App\Models\Content;
 use App\Models\Products;
 use MicroweberPackages\View\View;
+use Illuminate\Support\Facades\DB;
 
 class Manager
 {
@@ -32,7 +33,19 @@ class Manager
 
     function index($params)
     {
-        if (!user_can_access('module.content.index')) {
+        $type = '';
+        if (isset($params['content_type']) and $params['content_type'] != false) {
+            $type = $params['content_type'].'s';
+        }
+        if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
+            $type = 'products';
+        } else if (isset($params['is_shop']) and $params['is_shop'] == 'n') {
+            $type = 'posts';
+        }
+        if (isset($params['content_type']) and $params['content_type'] == 'product') {
+            $type = 'products';
+        }
+        if (!user_can_access('module.content.index') and !user_can_access_item("module.".$type.".edit") and !user_can_access_item("module.".$type.".create")) {
             return;
         }
 
@@ -520,7 +533,9 @@ class Manager
                 }
             }
         }
-
+        if(isset($posts_mod['content_type']) and user_can_access_item("module.{$posts_mod['content_type']}s.onlyOwn")){
+            $onlyOwn = true;
+        }
         // $data = $this->provider->get($post_params);
 //        end
         if(!isset($params['data-no_toolbar'])){
@@ -540,13 +555,17 @@ class Manager
             // $data = $this->provider->get($posts_mod);
             if(!isset($post_params['keyword']) && !isset($post_params['ean']) && !isset($post_params['brand']) && !isset($post_params['sku']) && !isset($post_params['tags'])){
                 $current_page_from_url = (isset($post_params['pg']))?$post_params['pg']:$this->app->url_manager->param($posts_mod['paging_param']);
-                $data = Content::with(['media', 'tagged', 'categories'])
-                ->where('is_deleted',0);
                 if(isset($posts_mod['content_type']) && $posts_mod['content_type'] == "product"){
-                    $data = Products::with(['content', 'media', 'tagged', 'categories'])
-                            ->contentType($posts_mod['content_type'])
-                            ->leftJoin('content', 'content.id','products.content_id');
+                    $data = Products::with([ 'media', 'tagged', 'categories']);
+                }else{
+                    $data = Content::with(['media', 'tagged', 'categories'])
+                    ->where('is_deleted',0);
                 }
+                
+                if(isset($onlyOwn) and $onlyOwn == true){
+                    $data = $data->where('created_by',user_id());
+                }
+                
                 if(isset($posts_mod['content_type']) && $posts_mod['content_type'] == "page"){
                     $data = $data->where('content_type',"page");
                 }
@@ -566,10 +585,10 @@ class Manager
                 if(isset($posts_mod['content_type']) && $posts_mod['content_type'] == "product"){
                     if(isset($post_params['order'])){
                         $order = explode(' ',$post_params['order']);
-                        $data = $data->orderBy('content.'.$order[0],$order[1]);
+                        $data = $data->orderBy($order[0],$order[1]);
                     }else{
                         $order = explode(' ',$posts_mod['orderby']);
-                        $data = $data->orderBy('content.'.$order[0],$order[1]);
+                        $data = $data->orderBy($order[0],$order[1]);
                     }
                 }elseif(isset($posts_mod['content_type']) && in_array($posts_mod['content_type'],["page","post"])){
                     if(isset($post_params['order'])){
@@ -583,9 +602,11 @@ class Manager
 
                 $newData = collect($data['data'])
                 ->map(function($item){
+                    // dump($item);
+                    $item['image'] = "{SITE_URL}userfiles/media/templates.microweber.com/photo-1496180727794-817822f65950.jpg";
+                    $item['is_rss'] = 0;
                     $item['url'] = url('/'.$item['url']);
                     $item['content_type'] = $item['content']['content_type']??$item['content_type'];
-                    $item['is_rss'] = $item['content']['is_rss']??$item['is_rss'];
                     $item['created_by'] = $item['content']['created_by']??$item['created_by'];
                     if($item['categories']){
                         $newCategory = array_map(function($c_item){

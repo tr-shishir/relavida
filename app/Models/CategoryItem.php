@@ -25,4 +25,9 @@ class CategoryItem extends Model
     {
         return $this->hasOne(Category::class, 'id', 'parent_id');
     }
+
+    public function parent(): HasOne
+    {
+        return $this->hasOne(Category::class, 'id', 'parent_id');
+    }
 }

@@ -6,7 +6,7 @@
  * Time: 4:09 PM
  */
 
-namespace MicroweberPackages\Product\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\Enums\SyncEvent;
 use App\Enums\SyncType;
@@ -23,8 +23,9 @@ use MicroweberPackages\Product\Repositories\ProductRepository;
 use \Intervention\Image\ImageManagerStatic as Image;
 
 
-class ProductApiController
+class ProductController
 {
+
     public $product;
 
     public function __construct(ProductRepository $product)
@@ -33,13 +34,6 @@ class ProductApiController
     }
 
 
-    /**
-    /**
-     * Display a listing of the product.
-     *
-     * @param ProductRequest $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
         return (new JsonResource(
@@ -58,9 +52,8 @@ class ProductApiController
      * @param ProductCreateRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(ProductCreateRequest $request)
+    public function store(Request $request)
     {
-        // dd($_REQUEST);
         $cates = explode(',',$_REQUEST['category_ids']);
         $arr = [];
         foreach ($cates as $cat){
@@ -161,7 +154,6 @@ class ProductApiController
             }
         }
 
-//        if (env('SYNC_ENABLE') && $request->content_type == 'product') {
         if ($request->content_type == 'product') {
             SyncHistory::create([
                 'sync_type' => SyncType::PRODUCT,
@@ -174,31 +166,6 @@ class ProductApiController
         }
 
         // product Brand,upadate,Delivery-time insert time update
-        if ($request->content_type == 'product') {
-            DB::table('product')->where('id',$result['id'])->update([
-                'brand'        => $request['brand'],
-                'delivery_days'=> $request['delivery_days'],
-                'item_size'  => $request['item_size'],
-                'item_weight'  => $request['item_weight'],
-                'item_unit'  => $request['item_unit'],
-                'item_color'   => $request['item_color'],
-                'materials'    => $request['materials'],
-                'production_year'=> $request['production_year'],
-                'gender'   => $request['gender'],
-                'note'    => $request['note'],
-                'status'=> $request['status'],
-            ]);
-            DB::table('product_details')->updateOrInsert(
-                ['rel_id' => @$result['id']],
-                [
-                    'suplier' => @$request['suplier'],
-                    'tax_rate' => @$request['tax'],
-                    'tax_type' => @$request['tax_type'],
-                    'download_limit' => @$request['download_limit'],
-                ]
-            );
-            product_add_at_user_group($result['id'],$request->customer_group);
-        }
         //product upselling add in new product
         if ($request->content_type == 'product') {
             $all_upselling_item = db_get('table=product_upselling');
@@ -275,14 +242,13 @@ class ProductApiController
      * @param  string $product
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(ProductUpdateRequest $request, $product)
+    public function update(Request $request, $product)
     {
-
         // if(isset($request->tag_names) && !empty($request->tag_names)){
         //     $request->content_meta_keywords = $request->tag_names;
         // }
 
-        CategoryItem::where(['rel_type' => 'content', 'rel_id' => $_REQUEST['id']])->delete();
+        DB::table('categories_items')->where(['rel_type' => 'product', 'rel_id' => $_REQUEST['id']])->delete();
 
         $cates = explode(',',$_REQUEST['category_ids']);
         $arr = [];
@@ -300,12 +266,21 @@ class ProductApiController
                 }
             }
         }
+
+        foreach ($arr as $ar) {
+            DB::table('categories')->where('id' , $ar['id'])
+                ->update(['is_hidden' => 0]);
+            DB::table('categories_items')->insert([
+                'parent_id' => $ar['id'],
+                'rel_type' => 'content',
+                'rel_id' => $product,
+            ]);
+        }
+
         if(isset($request->content_body) && isset($_REQUEST['content_body']) && $request->content_body != $_REQUEST['content_body'] ){
             $newContent = array('content_body'=>change_content_value($_REQUEST['content_body']));
             $request->merge($newContent);
         }
-        $result = $this->product->update($request->all(), $product);
-
 
         $tag_names = explode(',',$_REQUEST['tag_names']);
         if(isset($tag_names)){
@@ -320,6 +295,7 @@ class ProductApiController
                 }
             }
         }
+
         $bundle_tag = DB::table('bundles')->whereNotNull('tag_name')->pluck('tag_name')->toArray();
         $bundle_tag = array_diff($bundle_tag, $tag_names);
         if(!empty($bundle_tag)){
@@ -330,60 +306,15 @@ class ProductApiController
                 }
             }
         }
-        foreach ($arr as $ar) {
-            DB::table('categories')->where('id' , $ar['id'])
-                ->update(['is_hidden' => 0]);
-            DB::table('categories_items')->updateOrInsert([
-                'parent_id' => $ar['id'],
-                'rel_type' => 'content',
-                'rel_id' => $product,
-            ]);
-        }
-//        if (env('SYNC_ENABLE') && $request->content_type == 'product') {
-        if ($request->content_type == 'product') {
-            SyncHistory::create([
-                'sync_type' => SyncType::PRODUCT,
-                'sync_event' => SyncEvent::UPDATE,
-                'model_id' => $product
-            ]);
-        }
+        DB::table('variants')->where('rel_id',$request['id'])->update([
+            'size'=> $request['size']
+        ]);
 
-        // product Brand,upadate,Delivery-time,weight update
-        if ($request->content_type == 'product') {
-            DB::table('variants')->where('rel_id',$request['id'])->update([
-                'size'=> $request['size']
-            ]);
-            DB::table('content')->where('id',$request['id'])->update([
-                'brand'        => $request['brand'],
-                'delivery_days'=> $request['delivery_days'],
-                'item_size'    => $request['item_size'],
-                'item_weight'  => $request['item_weight'],
-                'item_unit'  => $request['item_unit'],
-                'item_color'   => $request['item_color'],
-                'materials'    => $request['materials'],
-                'production_year'=> $request['production_year'],
-                'gender'        => $request['gender'],
-                'note'          => $request['note'],
-                'status'        => $request['status'],
-            ]);
-            $tax_up_data = array_filter($request->only([
-                'suplier',
-                'tax_type',
-                'download_limit',
-            ]));
-            if(!empty($tax_up_data))
-            {
-                DB::table('product_details')->updateOrInsert(
-                    ['rel_id' => $request['id']],
-                    $tax_up_data
-                );
-            }
-            // product_add_at_user_group($request['id'],$request->customer_group,true);
-        }
+        $result = $this->product->update($request->all(), $product);
 
-        products_transfer_from_content($product);
-        cat_reset_logic();
-        cat_product_hide();
+
+        // cat_reset_logic();
+        // cat_product_hide();
 
         return (new JsonResource($result))->response();
     }

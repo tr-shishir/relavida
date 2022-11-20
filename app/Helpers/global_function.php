@@ -50,8 +50,7 @@ function image_set_to_server($image){
     }
 }
 
-function generate_shop_categories_api($categories, $rel_id = false,  $parent_id = false, $hidden = false, $dept = 0)
-{
+function generate_shop_categories_api($categories, $rel_id = false,  $parent_id = false, $hidden = false, $dept = 0){
     if ($rel_id) {
         $html = '<!doctype html>
         <html lang="en">
@@ -234,4 +233,129 @@ function generate_shop_categories_api($categories, $rel_id = false,  $parent_id 
         $html .= '</ul>';
     }
     return ($html);
+}
+
+function user_can_access_item($modules = null){
+    $user = Cache::remember('previlege_access_role'.user_id(), 20, function () {
+        return DB::table('users')->where('id', user_id())->first();
+    });
+    // $user = DB::table('users')->where('id', user_id())->first();
+    if (!$user) {
+        return false;
+    }
+    if ($user->is_admin == 1) {
+        return true;
+    }
+    if($modules == null and $user->previllege_id != 0){
+        return true;
+    }
+    $accessDataSet = '';
+    if(isset($user->previlege_access) and $user->previlege_access != null){
+        $accessDataSet = json_decode($user->previlege_access, true);
+    }else{
+        $accessDataSet = create_user_access_set($user->previllege_id, true);
+        $accessDataSet = json_decode($accessDataSet, true);
+    }
+    if(empty($accessDataSet)){
+        return false;
+    }
+    if(array_key_exists($modules, $accessDataSet)){
+        if($accessDataSet[$modules] == 1){
+            return true;
+        }
+    }
+    return false;
+
+}
+
+function create_user_access_set($id, $status = false){
+    $previllegeData =  DB::table('admin_previllege_roles')
+                        ->join('admin_role_accesses', 'admin_previllege_roles.id', '=', 'admin_role_accesses.role_id')
+                        ->where('admin_previllege_roles.id', $id)
+                        ->get()
+                        ->toArray();
+    $dataSet = [];
+    foreach($previllegeData as $data){
+        $key = "module.{$data->modules}";
+        if(isset($data->is_live_edit)){
+            $dataSet[$key.".liveEdit"] = $data->is_live_edit;
+        }
+        if(isset($data->is_only_own)){
+            $dataSet[$key.".onlyOwn"] = $data->is_only_own;
+        }
+        if(isset($data->is_view)){
+            $dataSet[$key.".view"] = $data->is_view;
+        }
+        if(isset($data->is_create)){
+            $dataSet[$key.".create"] = $data->is_create;
+        }
+        if(isset($data->is_update)){
+            $dataSet[$key.".edit"] = $data->is_update;
+        }
+        if(isset($data->is_delete)){
+            $dataSet[$key.".destroy"] = $data->is_delete;
+        }
+    }
+    if(!$status){
+        DB::table('users')->where('previllege_id', $id)
+                        ->update(['previlege_access' => json_encode($dataSet)]);
+    }
+    else{
+        return json_encode($dataSet);
+    }
+}
+
+function hasDashboardAccess(){
+    $user = Cache::remember('previlege_access_role'.user_id(), 20, function () {
+        return DB::table('users')->where('id', user_id())->first();
+    });
+    $accessDataSet = '';
+    if(isset($user->previlege_access) and $user->previlege_access != null){
+        $accessDataSet = json_decode($user->previlege_access, true);
+    }else{
+        $accessDataSet = create_user_access_set($user->previllege_id, true);
+        $accessDataSet = json_decode($accessDataSet, true);
+    }
+    if(empty($accessDataSet)){
+        return false;
+    }
+    if(array_key_exists('module.posts.edit', $accessDataSet) and $accessDataSet['module.posts.edit'] == 1){
+        return admin_url('view:content/action:posts');
+    }
+    if(array_key_exists('module.posts.create', $accessDataSet) and $accessDataSet['module.posts.create'] == 1){
+        return admin_url('view:content/action:posts');
+    }
+    if(array_key_exists('module.pages.edit', $accessDataSet) and $accessDataSet['module.pages.edit'] == 1){
+        return admin_url('view:content/action:pages');
+    }
+    if(array_key_exists('module.pages.create', $accessDataSet) and $accessDataSet['module.pages.create'] == 1){
+        return admin_url('view:content/action:pages');
+    }
+    if(array_key_exists('module.products.edit', $accessDataSet) and $accessDataSet['module.products.edit'] == 1){
+        return admin_url('view:shop/action:products');
+    }
+    if(array_key_exists('module.products.create', $accessDataSet) and $accessDataSet['module.products.create'] == 1){
+        return admin_url('view:shop/action:products');
+    }
+}
+
+function product_add_at_user_group($p_id, $g_id, $status = false){
+    if($status){
+        DB::table('group_product')->where('product_id',$p_id)->delete();
+    }
+    $dataset = array();
+    foreach($g_id as $groupID){
+        $dataset[]=[
+            'product_id'=>$p_id,
+            'group_id'=>$groupID
+        ];
+    }
+    DB::table('group_product')->insert($dataset);
+}
+
+function productHasGroup($id){
+    $group_id = user_group_id();
+    $hasAccess = DB::table('group_product')->where('product_id', $id)->where('group_id', $group_id)->first();
+    if(isset($hasAccess) and !empty($hasAccess)) return true;
+    else return false;
 }

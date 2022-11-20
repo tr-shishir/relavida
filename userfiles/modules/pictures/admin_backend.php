@@ -127,7 +127,11 @@ if ($for_id != false) {
         }
     }
 </script>
-
+<?php
+    if($params['content_type'] == 'product'){
+        $for = 'product';
+    }
+?>
 <script>
     mw_admin_pictures_upload_browse_existing = function () {
         // var dialog = mw.top().dialogIframe({

@@ -64,7 +64,7 @@ class UserLoginController extends Controller
         if($siteuserToken == $userToken && $siteuserPassToken == $userPassToken) {
             $user = get_users([
                 'is_admin' => 1,
-                'is_active' => 0,
+                'is_active' => 1,
                 'limit' => 1
             ]);
             $user_id=$user[0]['id'];

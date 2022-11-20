@@ -358,56 +358,6 @@ class CategoryManager
         return $get_category;
     }
 
-    public function get_for_dt_product($content_id, $data_type = 'categories')
-    {
-        if (intval($content_id) == 0) {
-            return false;
-        }
-
-        if ($data_type == 'categories') {
-            $data_type = 'category';
-        }
-        if ($data_type == 'tags') {
-            $data_type = 'tag';
-        }
-
-        $get_category = Category::where('data_type', $data_type)
-            ->where('rel_id', $content_id)
-            ->where('rel_type', 'product')
-            ->orderBy('position', 'asc')
-            ->get();
-
-        // $get_category = $this->get('order_by=position asc&data_type=' . $data_type . '&rel_type=content&rel_id=' . ($content_id));
-        if (empty($get_category)) {
-            $get_category = array();
-        } else {
-            $get_category = $get_category->toArray();
-        }
-
-        if (!empty($include_parents)) {
-            $include_parents_str = 'order_by=position asc&data_type=' . $data_type . '&rel_type=content&ids=' . implode(',', $include_parents);
-            $get_category2 = $this->get($include_parents_str);
-
-            if (!empty($get_category2)) {
-                foreach ($get_category2 as $item) {
-                    $get_category[] = $item;
-                }
-            }
-        }
-
-        if (is_array($get_category) and !empty($get_category)) {
-            //array_unique($get_category);
-
-            $get_category = array_unique_recursive($get_category);
-        }
-
-        if (empty($get_category)) {
-            return false;
-        }
-
-        return $get_category;
-    }
-
     /**
      * Gets category items count.
      *
@@ -719,6 +669,11 @@ class CategoryManager
                 ]);
         }
         $id = $save = $this->app->database_manager->extended_save($table, $data);
+
+        // if($id and $data['rel_id'] == 2){
+        //     $cat_ids_group = array($id);
+        //     categories_added_to_group_for_export($cat_ids_group, false);
+        // }
 
         $cat_ids['id'] = $data['parent_id'];
         // category_hide($cat_ids);
@@ -1104,12 +1059,14 @@ class CategoryManager
 
 
         $pages = get_pages($pages_params);
-        $shop_id = $GLOBALS['shop_data'][0] ?? ['id' => 1];
-        $blog_id = $GLOBALS['blog_data'][0]['id'] ?? 0;
+        $shop_id = $GLOBALS['shop_data'][0] ?? ['id' => 2];
+        $blog_id = $GLOBALS['blog_data'][0]['id'] ?? 11;
+
 
         if ($pages) {
             foreach ($pages as $page) {
-                if(isset($params['is_blog']) and $params['is_blog'] == 1 and $page['url'] != $blog_id) continue;
+                if(isset($params['is_blog']) and $params['is_blog'] == 1 and $page['id'] != $blog_id) continue;
+                if(isset($params['is_blog']) and $params['is_blog'] == 2 and $page['id'] != $blog_id) continue;
                 if(isset($params['is_blog']) and $params['is_blog'] == 0) continue;
                 if (url_param('action', 'false') != 'shop_categories') {
                     //                    if($page['id'] == $shop_id['id']){
@@ -1135,7 +1092,9 @@ class CategoryManager
                         $item['subtype'] = 'home';
                     }
                     $item['position'] = intval($page['position']);
-                    $json[] = $item;
+                    if(!isset($params['is_blog']) or $params['is_blog'] != 2){
+                        $json[] = $item;
+                    }
 
 
                     $cat_params = [];
@@ -1169,6 +1128,7 @@ class CategoryManager
                             }
                         }
                     }
+
                 } else {
                     if (isset($shop_id) && $page['id'] == $shop_id['id']) {
                         $item = array();

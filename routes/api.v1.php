@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 use App\Services\Product\ProductService;
 use App\Services\Customer\CustomerService;
 use MicroweberPackages\Category\Models\Category;
+use Illuminate\Support\Facades\Session;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,17 +27,7 @@ use MicroweberPackages\Category\Models\Category;
 */
 $is_installed = mw_is_installed();
 if ($is_installed) {
-    $user_country_name = user_country(user_id());
-    if(!$user_country_name){
-       $tax= mw()->tax_manager->get();
-       $user_country_name = $tax['0']['name'];
-    }
-    $GLOBALS['all_options'] =  DB::table('options')->get()->map(function($item){
-        return (array)$item;
-    })->keyBy(function($item) {
-        return $item['option_group'].'--'.$item['option_key'];
-    })->toArray();
-    $GLOBALS = array_merge($GLOBALS, array(
+    $GLOBALS = array(
         'all_tax' => TaxType::all(),
         'all_tax_rates' => DB::table('tax_rates')->get(),
         'user_country_tax' => DB::table('users')
@@ -51,10 +42,11 @@ if ($is_installed) {
         'custom_shop_category_header_ignore' => get_option('custom_shop_category_header_ignore','category_customization'),
         'custom_active_category' => get_option('custom_active_category','category_customization'),
         'custom_sidebar' => get_option('custom_sidebar','category_customization'),
-        'tax' => DB::table('tax_rates')->where('country','LIKE','%'.$user_country_name.'%')->first(),
         'custom_header' => get_option('custom_header','category_customization'),
+        'total_product' => DB::table('content')->select('id')->where('content_type','product')->where('is_active',1)->where('is_deleted',0)->count() ?? 0,
+        'total_post' => DB::table('content')->select('id')->where('content_type','post')->where('is_active',1)->where('is_deleted',0)->count() ?? 0,
 
-    ));
+    );
     if (Schema::hasColumn('tax_rates','reduced_charge')) {
         $GLOBALS['user_country_tax'] = DB::table('users')
             ->select('tax_rates.charge', 'users.country','tax_rates.reduced_charge')
@@ -179,7 +171,7 @@ Route::post('drm_token_get',function(){
                 'password'=> $_REQUEST['installUserPass'],
                 'url' => $_REQUEST['url'],
                 'is_register' => $register,
-
+                'version' => Config::get('app.adminTemplateVersion')
             ];
         }else{
 
@@ -187,7 +179,7 @@ Route::post('drm_token_get',function(){
                 'email'=> $_REQUEST['installUserName'],
                 'password'=> $_REQUEST['installUserPass'],
                 'url' => $_REQUEST['url'],
-
+                'version' => Config::get('app.adminTemplateVersion')
             ];
         }
 
@@ -209,7 +201,6 @@ Route::post('drm_token_get',function(){
 });
 
 Route::get('test', function() {
-    dd(DB::table('content')->firstToArray());
     return mw()->cache_manager->delete('categories');
     clearcache();
     //$query = Order::whereHas('carts')->with('carts.content:id,ean,drm_ref_id')->get()->toArray();
@@ -706,28 +697,7 @@ Route::post('not_show' , function (){
 });
 
 
-Route::get('clear_all_cache',function(){
-    $folder_path = Config::get('app.manifest').'/cache';
-    if(isset($folder_path)){
-        if (function_exists('dt_delete_deleteAnyFolder')) {
-            dt_delete_deleteAnyFolder($folder_path);
-        }
-    }
-
-    // exec('php artisan cache:clear');
-
-    // if (function_exists('mw_post_update')) {
-    //     mw_post_update();
-    // }
-
-    // if (function_exists('clearcache')) {
-    //     clearcache();
-    // }
-
-    // if (function_exists('mw_reload_modules')) {
-    //     mw_reload_modules();
-    // }
-});
+Route::get('clear_all_cache', 'ApiFunctionController@clear_all_cache');
 
 Route::get('auto_clear_all_server_cache',function(){
     //rename all cache folder dalete
@@ -1618,24 +1588,31 @@ Route::post("order-limit-check",function (){
 
 
 Route::get("get_category_for_search",function (){
-    $categories = DB::table('categories')
-    ->select('id','title')
-    ->where('is_deleted',0)
-    ->where('is_hidden',0)
-    ->where('parent_id',0)
-    ->whereNotNull('title')
-    // ->orderBy('title', 'asc')
-    ->orderBy('title', 'asc')
-    ->get();
-    $categories_list = '<option value="all" id="cat_all">Alle Kategorien</option><option value="ean" id="ean">EAN</option><option value="sku" id="sku">Artikelnummer</option><option value="" id="" disabled class="optiondivider">-----------------------------------------</option><option value="" id="" disabled class="optiontitle">Kategorien</option><option value="" id="" disabled class="optiondivider">-----------------------------------------</option>';
-    if(isset($categories) && !empty($categories)){
-        foreach($categories as $category){
-            $categories_list .= '<option value="'.$category->id.'" id="cat_'.$category->id.'">'.$category->title.'</option>';
+    $categoriesShowHide = get_option('categoriesShowHide', 'searchbar_menu_category');
+    if($categoriesShowHide and $categoriesShowHide == 2){
+        $categories_list = '<option value="all" id="cat_all">Alle Kategorien</option>';
+        // $categories_list = '<option value="all" id="cat_all">Alle Kategorien</option><option value="ean" id="ean">EAN</option><option value="sku" id="sku">Artikelnummer</option>';
+        return response()->json(['success' => true, 'data' => $categories_list],200);
+    }else{
+        $categories = DB::table('categories')
+        ->select('id','title')
+        ->where('is_deleted',0)
+        ->where('is_hidden',0)
+        ->where('parent_id',0)
+        ->whereNotNull('title')
+        // ->orderBy('title', 'asc')
+        ->orderBy('title', 'asc')
+        ->get();
+        // $categories_list = '<option value="all" id="cat_all">Alle Kategorien</option><option value="ean" id="ean">EAN</option><option value="sku" id="sku">Artikelnummer</option><option value="" id="" disabled class="optiondivider">-----------------------------------------</option><option value="" id="" disabled class="optiontitle">Kategorien</option><option value="" id="" disabled class="optiondivider">-----------------------------------------</option>';
+        $categories_list = '<option value="all" id="cat_all">Alle Kategorien</option>';
+        if(isset($categories) && !empty($categories)){
+            foreach($categories as $category){
+                $categories_list .= '<option value="'.$category->id.'" id="cat_'.$category->id.'">'.$category->title.'</option>';
+            }
         }
+        return response()->json(['success' => true, 'data' => $categories_list],200);
     }
-    return response()->json(['success' => true, 'data' => $categories_list],200);
 });
-
 
 Route::post("get_content_by_category",function (){
     $category_id = $_REQUEST['cat_id'];
@@ -1704,27 +1681,7 @@ Route::post("remove_session",function (){
 Route::post("products_transfer",'ProductController@products_transfer');
 Route::post("products_transfer_update",'ProductController@products_transfer_update');
 
-Route::post("blogs_transfer",function(Request $request){
-    $blogs_from_content_table = DB::table('content')->where('content_type','post')->where('is_active',1)->where('is_deleted',0)->get();
-    foreach($blogs_from_content_table as $single_blog){
-        $blog_image_link = get_first_position_image_from_media($single_blog->id);
-        DB::table('blogs')->updateOrInsert(
-            ['content_id' => $single_blog->id],
-            [
-                'title' => $single_blog->title,
-                'content' => $single_blog->content,
-                'link' => '{SITE_URL}'.$single_blog->url,
-                'image' => $blog_image_link,
-                'is_rss' => $single_blog->is_rss,
-                'rss_link' => $single_blog->rss_link,
-                'rss_image' => $single_blog->rss_image,
-                'created_at' => $single_blog->created_at,
-                'updated_at' => $single_blog->updated_at,
-            ]
-        );
-    }
-    dump('successfully transfer the blogs from content table to blogs table');
-});
+Route::post("blogs_transfer", 'ApiFunctionController@blogs_transfer');
 
 Route::post("get_gateway",function(Request $request){
     if (($request->header('userToken') == Config('microweber.userToken')) && ($request->header('userPassToken') == Config('microweber.userPassToken'))) {
@@ -2041,34 +1998,7 @@ Route::get('rename_cache', function (){
 });
 
 
-Route::get('create_vacation', function (){
-    $data = [
-        "content_type"=> "page",
-        "subtype"=> "static",
-        "url"=> "vacation",
-        "title"=> "Vacation",
-        "parent"=> "0",
-        "position"=> "0",
-        "is_active"=> "1",
-        "active_site_template"=> "default",
-        "layout_file"=> "vacation.php",
-        "is_home"=> "0",
-        "is_pinged"=> "0",
-        "is_shop"=> "0",
-        "is_deleted"=> "0",
-        "require_login"=> "0",
-        "session_id"=> "1gFG82M8KcqrOAyLuluwfX0QvLrj3r9BMXe2jVlw",
-        "updated_at"=> "2022-05-30 11:07:27",
-        "created_at"=> "2022-05-30 11:07:27",
-        "created_by"=> "1",
-        "edited_by"=> "1",
-        "posted_at"=> "2022-05-30 11:07:27",
-    ];
-    $status = DB::table('content')->updateOrInsert(
-                                        ['url' => 'vacation'],
-                                        $data);
-    return response()->json(['success' => true, 'message' => 'Vacation page added successfully' ],200);
-});
+Route::get('create_vacation', 'ApiFunctionController@create_vacation');
 Route::post('category_reset', function (){
     $categories = DB::table('categories')->pluck('id')->toArray();
     $contents = DB::table('content')->pluck('id')->toArray();
@@ -2361,46 +2291,7 @@ Route::get('get-table-data', function(){
 });
 
 
-Route::get('sync_1_29_data', function(){
-    $userToken = Config('microweber.userToken');
-    $passToken = Config('microweber.userPassToken');
-
-
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-    CURLOPT_URL => 'http://159.65.124.158/api/dt-channel-user/information',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'POST',
-    CURLOPT_HTTPHEADER => array(
-        'userPassToken: '.$passToken,
-        'userToken: '.$userToken
-    ),
-    ));
-
-    $response = curl_exec($curl);
-
-    curl_close($curl);
-    $data = json_decode($response, true);
-    $data = $data['data'];
-
-
-    Config::set('microweber.userName', $data['name']);
-    Config::save(array('microweber'));
-    dump("Username Added Successfully!");
-
-    $images = DB::table('media')->where('rel_type', 'content')->where('filename', 'not LIKE', '%{SITE_URL}%')->whereNotNull('image_id')->whereNotNull('webp_image')->whereNotNull('resize_image')->get()->toArray();
-    if(isset($images)){
-        foreach($images as $image){
-            image_set_to_server($image);
-        }
-        dump("All images convert successfully");
-    }
-});
+Route::get('sync_1_29_data', 'ApiFunctionController@drmUserNameUpdated');
 
 Route::get('get-export-data', function(){
     $get_headers = apache_request_headers();
@@ -2432,6 +2323,63 @@ Route::get('get-export-data', function(){
     }
 });
 
+Route::get('refresh-shop-version', function(){
+
+    try{
+        $currentVersionOfAdmin = Config::get('app.adminTemplateVersion');
+        $usertokenDrm = Config::get('microweber.userToken');
+        $userpasstokenDrm = Config::get('microweber.userPassToken');
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://drm.software/api/droptienda/version/update',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => array('version_name' => $currentVersionOfAdmin),
+        CURLOPT_HTTPHEADER => array(
+            'userToken: '.$usertokenDrm,
+            'userPassToken: '.$userpasstokenDrm
+        ),
+        ));
+
+        $responses = curl_exec($curl);
+
+        curl_close($curl);
+    }catch(Exception $e){
+        return response()->json(["message" => $e->getMessage()], 422);
+    }
+
+    return response()->json(["message" =>  "successfully Update"], 200);
+
+});
+
+
+Route::post('shop-control', function(Request $request){
+
+        $userToken = Config::get('microweber.userToken');
+        $userPassToken = Config::get('microweber.userPassToken');
+        if($userToken == $request->header('userToken') && $userPassToken == $request->header('userPassToken')){
+            if(isset($_REQUEST['isLocked']) && $_REQUEST['isLocked'] == 'true'){
+                delete_option('login','website');
+                delete_option('vacation_mode','website');
+                save_option('login', 'false', 'website');
+                save_option('vacation_mode', 'yes', 'website');
+                session()->flush();
+                Session::flush();
+            }else{
+                delete_option('login','website');
+                delete_option('vacation_mode','website');
+            }
+        }
+
+    return response()->json(["message" =>  "successfully Update"], 200);
+
+});
 
 Route::get('refresh-connected-products', function(){
     $products = DB::table('content')->where('content_type','product')->pluck('drm_ref_id')->toArray();
@@ -2506,15 +2454,7 @@ Route::post('get-all-product-images', function(Request $request){
     }
 });
 
-Route::post('convert-images-to-shop', function(){
-    $images = DB::table('media')->where('rel_type', 'content')->where('filename', 'not LIKE', '%{SITE_URL}%')->whereNotNull('image_id')->whereNotNull('webp_image')->whereNotNull('resize_image')->get()->toArray();
-    if(isset($images)){
-        foreach($images as $image){
-            image_set_to_server($image);
-        }
-        dump("All images convert successfully");
-    }
-});
+Route::post('convert-images-to-shop', 'ApiFunctionController@convert_images_to_shop');
 
 Route::get('get-images-to-product-table', function(){
     $needUpdatedImages = DB::table('products')->where('image', 'not like', '%{SITE_URL}%')->pluck('content_id')->toArray();
@@ -2526,39 +2466,40 @@ Route::get('get-images-to-product-table', function(){
     }
 });
 
-Route::get('get-category-status', function(){
-    $categories= DB::table('categories')
-                ->where('is_deleted',0)
-                ->whereNotNull('title')
-                ->where('parent_id', 0)
-                ->where('rel_type', 'content')
-                ->where('rel_id', 2)
-                ->orderBy('position', 'asc')
-                ->get();
-    $html=generate_shop_categories_api($categories,2,false);
-    return $html;
-});
+Route::get('get-category-status', 'ApiFunctionController@category_status');
 
-Route::get('update-blogs-url', function(){
-    $blogs = DB::table('blogs')->where('link','not like','%{SITE_URL}%')->where('is_rss', 0)->get();
-    if($blogs){
-        foreach($blogs as $blog){
-            DB::table('blogs')->updateOrInsert(
-                ['id' => $blog->id],
-                [
-                    'link' => '{SITE_URL}'.$blog->link
-                ]
-            );
-        }
-        dump("Blogs url updated successfully");
-    }
-});
+Route::get('update-blogs-url', 'ApiFunctionController@update_blogs_url');
 
-Route::get('get_total_products_count', function (){
-    if(Schema::hasTable('products')){
-        $product_limit = DB::table('products')->get()->count() ?? 0;
+Route::post('update-showmore',function(){
+    $posts_limit = get_option('data-limit', $_POST['param']);
+    if($posts_limit != 'false' && $posts_limit != '') {
+        $posts_limit = (int)$posts_limit;
     }else{
-        $product_limit = DB::table('content')->where('content_type','product')->where('is_active',1)->where('is_deleted',0)->get()->count() ?? 0;
+        if((int)$_POST['count'] % 3 == 0)  {
+                $posts_limit = 6;
+        }else{
+                $posts_limit = 8;
+        }
     }
-    return $product_limit;
+    $show = (int)$_POST['count'] ?? $posts_limit ?? 6;
+
+    $show = $show+$posts_limit;
+    Cache::put('abc'.$_POST['param'],$show,5);
+    return response()->json(["message" =>  "successfully Update"], 200);
 });
+
+
+Route::get('rm-showmore',function(){
+    Cache::flush();
+    return true;
+});
+
+Route::get('add-searchbar-menus', 'ApiFunctionController@addSearchbarMenus');
+
+Route::post('refresh-group-data', 'ApiFunctionController@refreshGroupData');
+
+Route::post('refresh-group-payment-data', 'ApiFunctionController@refreshGroupPaymentData');
+
+Route::get('create_global_fonts_file', 'ApiFunctionController@create_global_file_fonts');
+
+Route::get('get-pricing-title-description/{params}', 'ApiFunctionController@pricingTitleDescription');

@@ -37,8 +37,6 @@ class Product extends Model
     protected $attributes = [
         'is_active' => '1',
         'is_deleted' => '0',
-        'is_shop' => '0',
-        'is_home' => '0',
     ];
 
     public function tags()

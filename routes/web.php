@@ -16,3 +16,5 @@ use Illuminate\Support\Facades\Route;
 
 
 // Route::get('shop', '\App\Http\Controllers\Controller@shop');
+Route::any('product/store','App\Http\Controllers\ProductController@store')->name('product.store');
+Route::any('product/update/{id}','App\Http\Controllers\ProductController@update')->name('product.update');

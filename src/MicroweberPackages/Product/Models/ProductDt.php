@@ -26,6 +26,20 @@ class ProductDt extends DtProduct
         'ean',
         'ek_price',
         'sku',
+        'brand',
+        'delivery_days',
+        'item_size',
+        'item_weight',
+        'item_unit',
+        'item_color',
+        'materials',
+        'production_year',
+        'gender',
+        'note',
+        'status',
+        'suplier',
+        'tax_type',
+        'download_limit',
     ];
 
     public $translatable = ['title','url','description','content','content_body'];
