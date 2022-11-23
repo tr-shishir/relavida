@@ -1900,6 +1900,65 @@ Route::post("reorder_position",function(){
 
 
 });
+
+
+Route::post("reorder_position_product",function(){
+
+    $product_id = (int)$_REQUEST['product_id'];
+    $replace_data = explode(',',$_REQUEST['replace_with']);
+
+    $old_position_holder_id = $replace_data[0];
+    $new_position = $replace_data[1];
+    $new_index = $replace_data[2];
+
+    $positions = DB::table('product')->select('position','id')->where('content_type','product')->orderBy('position','desc')->pluck('id')->toArray();
+
+    if (($key = array_search($product_id, $positions)) !== false) {
+        unset($positions[$key]);
+    }
+    array_splice( $positions, $new_index, 0, $product_id ); // splice in at position 3
+
+    $data['ids'] = $positions;
+
+    $ids = $data['ids'];
+    if (empty($ids)) {
+        $ids = $_POST[0];
+    }
+    if (empty($ids)) {
+        return false;
+    }
+    $ids = array_unique($ids);
+    $ids = array_map('intval', $ids);
+    $ids_implode = implode(',', $ids);
+    $table = mw()->database_manager->real_table_name('product');
+    $maxpos = 0;
+    $get_max_pos = "SELECT max(position) AS maxpos FROM $table  WHERE id IN ($ids_implode) ";
+    $get_max_pos = mw()->database_manager->query($get_max_pos);
+    if (is_array($get_max_pos) and isset($get_max_pos[0]['maxpos'])) {
+        $maxpos = intval($get_max_pos[0]['maxpos']) + 1;
+    }
+
+    $i = 1;
+    foreach ($ids as $id) {
+        $id = intval($id);
+        mw()->cache_manager->delete('content/' . $id);
+
+        $pox = $maxpos - $i;
+
+        DB::table('product')->whereId($id)->update(['position' => $pox]);
+        ++$i;
+    }
+
+    mw()->cache_manager->delete('content');
+    mw()->cache_manager->delete('categories');
+
+    $new_possition_array = true;
+
+    return response()->json(['success' => true, 'data' => $new_possition_array], 200);
+
+
+});
+
 Route::post("reorder_existing_position",function(){
 
     reorder_existing_position();

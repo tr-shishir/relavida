@@ -1815,7 +1815,7 @@ if (isset($params['quick_edit'])) {
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
-                            <module type="content/views/advanced_settings" content-id="<?php print $data['id']; ?>" content-type="<?php print $data['content_type']; ?>" subtype="<?php print $data['subtype']; ?>"/>
+                            <module type="content/views/advanced_settings" content-id="<?php print $data['id']; ?>" content-type="<?php print $data['content_type']; ?>" subtype="<?php print $data['content_type']; ?>"/>
                             <?php event_trigger('content/views/advanced_settings', $data); ?>
                         </div>
 
@@ -2861,22 +2861,19 @@ if (isset($params['quick_edit'])) {
                     </div>
                 <?php endif;
 
-                if(!isset($data['position'])){
-                    $new_position = DB::table('content')->max('position')+1;
 
-                    DB::table('content')->where('id',$data['id'])->update(
+                if(!isset($data['position'])){
+                    $new_position = DB::table('product')->max('position')+1;
+
+                    DB::table('product')->where('id',$data['id'])->update(
                         [
                             'position' => $new_position,
                         ]
                     );
                     $data['position'] = $new_position;
                 }
-                if (isset($data['content_type']) and ($data['content_type'] != 'page') and ($data['content_type'] != 'post')): ?>
-                    <?php $varint = DB::table('variants')->where('rel_id',$data['id'])->get(); //dd($varint);
+                $positions = DB::table('product')->select('position','id')->orderBy('position','desc')->get();
 
-                        $positions = DB::table('content')->select('position','id')->where('content_type','product')->orderBy('position','desc')->get();
-
-                endif;
                 ?>
 
                 <?php if (isset($data['content_type'])): ?>
@@ -2896,7 +2893,7 @@ if (isset($params['quick_edit'])) {
                                     <small class="text-muted">The tags are available only for saved content</small>
                                 <?php endif;
                                 ?>
-                                <?php if (isset($data['content_type']) and ($data['content_type'] != 'page') and ($data['content_type'] != 'post')): ?>
+                                <?php if (isset($data['content_type'])): ?>
                                         <div class="form-group">
                                             <label for="usr" style="margin-top: 20px;">
                                                 <strong><?php _e("Set Content's Position"); ?></strong>
@@ -3173,7 +3170,7 @@ if (isset($params['quick_edit'])) {
                 $('#position').select2();
                 $("#position").on("change",function(){
 
-                    $.post('<?=url("/api/v1/reorder_position")?>', { product_id: <?=$data["id"]?>, replace_with: $(this).val() }, (res) => {
+                    $.post('<?=url("/api/v1/reorder_position_product")?>', { product_id: <?=$data["id"]?>, replace_with: $(this).val() }, (res) => {
 
                         if(res.success){
                             mw.notification.success("Order Changed Successfully");

@@ -71,10 +71,12 @@ class ProductController
             }
         }
         // if(isset($request->tag_names) && !empty($request->tag_names)){
-        //     $request->content_meta_keywords = $request->tag_names;
         // }
 
-        $result = $this->product->create($request->all());
+        $data = $request->toArray();
+        $data['position'] = explode(',',$data['position'])[1]+1;
+
+        $result = $this->product->create($data);
         $all_images = DB::table('media')->where('media_type','picture')->where('rel_id',$result['id'])->get();
         $optimize_data = DB::table('image_optimize')->whereIn('status',[1,2,3])->select('compress','minimum_size','thumbnail_width', 'status')->orderBy('status', 'ASC')->get()->keyBy('status')->toArray();
         $compress_size   = $optimize_data[1]->compress ?? 0;

@@ -3,9 +3,8 @@
 must_have_access();
 $data = false;
 if (isset($params['content-id'])) {
-    $data = get_content_by_id($params["content-id"]);
+    $data = (array)DB::table('product')->where('id',$params["content-id"])->first();
 }
-
 
 $available_content_types = false;
 $available_content_subtypes = false;
@@ -585,12 +584,12 @@ if (isset($data['created_by']) and $data['created_by']) {
                                         <div class="col-md-6">
                                             <label>
                                                 <?php _e("Change content sub type"); ?>
-                                                <small data-toggle="tooltip" data-title="<?php _e("Changing the content type to different than"); ?> '<?php print $data['subtype'] ?>' <?php _e("is advanced action. Please read the documentation and consider not to change the content type"); ?>">(?)</small>
+                                                <small data-toggle="tooltip" data-title="<?php _e("Changing the content type to different than"); ?> '<?php print $data['content_type'] ?>' <?php _e("is advanced action. Please read the documentation and consider not to change the content type"); ?>">(?)</small>
                                             </label>
 
                                             <select class="selectpicker" data-width="100%" name="change_contentsub_type" onchange="mw.adm_cont_subtype_change_holder_event(this)">
                                                 <?php foreach ($available_content_subtypes as $item): ?>
-                                                    <option value="<?php print $item['subtype']; ?>" <?php if ($item['subtype'] == trim($data['subtype'])): ?>   selected="selected"  <?php endif; ?>><?php print $item['subtype']; ?></option>
+                                                    <option value="<?php print $item['content_type']; ?>" <?php if ($item['content_type'] == trim($data['content_type'])): ?>   selected="selected"  <?php endif; ?>><?php print $item['subtype']; ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
