@@ -113,7 +113,6 @@ if (!isset($params["active_site_template"]) and isset($params["site-template"]))
 if (isset($params["active_site_template"])) {
     $data['active_site_template'] = $params["active_site_template"];
 }
-
 if (isset($data["id"])) {
     if (!isset($iframe_cont_id) or $iframe_cont_id == false) {
         $iframe_cont_id = $data["id"];
@@ -132,6 +131,7 @@ if (isset($data['active_site_template']) and ($data['active_site_template']) == 
     if ($site_template_settings != false) {
         $data['active_site_template'] = $site_template_settings;
     }
+$layout_options['site_template'] = $data['active_site_template'];
 }
 
 $templates = site_templates();
@@ -139,7 +139,6 @@ $templates = site_templates();
 $layout_options = array();
 
 
-$layout_options['site_template'] = $data['active_site_template'];
 $layout_options['no_cache'] = true;
 
 $layouts = mw()->layouts_manager->get_all($layout_options);

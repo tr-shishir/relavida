@@ -6,43 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Query\Builder;
 
-class Products extends Model
+class Product extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = "products";
+    protected $table = "product";
 
     protected $guarded = ['id'];
 
     public function media(): HasMany
     {
-        return $this->hasMany(Media::class, 'rel_id', 'content_id');
-    }
-    public function content()
-    {
-        return $this->hasOne(Content::class, 'id', 'content_id');
-    }
-
-    public function contentData(): HasMany
-    {
-        return $this->hasMany(ContentData::class, 'rel_id', 'content_id');
-    }
-
-    public function customField(): HasMany
-    {
-        return $this->hasMany(CustomField::class, 'rel_id', 'content_id');
-    }
-
-    public function taggingTagged(): HasMany
-    {
-        return $this->hasMany(TaggingTagged::class, 'taggable_id', 'id');
-    }
-    public function tagged(): HasMany
-    {
-        return $this->hasMany(TaggingTagged::class, 'taggable_id', 'content_id');
+        return $this->hasMany(Media::class, 'rel_id', 'id')->where('media.rel_type', 'product');
     }
 
     public function categoryItem(): HasMany
@@ -52,7 +29,16 @@ class Products extends Model
 
     public function categories(): HasMany
     {
-        return $this->hasMany(CategoryItem::class, 'rel_id', 'content_id')->with('category');
+        return $this->hasMany(CategoryItem::class, 'rel_id', 'id')->where('categories_items.rel_type', 'product')->with('category','parent');
+    }
+
+    public function taggingTagged(): HasMany
+    {
+        return $this->hasMany(TaggingTagged::class, 'taggable_id', 'id');
+    }
+    public function tagged(): HasMany
+    {
+        return $this->hasMany(TaggingTagged::class, 'taggable_id', 'id');
     }
 
     public function scopeProduct($query)

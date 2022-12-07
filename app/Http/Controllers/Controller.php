@@ -45,17 +45,17 @@ class Controller extends BaseController
         dd($_REQUEST);
     }
 
-    public function shop(){
+    // public function shop(){
 
-        if (!isset($post_params['data-limit'])) {
-            $posts_limit = 6;
-        }
-        $data = DB::table('products')
-            ->select('products.title','products.url','products.price','products.content_id','products.quantity','products.tax_type','products.image')
-            ->where('category_hide',0)
-            ->paginate($posts_limit);
-            $show_fields = [];
+    //     if (!isset($post_params['data-limit'])) {
+    //         $posts_limit = 6;
+    //     }
+    //     $data = DB::table('products')
+    //         ->select('products.title','products.url','products.price','products.content_id','products.quantity','products.tax_type','products.image')
+    //         ->where('category_hide',0)
+    //         ->paginate($posts_limit);
+    //         $show_fields = [];
 
-            return view('shop', ['data' => $data,'show_fields'=>$show_fields]);
-    }
+    //         return view('shop', ['data' => $data,'show_fields'=>$show_fields]);
+    // }
 }

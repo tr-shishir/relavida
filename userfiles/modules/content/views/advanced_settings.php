@@ -3,9 +3,8 @@
 must_have_access();
 $data = false;
 if (isset($params['content-id'])) {
-    $data = (array)DB::table('product')->where('id',$params["content-id"])->first();
+    $data = get_content_by_id($params["content-id"])[0]??[];
 }
-
 $available_content_types = false;
 $available_content_subtypes = false;
 /* FILLING UP EMPTY CONTENT WITH DATA */

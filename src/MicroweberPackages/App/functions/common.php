@@ -3766,3 +3766,12 @@ function deleteAllContentDetails($dt_shop_ids , $rollback = false){
         }
     }
 }
+
+function getProductModuleSettings($moduleId){
+
+    $settings = DB::table('product_module_setting')->where('module_id',$moduleId)->get()->keyBy('key');
+
+    return $settings;
+
+
+}

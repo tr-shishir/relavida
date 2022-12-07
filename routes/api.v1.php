@@ -27,8 +27,19 @@ use Illuminate\Support\Facades\Session;
 */
 $is_installed = mw_is_installed();
 if ($is_installed) {
-    $GLOBALS = array(
+    $user_country_name = user_country(user_id());
+    if(!$user_country_name){
+       $tax= mw()->tax_manager->get();
+       $user_country_name = $tax['0']['name'];
+    }
+    $GLOBALS['all_options'] =  DB::table('options')->get()->map(function($item){
+        return (array)$item;
+    })->keyBy(function($item) {
+        return $item['option_group'].'--'.$item['option_key'];
+    })->toArray();
+    $GLOBALS = array_merge($GLOBALS, array(
         'all_tax' => TaxType::all(),
+        'tax' => DB::table('tax_rates')->where('country','LIKE','%'.$user_country_name.'%')->first(),
         'all_tax_rates' => DB::table('tax_rates')->get(),
         'user_country_tax' => DB::table('users')
             ->select('tax_rates.charge', 'users.country')
@@ -46,7 +57,7 @@ if ($is_installed) {
         'total_product' => DB::table('content')->select('id')->where('content_type','product')->where('is_active',1)->where('is_deleted',0)->count() ?? 0,
         'total_post' => DB::table('content')->select('id')->where('content_type','post')->where('is_active',1)->where('is_deleted',0)->count() ?? 0,
 
-    );
+    ));
     if (Schema::hasColumn('tax_rates','reduced_charge')) {
         $GLOBALS['user_country_tax'] = DB::table('users')
             ->select('tax_rates.charge', 'users.country','tax_rates.reduced_charge')
@@ -1968,6 +1979,11 @@ Route::post("reorder_existing_position",function(){
 Route::post('module_content_limit',function (){
     save_option('content_limit_for_live_edit_module' , $_REQUEST['limit'],'content_limit_for_live_edit_module');
     mw()->update->post_update();
+    return response()->json(['success' => true, 'data' => true], 200);
+});
+
+Route::post('module_setting_save',function (){
+    DB::table('product_module_setting')->updateOrInsert(['module_id' => $_REQUEST['module_id'],'key' => $_REQUEST['key']],$_REQUEST);
     return response()->json(['success' => true, 'data' => true], 200);
 });
 

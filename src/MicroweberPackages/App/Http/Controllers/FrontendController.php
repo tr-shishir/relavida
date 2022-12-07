@@ -2312,7 +2312,7 @@ class FrontendController extends Controller
             }
 
             if ($is_editmode == true and $this->isolate_by_html_id == false and !isset($_REQUEST['isolate_content_field'])) {
-                if ($is_admin == true && $page_url != 'shop') {
+                if ($is_admin == true && ($page_url != 'shop' and $page_url != 'shhopv2')) {
                     $tb = mw_includes_path() . DS . 'toolbar' . DS . 'toolbar.php';
 
                     $layout_toolbar = new View($tb);
@@ -2649,7 +2649,7 @@ class FrontendController extends Controller
                 // $page = $this->app->content_manager->get_by_url($url);
                 $page = DB::table('content')->where('url',$url)->get()->map(function($i){
                         return (array)$i;
-                    })->toArray()[0];
+                    })->toArray()[0] ?? [];
                     
             }
         } else {

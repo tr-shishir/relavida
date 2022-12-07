@@ -556,7 +556,9 @@ class Manager
             if(!isset($post_params['keyword']) && !isset($post_params['ean']) && !isset($post_params['brand']) && !isset($post_params['sku']) && !isset($post_params['tags'])){
                 $current_page_from_url = (isset($post_params['pg']))?$post_params['pg']:$this->app->url_manager->param($posts_mod['paging_param']);
                 if(isset($posts_mod['content_type']) && $posts_mod['content_type'] == "product"){
-                    $data = Products::with([ 'media', 'tagged', 'categories']);
+                    $data = Products::with(['content', 'media', 'tagged', 'categories'])
+                        ->contentType($posts_mod['content_type'])
+                        ->leftJoin('content', 'content.id','products.content_id');
                 }else{
                     $data = Content::with(['media', 'tagged', 'categories'])
                     ->where('is_deleted',0);
