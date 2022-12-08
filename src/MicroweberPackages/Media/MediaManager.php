@@ -31,6 +31,7 @@ class MediaManager
         }
 
         $this->tables['media'] = 'media';
+        $this->tables['product_media'] = 'product_media';
     }
 
     public function get_picture($content_id, $for = 'content', $full = false)
@@ -366,14 +367,48 @@ class MediaManager
                         mw_error('Error: not logged in as admin to delete media.');
                     }
                 }
-//                if (isset($pic_data['filename'])) {
-//                    $fn_remove = $this->app->url_manager->to_path($pic_data['filename']);
-//                    if (is_file($fn_remove)) {
-//                        @unlink($fn_remove);
-//                    }
-//                }
+        //                if (isset($pic_data['filename'])) {
+        //                    $fn_remove = $this->app->url_manager->to_path($pic_data['filename']);
+        //                    if (is_file($fn_remove)) {
+        //                        @unlink($fn_remove);
+        //                    }
+        //                }
 
                 $this->app->database_manager->delete_by_id('media', $c_id);
+            }
+
+            return true;
+        }
+    }
+    
+    public function deletev2($data)
+    {
+        if (\Schema::hasTable('instagram_feed')) {
+            DB::table('instagram_feed')->where('media_id',$data['id'])->delete();
+        }
+        $adm = $this->app->user_manager->is_admin();
+        $ids_to_delete = array();
+        if (!isset($data['id']) and (!is_array($data) and intval($data) > 0)) {
+            $ids_to_delete[] = intval($data);
+        } elseif (isset($data['id']) and is_array($data['id'])) {
+            $ids_to_delete = $data['id'];
+        } elseif (isset($data['id']) and !is_array($data['id'])) {
+            $ids_to_delete[] = intval($data['id']);
+        } elseif (isset($data['ids']) and is_array($data['ids'])) {
+            $ids_to_delete = $data['ids'];
+        } elseif (isset($data['ids']) and !is_array($data['ids'])) {
+            $ids_to_delete = explode(',', $data['ids']);
+        }
+        if ($ids_to_delete) {
+            foreach ($ids_to_delete as $delete) {
+                $c_id = intval($delete);
+        //                if (isset($pic_data['filename'])) {
+        //                    $fn_remove = $this->app->url_manager->to_path($pic_data['filename']);
+        //                    if (is_file($fn_remove)) {
+        //                        @unlink($fn_remove);
+        //                    }
+        //                }
+                DB::table('product_media')->where('id',$c_id)->delete();
             }
 
             return true;
@@ -713,6 +748,247 @@ class MediaManager
             return $s;
         } elseif (isset($s['id'])) {
             $table = $this->tables['media'];
+            $s = $this->app->database_manager->extended_save($table, $s);
+            $this->app->cache_manager->delete('media');
+
+            return $s;
+        } else {
+            mw_error('Invalid data');
+        }
+    }
+    public function savev2($data)
+    {
+        $s = array();
+
+        if (isset($data['content-id'])) {
+            $t = trim($data['content-id']);
+            $s['rel_id'] = $t;
+            $s['rel_type'] = 'content';
+        } elseif (isset($data['content_id'])) {
+            $t = trim($data['content_id']);
+            $s['rel_id'] = $t;
+            $s['rel_type'] = 'content';
+            $s['rel_type'] = 'content';
+        }
+
+        if (isset($data['for'])) {
+            $t = trim($data['for']);
+            $t = $this->app->database_manager->assoc_table_name($t);
+            $s['rel_type'] = $t;
+        }
+        if (isset($data['rel_id'])) {
+            $t = $data['rel_id'];
+            $s['rel_id'] = $t;
+        }
+        if (isset($data['rel_type'])) {
+            $t = $data['rel_type'];
+            $s['rel_type'] = $t;
+        }
+
+        if (isset($data['for-id'])) {
+            $t = trim($data['for-id']);
+            $s['rel_id'] = $t;
+        }
+
+        if (isset($data['for_id'])) {
+            $t = trim($data['for_id']);
+            $s['rel_id'] = $t;
+        }
+
+        if (isset($data['id'])) {
+            $t = intval($data['id']);
+            $s['id'] = $t;
+        }
+
+        if (isset($data['title'])) {
+            $t = ($data['title']);
+            $s['title'] = $t;
+        }
+        if (!isset($data['src']) and isset($data['filename'])) {
+            $data['src'] = $data['filename'];
+        }
+
+        if (isset($data['src'])) {
+            $host = (parse_url(site_url()));
+
+            $host_dir = false;
+            if (isset($host['host'])) {
+                $host_dir = $host['host'];
+                $host_dir = str_ireplace('www.', '', $host_dir);
+                $host_dir = str_ireplace('.', '-', $host_dir);
+            }
+
+            $url2dir = $this->app->url_manager->to_path($data['src']);
+            $uploaded_files_dir = media_base_path() . DS . 'uploaded';
+
+            if (isset($s['rel_type']) and isset($s['rel_id'])) {
+                $s['rel_type'] = str_replace('..', '', $s['rel_type']);
+
+                $move_uploaded_files_dir = media_base_path() . 'downloaded' . DS . $s['rel_type'] . DS;
+                $move_uploaded_files_dir_index = media_base_path() . 'downloaded' . DS . $s['rel_type'] . DS . 'index.php';
+
+                $uploaded_files_dir = normalize_path($uploaded_files_dir);
+                if (!is_dir($move_uploaded_files_dir)) {
+                    mkdir_recursive($move_uploaded_files_dir);
+                    @touch($move_uploaded_files_dir_index);
+                }
+
+                $url2dir = normalize_path($url2dir, false);
+
+                $dl_remote = $this->download_remote_images;
+
+                if (isset($data['allow_remote_download']) and $data['allow_remote_download']) {
+                    $dl_remote = $data['allow_remote_download'];
+                }
+
+                if ($dl_remote and isset($data['src'])) {
+                    $ext = get_file_extension($data['src']);
+                    $data['media_type'] = $this->_guess_media_type_from_file_ext($ext);
+                    if ($data['media_type'] != false) {
+                        // starting download
+
+                        $is_remote = strtolower($data['src']);
+
+                        if (strstr($is_remote, 'http:') || strstr($is_remote, 'https:')) {
+                            $dl_host = (parse_url($is_remote));
+
+                            $dl_host_host_dir = false;
+                            if (isset($dl_host['host'])) {
+                                $dl_host_host_dir = $dl_host['host'];
+                                $dl_host_host_dir = str_ireplace('www.', '', $dl_host_host_dir);
+                                $dl_host_host_dir = str_ireplace('.', '-', $dl_host_host_dir);
+                            }
+
+                            $move_uploaded_files_dir = $move_uploaded_files_dir . 'external' . DS;
+                            if ($dl_host_host_dir) {
+                                $move_uploaded_files_dir = $move_uploaded_files_dir . $dl_host_host_dir . DS;
+                            }
+
+                            if (!is_dir($move_uploaded_files_dir)) {
+                                mkdir_recursive($move_uploaded_files_dir);
+                            }
+
+                            $newfile = basename($data['src']);
+
+                            $newfile = preg_replace('/[^\w\._]+/', '_', $newfile);
+                            $newfile = $move_uploaded_files_dir . $newfile;
+
+                            if (!is_file($newfile)) {
+                                mw()->http->url($data['src'])->download($newfile);
+                            }
+                            if (is_file($newfile)) {
+                                $url2dir = $this->app->url_manager->to_path($newfile);
+                            }
+                        }
+                    }
+                }
+
+                if (is_file($url2dir)) {
+                    $data['src'] = $this->app->url_manager->link_to_file($url2dir);
+                }
+            }
+
+            $s['filename'] = $data['src'];
+        }
+
+        if (!isset($data['position']) and !isset($s['id'])) {
+            $s['position'] = 9999999;
+        }
+
+        if (isset($data['for_id'])) {
+            $t = trim($data['for_id']);
+            $s['rel_id'] = $t;
+        }
+
+        if ((!isset($s['id']) or (isset($s['id']) and $s['id'] == 0))
+            and isset($s['filename'])
+            and isset($s['rel_id'])
+            and isset($s['rel_type'])
+        ) {
+            $s['filename'] = str_replace(site_url(), '{SITE_URL}', $s['filename']);
+            $check = array();
+            $check['rel_type'] = $s['rel_type'];
+            $check['rel_id'] = $s['rel_id'];
+            $check['filename'] = $s['filename'];
+            $check['single'] = true;
+            $check = $this->get_all($check);
+            if (isset($check['id'])) {
+                $s['id'] = $check['id'];
+            }
+        }
+
+        if (!isset($s['id']) and isset($s['filename']) and !isset($data['media_type'])) {
+            $ext = get_file_extension($s['filename']);
+            $data['media_type'] = $this->_guess_media_type_from_file_ext($ext);
+        }
+
+        if (isset($data['media_type'])) {
+            $t = $this->app->database_manager->escape_string($data['media_type']);
+            $s['media_type'] = $t;
+        }
+
+        if (isset($data['tags'])) {
+            $s['tags'] = $data['tags'];
+        }
+
+
+        if (isset($data['image_options'])) {
+            $s['image_options'] = @json_encode($data['image_options']);
+        }
+        // Start product image resize code
+        $optimize_data = DB::table('image_optimize')->whereIn('status',[1,2,3])->select('compress','minimum_size','thumbnail_width', 'status')->orderBy('status', 'ASC')->get()->keyBy('status')->toArray();
+        $compress_size   = $optimize_data[1]->compress ?? 0;
+        $minimum_size    = $optimize_data[2]->minimum_size ?? 0;
+        $thumbnail_width = $optimize_data[3]->thumbnail_width ?? 0;
+
+        if(isset($thumbnail_width) && !empty($thumbnail_width)){
+            $thumbnail_width = $thumbnail_width;
+        }else{
+            $thumbnail_width = Image::make($data['src'])->width();
+        }
+        $main_image_path = $data['src'];
+        // get image size
+        $ch = curl_init($main_image_path);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, TRUE);
+        curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+        $msr = curl_exec($ch);
+        $file_byte_size = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+        $file_kb_size = round($file_byte_size / 1024,4);
+        // end get image size
+
+        $resized_image = resize_image($data['src'],$thumbnail_width,$file_kb_size,$minimum_size);
+        $webp_image = Image::make($data['src'])->encode('webp', 90);
+        @$webp_image->save($resized_image['webp_save_path'].$resized_image['only_image_name'].'.webp',$compress_size ? $compress_size : 100);
+
+
+        // end product image resize code
+        $table = $this->tables['product_media'];
+
+        if (isset($s['rel_type']) and isset($s['rel_id'])) {
+            $s['rel_id'] = trim($s['rel_id']);
+            $s = $this->app->database_manager->extended_save($table, $s);
+            //insert resize imaage
+            $resize_image = '{SITE_URL}userfiles/media/templates.microweber.com/'.$thumbnail_width.'/thumbnails'.'/'.$resized_image['only_image_name'].'.webp';
+            $webp_image   = '{SITE_URL}userfiles/media/templates.microweber.com/'.$thumbnail_width.'/'.$resized_image['only_image_name'].'.webp';
+            $activate_compressor = get_option('img_compressor' , 'compressor');
+            if(@$activate_compressor == 1 && $activate_compressor != false){
+                if (!empty($minimum_size) && $minimum_size < $file_kb_size) {
+                    DB::table($table)->where('id', $s)->update([
+                        'resize_image' => $resize_image,
+                        'webp_image' => $webp_image,
+                    ]);
+                }
+            }else{
+                DB::table($table)->where('id', $s)->update([
+                    'webp_image' => $webp_image,
+                ]);
+            }
+            //end insert resize imaeg
+            $this->app->cache_manager->delete('media');
+
+            return $s;
+        } elseif (isset($s['id'])) {
             $s = $this->app->database_manager->extended_save($table, $s);
             $this->app->cache_manager->delete('media');
 

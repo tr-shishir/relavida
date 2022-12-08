@@ -720,6 +720,33 @@ function cat_reset_logic(){
 }
 
 
+function cat_reset_v2($ids){
+    $cats = \App\Models\Category::whereIn('id',$ids)->get();
+    if(isset($cats)) {
+        foreach ($cats as $cat) {
+            $catItem = \App\Models\CategoryItem::where('rel_type','product')->where('parent_id', $cat->id)->first();
+
+            if (isset($catItem)) {
+                $all_content = DB::table('product')
+                ->where('id',$catItem->rel_id)
+                ->where('is_deleted', 0)
+                ->where('is_active', 1)
+                ->first();
+
+                // if(!isset($all_content)){
+                //     $catItem->delete();
+                // }
+                    if(isset($all_content) && !empty($all_content)){
+                        \App\Models\Category::where('rel_type','product')->where('id', $cat->id)->update(['is_hidden' => 0]);
+                    }else{
+                        \App\Models\Category::where('rel_type','product')->where('id', $cat->id)->update(['is_hidden' => 1]);
+                    }
+            }else{
+                \App\Models\Category::where('rel_type','product')->where('id', $cat->id)->update(['is_hidden' => 1]);
+            }
+        }
+    }
+}
 
 function cat_reset_by_drm($id){
     $catItems = \App\Models\CategoryItem::where('parent_id', $id)->get();

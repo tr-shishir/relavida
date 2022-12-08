@@ -11,7 +11,7 @@ use MicroweberPackages\CustomField\Traits\CustomFieldsTrait;
 use MicroweberPackages\Database\Traits\CacheableQueryBuilderTrait;
 use MicroweberPackages\Database\Traits\HasCreatedByFieldsTrait;
 use MicroweberPackages\Database\Traits\HasSlugTrait;
-use MicroweberPackages\Media\Traits\MediaTrait;
+use MicroweberPackages\Media\Traits\MediaTraitDt;
 use MicroweberPackages\Product\Models\ModelFilters\ProductFilter;
 use MicroweberPackages\Tag\Tag;
 use MicroweberPackages\Tag\Traits\TaggableTrait;
@@ -24,7 +24,7 @@ class Product extends Model
     use CustomFieldsTrait;
     use CategoryTrait;
     use HasSlugTrait;
-    use MediaTrait;
+    use MediaTraitDt;
     use Filterable;
     use HasCreatedByFieldsTrait;
     use CacheableQueryBuilderTrait;

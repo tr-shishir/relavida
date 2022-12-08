@@ -567,7 +567,7 @@ if (isset($params['quick_edit'])) {
                                         </div>
                                     </div>
                                     <div class="card-body pt-3">
-                                        <module id="edit-post-gallery-main" type="pictures/admin" class="pictures-admin-content-type-<?php print trim($data['content_type']) ?>" for="content" content_type="<?php print trim($data['content_type']) ?>" for-id="<?php print $data['id']; ?>" />
+                                        <module id="edit-post-gallery-main" type="picturesv2/admin" class="pictures-admin-content-type-<?php print trim($data['content_type']) ?>" for="content" content_type="<?php print trim($data['content_type']) ?>" for-id="<?php print $data['id']; ?>" />
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -2064,12 +2064,12 @@ if (isset($params['quick_edit'])) {
                                 });
                             }
 
+                            data.old_categories = "<?php print $categories_active_ids; ?>";
 
                             if (categories.length) {
                                 data.category_ids  = categories.join(',')
                             } else {
                                 data.category_ids = '';
-
                             }
 
 
@@ -3274,7 +3274,7 @@ if (isset($params['quick_edit'])) {
                 "src": $(this).data('imgurl'),
             }
             var des = $(this).find('p').html();
-            $.post("<?= url('/') ?>/api/save_media", obj, (res) => {
+            $.post("<?= url('/') ?>/api/save_product_media", obj, (res) => {
                 if(res){
                     var instainfo = {
                         "media_id": res,

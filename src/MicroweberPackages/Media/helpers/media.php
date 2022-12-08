@@ -10,7 +10,10 @@ api_expose_admin('media/upload', function ($data) {
 
 api_expose_admin('reorder_media');
 api_expose('delete_media');
+api_expose('save_product_media');
+api_expose('delete_product_media');
 api_expose_admin('save_media');
+api_expose_admin('save_product_media');
 api_expose_admin('save_picture');
 api_expose('pixum_img');
 api_expose('thumbnail_img');
@@ -74,7 +77,21 @@ function save_picture($data)
 {
     return app()->media_manager->save($data);
 }
+function save_product_media($data)
+{
+    return save_picture_v2($data);
+}
 
+
+function save_picture_v2($data)
+{
+    return app()->media_manager->savev2($data);
+}
+
+function delete_product_media($data)
+{
+    return app()->media_manager->deletev2($data);
+}
 
 function pixum_img()
 {

@@ -251,10 +251,10 @@ class ProductController
         // if(isset($request->tag_names) && !empty($request->tag_names)){
         //     $request->content_meta_keywords = $request->tag_names;
         // }
+        $cates = explode(',',$_REQUEST['category_ids']);
 
         DB::table('categories_items')->where(['rel_type' => 'product', 'rel_id' => $_REQUEST['id']])->delete();
 
-        $cates = explode(',',$_REQUEST['category_ids']);
         $arr = [];
         foreach ($cates as $cat){
             if(!empty($cat)){
@@ -315,6 +315,12 @@ class ProductController
         ]);
 
         $result = $this->product->update($request->all(), $product);
+
+        $newCats = $cates;
+        $oldCats = explode(',',$_REQUEST['old_categories']);
+        $refreshCats = array_values(array_diff($oldCats,$newCats));
+        if(isset($refreshCats) && !empty($refreshCats))
+        cat_reset_v2($refreshCats);
 
 
         // cat_reset_logic();

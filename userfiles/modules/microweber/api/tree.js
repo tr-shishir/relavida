@@ -664,7 +664,6 @@
         }
 
         this.createItem = function(item){
-            console.log(item);
             let opened = '';
             let hideShop = '';
             if(item.type == 'page' && item.title == 'Shop' && (this.options.id == 'mw-tree-2' || this.options.id == 'mw-tree-1')){
