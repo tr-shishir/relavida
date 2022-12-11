@@ -28,6 +28,10 @@ Route::name('api.')
             return mw()->content_manager->reorder($request->all());
         });
 
+        Route::post('product/reorder', function (\Illuminate\Http\Request $request) {
+            return mw()->content_manager->reorderV2($request->all());
+        });
+
         Route::post('content/reset_edit', function (\Illuminate\Http\Request $request) {
             return mw()->content_manager->helpers->reset_edit_field($request->all());
         });
@@ -39,6 +43,11 @@ Route::name('api.')
         Route::post('content/bulk_assign', function (\Illuminate\Http\Request $request) {
             return mw()->content_manager->helpers->bulk_assign($request->all());
         });
+
+        Route::post('product/bulk_assign', function (\Illuminate\Http\Request $request) {
+            return mw()->content_manager->helpers->bulk_assign_V2($request->all());
+        });
+
         Route::post('content/copy', function (\Illuminate\Http\Request $request) {
             return mw()->content_manager->helpers->copy($request->all());
         });
@@ -58,6 +67,10 @@ Route::name('api.')
 
         Route::post('content/delete', function (\Illuminate\Http\Request $request) {
             return mw()->content_manager->helpers->delete($request->all());
+        });
+
+        Route::post('product/delete', function (\Illuminate\Http\Request $request) {
+            return mw()->content_manager->helpers->deleteV2($request->all());
         });
 
         Route::get('content/get_link_admin', function (\Illuminate\Http\Request $request) {

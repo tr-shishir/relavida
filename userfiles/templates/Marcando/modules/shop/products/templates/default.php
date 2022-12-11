@@ -68,11 +68,12 @@ description: Default
 
         });
     </script>
-<?php if (!empty($data) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])):
+<?php //dd($data);
+if (!empty($data) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])):
 
-        $tax_rate_list = $GLOBALS['tax'];
+        $tax_rate_list = $GLOBALS['tax'] ?? false;
 
-         if(isset($tax_rate_list)){
+         if(isset($tax_rate_list) and !empty($tax_rate_list)){
              $original_tax = $tax_rate_list->charge;
              $reduced_tax = $tax_rate_list->reduced_charge;
          }else{

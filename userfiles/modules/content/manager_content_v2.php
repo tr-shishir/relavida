@@ -147,27 +147,50 @@
     }
 </style>
 <?php
-use Illuminate\Support\Facades\DB;
+    use Illuminate\Support\Facades\DB;
 ?>
-<!-- http://localhost/performance/5a3edecd-b93b-42e9-9707-5a079d3891ce/api/module?
-id=module-layouts-148058--1-shop-productsv2
-&data-mw-title=Products
-&hide_paging=true
-&limit=6
-&col_count=3
-&data-type=shop%2Fproductsv2%2Fadmin
-&parent-module-id=module-layouts-148058--1
-&parent-module=layouts
-&type=shop%2Fproductsv2%2Fadmin
-&live_edit=true
-&module_settings=true
-&view=admin
-&from_url=http%3A%2F%2Flocalhost%2Fperformance%2F5a3edecd-b93b-42e9-9707-5a079d3891ce%2Fshopv2 -->
 <?php 
-
 $settings = getProductModuleSettings($params['id']);
 $limitOfProduct = $settings['content_limit_for_live_edit_module']->value ?? 50;
-$data = $data = App\Models\Product::with(['media', 'tagged', 'categories'])->limit($limitOfProduct)->get()
+$order_by = 'position';
+$ordering = 'desc';
+
+if(isset($settings['position'])){
+    $order_data = $settings['position']->value;
+    $order_data = explode(" ", $order_data);
+    $order_by = $order_data[0];
+    $ordering = $order_data[1];
+}
+
+if(isset($settings['tags']) and !empty($settings['tags']->value)){
+    $tags = $settings['tags']->value;
+    $tags = explode(',', $tags);
+    $taggable_id = DB::table('tagging_tagged')->whereIn('tag_name', $tags)->select('taggable_id')->get()->pluck('taggable_id')->toArray();
+}
+
+if(isset($settings['categories']) and !empty($settings['categories']->value)){
+    $categories = $settings['categories']->value;
+    $categories = DB::table('categories_items')->where('parent_id', $categories)->where('rel_type', 'product')->select('rel_id')->get()->pluck('rel_id')->toArray();
+}
+
+if(isset($categories) and isset($taggable_id)){
+    $taggable_id = array_unique($taggable_id);
+    $categories = array_unique($categories);
+    $data_id = array_merge($taggable_id, $categories);
+    $data_id = array_unique($data_id);
+}else if(isset($categories)){
+    $data_id = array_unique($categories);
+} else if(isset($taggable_id)){
+    $data_id = array_unique($taggable_id);
+}
+
+if(isset($data_id) and !empty($data_id)){
+    $query = App\Models\Product::whereIn('id', $data_id)->orderBy($order_by, $ordering);
+}else{
+    $query = App\Models\Product::orderBy($order_by, $ordering);
+}
+
+$data = $query->with(['media', 'tagged', 'categories'])->limit($limitOfProduct)->get()
 ->map(function($item){
     $item = $item->toArray();
     $item['image'] = false;
@@ -215,6 +238,54 @@ if (is_array($data) and !empty($data)):
             $(document).ready(function () {
                 $('body > #mw-admin-container > .main').addClass('show-sidebar-tree');
             });
+
+            mw.manage_content_sort = function() {
+                if (!mw.$("#mw_admin_posts_sortable").hasClass("ui-sortable")) {
+                    mw.$("#mw_admin_posts_sortable").sortable({
+                        items: '.manage-post-item',
+                        axis: 'y',
+                        handle: '.mw_admin_posts_sortable_handle',
+                        update: function() {
+                            var obj = {
+                                ids: []
+                            }
+                            $(this).find('.select_posts_for_action').each(function() {
+                                var id = this.attributes['value'].nodeValue;
+                                obj.ids.push(id);
+                            });
+                            $.post("<?= api_link('product/reorder'); ?>", obj,
+                                function() {
+                                    mw.reload_module('#mw_page_layout_preview');
+                                    mw.reload_module_parent('products/admin_views/view');
+                                });
+                        },
+                        start: function(a, ui) {
+                            $(this).height($(this).outerHeight());
+                            $(ui.placeholder).height($(ui.item).outerHeight())
+                            $(ui.placeholder).width($(ui.item).outerWidth())
+                        },
+                        scroll: false
+                    });
+                }
+            }
+
+            mw.delete_single_post = function(id) {
+                mw.tools.confirm("Do you want to delete this product?", function() {
+                    var arr = id;
+                    $.post("<?=api_url('delete_product_info_V2'); ?>", {
+                        id: id
+                    }).then((res, err) => {
+                        console.log(res, err);
+                    });
+                    // return;
+                    mw.post.delV2(arr, function() {
+                        mw.$(".manage-post-item-" + id).fadeOut(function() {
+                            $(this).remove()
+                        });
+                    });
+                });
+            }
+        
         </script>
         <?php
 
@@ -226,7 +297,6 @@ if (is_array($data) and !empty($data)):
             <?php
             $edit_text = _e('Edit', true);
             $delete_text = _e('Delete', true);
-            $live_edit_text = _e('Live Edit', true);
             ?>
 
             <?php if (is_array($data)):
@@ -264,21 +334,20 @@ if (is_array($data) and !empty($data)):
                             }
                     }
                     ?>
-                    <?php if (isset($item['id'])):
-                        $hasSubscription = false;
-                        if(isset($item['content_type']) && $item['content_type'] == 'product'){
-                            $hasSub = DB::table('subscription_status')->where('product_id', $item['id'])->first();
-                            if(isset($hasSub) && !empty($hasSub)) $hasSubscription = true;
-                        }
-                        $pub_class = '';
-                        $append = '';
-                        if (isset($item['is_active']) and $item['is_active'] == '0') {
-                            $pub_class = ' content-unpublished';
-                            $append = '<div class="post-unpublished d-inline-flex align-items-center justify-content-center"><a href="javascript:;" class="btn btn-sm btn-link" onclick="mw.post.set(' . $item['id'] . ', \'publish\');">' . _e("Publish", true) . '</a> <span class="badge badge-warning">' . _e("Unpublished", true) . '</span></div>';
-                        }
-                        $content_link = (isset($item['product']))?$item['url']:content_link($item['id']);
-                        ?>
-                        <?php $pic = (isset($item['product']))?$item['media']??$item['image']:$item['image']??get_picture($item['id']); ?>
+                    <?php 
+                        if (isset($item['id'])):
+                            $hasSubscription = false;
+                            if(isset($item['content_type']) && $item['content_type'] == 'product'){
+                                $hasSub = DB::table('subscription_status')->where('product_id', $item['id'])->first();
+                                if(isset($hasSub) && !empty($hasSub)) $hasSubscription = true;
+                            }
+                            $pub_class = '';
+                            $content_link = site_url() . $item['url'];
+                            $edit_link = admin_url('view:products/action:create?id=' . $item['id']);
+                            // $p_ids_hide = cat_product_hide();
+                            $p_ids_hide = [];
+                    ?>
+                        <?php $pic = get_picture($item['id']); ?>
                         <div class="card card-product-holder mb-2 post-has-image-<?php print($pic == true ? 'true' : 'false'); ?> manage-post-item-type-<?php print $item['content_type']; ?> manage-post-item manage-post-item-<?php print($item['id']) ?> <?php print $pub_class ?>">
                             <div class="card-body">
                                 <div class="row align-items-center flex-lg-nowrap">
@@ -295,130 +364,73 @@ if (is_array($data) and !empty($data)):
 
                                     <div class="col manage-post-item-col-2" style="max-width: 120px;">
                                         <?php
-                                        $type = $item['content_type'];
-                                        $type_icon = 'mdi-text';
-                                        if ($type == 'product') {
+                                            $type = 'product';
                                             $type_icon = 'mdi-shopping';
-                                        } elseif ($type == 'post') {
-                                            $post_image_url = db_get('table=media&rel_id=0&title='.'live_screenshot-'.$item['id'].'&single=true');
-                                            if($post_image_url){
-                                                $pic = $post_image_url['filename'];
-                                            }
-                                            $type_icon = 'mdi-text';
-                                        } elseif ($type == 'page') {
-                                            $page_image_url = db_get('table=media&rel_id=0&title='.'live_screenshot-'.$item['id'].'&single=true');
-                                            if($page_image_url){
-                                                $pic = $page_image_url['filename'];
-                                            }
-                                            $type_icon = 'mdi-file-document';
-                                        }
                                         ?>
-
-                                        <!-- <?php //if ($pic == true) :
-                                                ?>
-                                            <div class="position-absolute text-muted" style="z-index: 1; right: -5px; top: -10px;">
-                                                <i class="mdi <?php //echo $type_icon;
-                                                                ?> mdi-18px" data-toggle="tooltip" title="<?php //ucfirst($type);
-                                                                                                            ?>"></i>
-                                            </div>
-                                        <?php //endif;
-
-                                        ?>
-                                        ?> -->
-
                                         <div class="img-circle-holder border-radius-0 border-0">
 
                                             <?php if ($pic == true): ?>
-                                                <a href="javascript:;" onClick="mw.url.windowHashParam('action', 'editpage:<?php print ($item['id']) ?>');return false;">
+                                                <a href="<?=$edit_link; ?>">
                                                     <img src="<?php print thumbnail($pic, 120, 120, true) ; ?>"/>
                                                 </a>
                                             <?php else : ?>
-                                                <a href="javascript:;" onclick="mw.url.windowHashParam('action', 'editpage:<?php print ($item['id']) ?>');return false;">
+                                                <a href="<?=$edit_link; ?>">
                                                     <i class="mdi <?php echo $type_icon; ?> mdi-48px text-muted text-opacity-5"></i>
                                                 </a>
                                             <?php endif; ?>
                                         </div>
-                                        <div class="screnshot-icon">
-                                            <?php if($item['content_type'] == 'page' or $item['content_type'] == 'post'): ?>
-                                                <i class="fa fa-camera page-screenshot-tooltip" onclick=page_screenshot<?php print $item['id']; ?>(); data-toggle="tooltip" data-placement="top" title="<?php _e('If you click here,then this page screenshot will generating') ?>" > </i>
-
-                                                <script>
-                                                    $(function () {
-                                                        $('.page-screenshot-tooltip').tooltip();
-                                                    });
-                                                    function page_screenshot<?php print $item['id']; ?>(){
-                                                        $("#page_screenshot").show();
-                                                        $.ajax({
-                                                            type: "POST",
-                                                            url: "<?=api_url('generate_page_screenshot')?>",
-                                                            data:{ Page_id : '<?php print $item['id']; ?>'},
-                                                            success: function(response) {
-                                                                $("#page_screenshot").hide();
-                                                                location.reload();
-                                                                // mw.notification.success('Successfully Generate Screenshot ');
-                                                            },
-                                                            error: function(response){
-                                                                $("#page_screenshot").hide();
-                                                                mw.notification.error('Screenshot did  not Generating');
-                                                            }
-                                                        });
-                                                    }
-                                                </script>
-                                            <?php endif; ?>
-                                        </div>
-                                        <?php $edit_link = admin_url('view:content#action=editpage:' . $item['id']); ?>
-                                        <?php $edit_link_front = $content_link . '?editmode:y'; ?>
                                     </div>
 
                                     <div class="col item-title manage-post-item-col-3 manage-post-main">
                                         <div class="manage-item-main-top">
-                                            <a target="_top" href="<?php print $edit_link_front; ?>" class="btn btn-link p-0">
+                                            <a target="_top" href="<?php print $edit_link; ?>" class="btn btn-link p-0">
                                                 <h5 class="text-dark text-break-line-1 mb-0 manage-post-item-title"><?php print strip_tags($item['title']) ?></h5>
                                             </a>
                                             <?php mw()->event_manager->trigger('module.content.manager.item.title', $item) ?>
 
-                                            <?php $cats = (isset($item['product']))?$item['categories']:content_categories($item['id']); ?>
-                                            <?php $tags = (isset($item['product']))?$item['tagged']:content_tags($item['id'], false); ?>
-                                            <?php if ($cats): ?>
-                                                <span class="manage-post-item-cats-inline-list">
-                                                    <?php foreach ($cats as $ck => $cat): ?>
+                                            <?php $cats = content_categories_V2($item['id']);
+                                            $tags = content_tags_V2($item['id']);
+                                            $cat_link = admin_url('view:products/action:view');
+                                            if ($cats): ?>
+                                                    <span class="manage-post-item-cats-inline-list">
+                                                        <?php foreach ($cats as $ck => $cat): ?>
 
 
-                                                        <a href="#action=showpostscat:<?=$cat['id']??0;?>" class="btn btn-link p-0 text-muted"><?php if(isset($cat['title'])){ print $cat['title']; } ?></a><?php if (isset($cats[$ck + 1])): ?>,<?php endif; ?>
-                                                    <?php endforeach; ?>
-                                                </span>
-                                            <?php endif; ?>
+                                                        <a href="<?=$cat_link; ?>#action=showpostscat:<?=$cat['id']??0;?>"
+                                                            class="btn btn-link p-0 text-muted"><?php  print $cat['title']; ?></a><?php if (isset($cats[$ck + 1])): ?>,<?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    </span>
+                                                    <?php endif; ?>
 
-                                            <?php if ($tags): ?>
-                                                <br/>
-                                                <?php foreach ($tags as $tag): ?>
-                                                    <small class="bg-secondary rounded-lg px-2">#<?php echo (isset($item['product']))?$tag['tag_name']:$tag; ?></small>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
+                                                    <?php if ($tags): ?>
+                                                    <br />
+                                                        <?php foreach ($tags as $tag): ?>
+                                                        <small
+                                                            class="bg-secondary rounded-lg px-2">#<?php echo $tag['name']; ?></small>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
 
 
-                                            <a class="manage-post-item-link-small mw-medium d-none d-lg-block" target="_top" href="<?php print $content_link; ?>?editmode:y">
+                                            <a class="manage-post-item-link-small mw-medium d-none d-lg-block" target="_top" href="<?php print $content_link; ?>">
                                                 <small class="text-muted"><?php print $content_link; ?></small>
                                             </a>
                                         </div>
 
                                         <div class="manage-post-item-links">
-                                            <?php
-                                            if (user_can_access('module.content.edit')):
-                                                ?>
-                                                <a target="_top" class="btn btn-outline-success btn-sm" href="<?php print $edit_link ?>" onclick="javascript:mw.url.windowHashParam('action', 'editpage:<?php print ($item['id']) ?>');
-                                                    return false;">
-                                                    <?php echo $edit_text; ?>
-                                                </a>
-                                            <?php
-                                            endif;
-                                            ?>
+                                        <?php
+                                                                    if (user_can_access('module.content.edit')):
+                                                                        ?>
+                                                    <a target="_top" class="btn btn-outline-success btn-sm"
+                                                        href="<?php print $edit_link ?>">
+                                                        <?php echo $edit_text; ?>
+                                                    </a>
+                                                    <?php
+                                                                    endif;
+                                                                    ?>
 
                                             <?php
-                                            $hide_delete = hide_delete() ?? [];
                                             $tk_url = explode('/',$item['url']);
                                             if (user_can_access('module.content.destroy')):
-                                                if(!in_array(end($tk_url) , $hide_delete)){
                                                 if($item['content_type'] == 'product' && $hasSubscription){ ?>
                                                     <a class="btn btn-outline-danger btn-sm" href="javascript:delete_subscription_single_post('<?php print ($item['id']) ?>');">
                                                         <?php echo $delete_text; ?>
@@ -427,155 +439,24 @@ if (is_array($data) and !empty($data)):
                                                     <a class="btn btn-outline-danger btn-sm" href="javascript:mw.delete_single_post('<?php print ($item['id']) ?>');">
                                                         <?php echo $delete_text; ?>
                                                     </a>
-                                                <?php }}
+                                                <?php }
                                             endif; ?>
-                                            <?php if($item['content_type'] == 'page'): ?>
-                                                <?php if($item['layout_file'] == 'layouts__thank_you.php'): ?>
-                                                    <a target="_top" class="btn btn-outline-success btn-sm"  onclick="thank_you_clone('<?php print ($item['id']) ?>')"><?php _e('Clone'); ?></a>
-                                                <?php else: ?>
-                                                    <a target="_top" class="btn btn-outline-success btn-sm"  onclick="clonePage('<?php print ($item['id']) ?>')"><?php _e('Clone'); ?></a>
-                                                <?php endif; ?>
-                                                <?php
-                                                $tempv = DB::table('header_show_hides')->where('page_id',$item['id'])->get();
-                                                if($tempv->count() > 0){
-                                                    $showvalue = $tempv[0]->page_id;
-                                                }
-                                                else{
-                                                    $showvalue = 0;
-                                                }
-                                                ?>
-                                                <?php if( $item['url'] == url('/').'/home' ): ?>
-
-                                                <?php elseif( $showvalue == $item['id']):  ?>
-                                                    <input type="checkbox" checked id="<?php print $item['id']; ?>" class="header-checkbox">
-                                                    <div class="headercheck-tt">
-                                                        <p>If you turn on this button then the header will be hidden from that page.</p>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <input type="checkbox" id="<?php print $item['id']; ?>" class="header-checkbox">
-                                                    <div class="headercheck-tt">
-                                                        <p>If you turn on this button then the header will be hidden from that page.</p>
-                                                    </div>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
-
                                         </div>
                                     </div>
-                                    <script>
+                                    <div class="item-author manage-post-item-col-4">
+                                        <?php if(in_array($item['id'],$p_ids_hide)) { ?>
+                                        <span class="cat-hide-product-icon">
 
-                                        $('#<?php print $item['id']; ?>').click(function() {
-                                            if($('#<?php print $item['id']; ?>').is(':checked')){
-                                                console.log('<?php print $item['id']; ?>');
-                                                $.ajax({
-                                                    type: "POST",
-                                                    url: "<?=api_url('headerShow')?>",
-                                                    data:{ id : '<?php print $item['id']; ?>'},
-                                                    success: function(response) {
-                                                        console.log(response.message);
-                                                    },
-                                                    error: function(response){
-                                                        console.log(response.responseJSON.message);
-                                                    }
-                                                });
+                                            <i class="fa fa-eye-slash" aria-hidden="true"></i>
 
-                                            }
-                                            else{
-                                                console.log('<?php print $item['id']; ?>');
-                                                $.ajax({
-                                                    type: "POST",
-                                                    url: "<?=api_url('headerHide')?>",
-                                                    data:{ id : '<?php print $item['id']; ?>'},
-                                                    success: function(response) {
-                                                        console.log(response.message);
-                                                    },
-                                                    error: function(response){
-                                                        console.log(response.responseJSON.message);
-                                                    }
-                                                });
-
-                                            }
-                                        });
-
-                                        function clonePage(temp){
-                                            mw.tools.confirm("<?php _ejs("Do you want to clone this page"); ?>?", function () {
-                                                $.ajax({
-                                                    type: "POST",
-                                                    url: "<?=api_url('clonePage')?>",
-                                                    data:{ clonePageId : temp},
-                                                    success: function(response) {
-                                                        // console.log(response.message['newPageId']);
-                                                        $.ajax({
-                                                            type: "POST",
-                                                            url: "<?=api_url('clonePageContentSave')?>",
-                                                            data:{ newPageId : response.message['newPageId'],oldPageId : response.message['oldPageId']},
-                                                            success: function(response) {
-                                                                // console.log(response.message);
-                                                                $.post( mw.settings.api_url + 'mw_post_update' );
-                                                                window.location.href = "<?=url('/')?>/admin/view:content/action:pages#action=editpage:"+response.message;
-                                                            },
-                                                            error: function(response){
-                                                                console.log(response.responseJSON.message);
-                                                            }
-                                                        });
-                                                        // window.location.href = "<?=url('/')?>/admin/view:content/action:pages#action=editpage:"+response.message['newPageId'];
-                                                    },
-                                                    error: function(response){
-                                                        console.log(response.responseJSON.message);
-                                                    }
-                                                });
-                                            });
-                                        }
-
-                                    </script>
-                                       <div class="item-author manage-post-item-col-4">
-                                            <!-- <?php // if(in_array($item['id'],$p_ids_hide)) { ?>
-                                                <span class="cat-hide-product-icon">
-
-                                                    <i class="fa fa-eye-slash" aria-hidden="true"></i>
-
-                                                    <p class="cat-hide-product-icon-text">
-                                                        The category of this product is hidden from the shop.
-                                                    </p>
-                                                </span>
-                                            <?php // } ?> -->
-                                        <span class="text-muted" title="<?php print user_name($item['created_by']); ?>"><?php print user_name($item['created_by'], 'username') ?></span>
+                                            <p class="cat-hide-product-icon-text">
+                                                The category of this product is hidden from the shop.
+                                            </p>
+                                        </span>
+                                        <?php } ?>
+                                        <span class="text-muted"
+                                            title="<?php print user_name($item['created_by']); ?>"><?php print user_name($item['created_by'], 'username') ?></span>
                                     </div>
-
-                                    <?php if(isset($item['content_type']) and $item['content_type'] == "post") : ?>
-                                        <div class="col manage-post-item-col-5" style="max-width: 130px;">
-                                            <?php if (isset($item['is_active']) AND $item['is_active'] == 1): ?>
-
-                                                <?php
-                                                $post_time = strtotime(($item['created_at']));
-                                                $current_time = strtotime((date("Y-m-d H:i:s")));
-                                                if($post_time >= $current_time) :?>
-                                                    <span class="badge badge-dark font-weight-normal"><?php _e('Future Published'); ?></span>
-                                                <?php else: ?>
-                                                    <a href="javascript:void"><span class="badge badge-success font-weight-normal"  onclick="unPublished(<?php echo $item['id']; ?>)"><?php _e('Published'); ?></span></a>
-                                                <?php endif; ?>
-
-                                            <?php else: ?>
-                                                <a href="javascript:void"><span class="badge badge-warning font-weight-normal" onclick="published(<?php echo $item['id']; ?>)"><?php _e('Unpublished'); ?></span></a>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php elseif(isset($item['content_type']) and $item['content_type'] == "page") : ?>
-                                        <div class="col manage-post-item-col-5" style="max-width: 130px;">
-                                            <?php
-                                            $hide_delete = hide_delete() ?? [];
-                                            $url_un = explode('/',$item['url']);
-                                            $status = 0;
-                                            if(!in_array(end($url_un) , $hide_delete)){
-                                                $status = 1;
-                                            } ?>
-                                            <?php if (isset($item['is_active']) AND $item['is_active'] == 1): ?>
-                                                <a href="javascript:void"><span class="badge badge-success font-weight-normal" onclick="unPublishedPage(<?php echo $item['id']; ?>, <?php echo $status; ?>)"><?php _e('Published'); ?></span></a>
-                                            <?php else: ?>
-                                                <a href="javascript:void"><span class="badge badge-warning font-weight-normal" onclick="publishedPage(<?php echo $item['id']; ?>)"><?php _e('Unpublished'); ?></span></a>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-
-
                                     <div class="col item-comments manage-post-item-col-5 d-none" style="max-width: 100px;">
                                         <?php mw()->event_manager->trigger('module.content.manager.item', $item) ?>
                                     </div>
@@ -587,166 +468,6 @@ if (is_array($data) and !empty($data)):
              endforeach; ?>
             <?php endif; ?>
         </div>
-        <script>
-            var thank_you_page_id = null;
-            function thank_you_clone(page_id){
-                thank_you_page_id = page_id;
-                $.ajax({
-                    type: "POST",
-                    url: "<?=api_url('thank_you_page_check') ?>",
-                    data:{page_id},
-                    success:function(response){
-                        if(response.message){
-                            $('#thank_you_page_clone_modal-id').show();
-                        }else{
-                            mw.notification.error("Primary Thank you page is already cloned. You can't clone another one.");
-                        }
-                    }
-                });
-            }
-            function save_thank_you_clone_page(){
-                all_tags = $('#tags').val();
-                console.log(thank_you_page_id);
-                if(all_tags){
-                    $.ajax({
-                        type: "POST",
-                        url: "<?=api_url('thank_you_save_tag_check')?>",
-                        data: {all_tags},
-                        success: function(response){
-                            common_tags = response.message;
-                            if(common_tags.length){
-                                mw.notification.error(common_tags + " tag(s) is already in use in existing cloned Thank you page. You can't clone anymore Thank you page containing these tag(s).");
-                            }else{
-                                thank_you_page_clone();
-                            }
-                        },
-                    });
-                }else{
-                    mw.notification.error("You must add minimum one tag to clone Thank you page.");
-                }
-            }
-            function thank_you_page_clone(){
-                $('#thank_you_page_clone_modal-id').hide();
-                $.ajax({
-                    type: "POST",
-                    url: "<?=api_url('clonePage')?>",
-                    data:{ clonePageId : thank_you_page_id},
-                    success: function(response) {
-                        $.ajax({
-                            type: "POST",
-                            url: "<?=api_url('clonePageContentSave')?>",
-                            data:{ newPageId : response.message['newPageId'],oldPageId : response.message['oldPageId']},
-                            success: function(response) {
-                                $.ajax({
-                                    type: "POST",
-                                    url: "<?=api_url('thank_you_page_tags_save') ?>",
-                                    data:{new_page_id : response.message, all_tags:  all_tags}
-                                });
-                                $.post( mw.settings.api_url + 'mw_post_update' );
-
-                                window.location.href = "<?=url('/')?>/admin/view:content/action:pages#action=editpage:"+response.message;
-                            },
-                            error: function(response){
-                                console.log(response.responseJSON.message);
-                            }
-                        });
-                    },
-                    error: function(response){
-                        console.log(response.responseJSON.message);
-                    }
-                });
-            }
-
-            function hide_thank_you_page_clone_modal(){
-                $('#thank_you_page_clone_modal-id').hide();
-            }
-        </script>
-        <?php if(isset($params['content_type']) && $params['content_type'] == 'product'): ?>
-        <?php else: ?>
-            <!-- thank you page clone modal -->
-            <div class="modal" id="thank_you_page_clone_modal-id" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><?php _e('You create a copy of your thank you page that customers will see after successful order'); ?></h5>
-                    </div>
-                    <div class="modal-body">
-                        <h4><?php _e('Please add a tag(s)'); ?></h4>
-                        <module type="content/views/content_tags" content-type="page" content-id="0"/>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="hide_thank_you_page_clone_modal()" data-dismiss="modal"><?php _e('Close'); ?></button>
-                        <button type="button" class="btn btn-primary" onclick="save_thank_you_clone_page()"><?php _e('Save'); ?></button>
-                    </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <script>
-
-            function unPublished(id){
-                mw.tools.confirm("<?php _ejs("Do you want to unpublish this content"); ?>?", function () {
-                    $.post("<?=api_url('unpublished')?>",{
-                    id: id
-                    }).then((res, err) => {
-                        console.log(res, err);
-                    });
-                    mw.notification.success("<?php _e('Content is unpublished sucessfully'); ?>");
-                    mw.clear_cache();
-                    location.reload();
-                });
-            }
-
-            function published(id){
-                mw.tools.confirm("<?php _ejs("Do you want to publish this content"); ?>?", function () {
-                    $.post("<?=api_url('published')?>",{
-                    id: id
-                    }).then((res, err) => {
-                        console.log(res, err);
-                    });
-                    mw.notification.success("<?php _e('Content is published sucessfully'); ?>");
-                    mw.clear_cache();
-                    location.reload();
-            });
-            }
-
-
-            function unPublishedPage(id, status){
-                if(status == 1){
-                    mw.tools.confirm("<?php _ejs("Do you want to unpublish this page"); ?>?", function () {
-                        $.post("<?=api_url('unpublishedPage')?>",{
-                        id: id
-                        }).then((res, err) => {
-                            console.log(res, err);
-                        });
-                        mw.notification.success("<?php _e('Page is unpublished sucessfully'); ?>");
-                        mw.clear_cache();
-                        location.reload();
-                    });
-                } else{
-                    mw.tools.confirm("<?php _ejs("This is a default page so you can't unpublish this page."); ?>", function () {
-                    });
-
-                }
-            }
-
-
-            function publishedPage(id)
-            {
-                mw.tools.confirm("<?php _ejs("Do you want to publish this page"); ?>?", function () {
-                $.post("<?=api_url('publishedPage')?>",{
-                    id: id
-                }).then((res, err) => {
-                    console.log(res, err);
-                });
-                mw.notification.success("<?php _e('Page is published sucessfully'); ?>");
-                mw.clear_cache();
-                location.reload();
-                });
-            }
-        </script>
-
         <?php
         $numactive = 1;
 
@@ -798,117 +519,60 @@ if (is_array($data) and !empty($data)):
 
     </div>
 <?php else: ?>
-    <?php
-    $page_is_shop = false;
-    if (isset($post_params["page-id"])) {
-        $page_is_shop_check = get_content_by_id($post_params["page-id"]);
-        if (isset($page_is_shop_check['is_shop']) and $page_is_shop_check['is_shop'] == 1) {
-            $page_is_shop = true;
-        }
-    }
-
-    if ((isset($post_params['content_type']) and $post_params['content_type'] == 'product') or (isset($params['content_type']) and $params['content_type'] == 'product') or $page_is_shop) :
-        ?>
-        <div class="no-items-found products">
-            <?php
-            /*  if (isset($post_params['category-id'])) {
-              $url = "#action=new:product&amp;category_id=" . $post_params['category-id'];
-              } elseif (isset($post_params['category'])) {
-              $url = "#action=new:product&amp;category_id=" . $post_params['category'];
-              } else if (isset($post_params['parent'])) {
-              $url = "#action=new:product&amp;parent_page=" . $post_params['parent'];
-              } else {
-              $url = "#action=new:product";
-              } */
+    <div class="no-items-found products">
+        <?php
+        /*  if (isset($post_params['category-id'])) {
+            $url = "#action=new:product&amp;category_id=" . $post_params['category-id'];
+            } elseif (isset($post_params['category'])) {
+            $url = "#action=new:product&amp;category_id=" . $post_params['category'];
+            } else if (isset($post_params['parent'])) {
+            $url = "#action=new:product&amp;parent_page=" . $post_params['parent'];
+            } else {
             $url = "#action=new:product";
-            ?>
+            } */
+        $url = "#action=new:product";
+        ?>
 
-            <div class="row">
-                <div class="col-12">
-                    <div class="no-items-box" style="background-image: url('<?php print modules_url(); ?>microweber/api/libs/mw-ui/assets/img/no_products.svg'); ">
-                        <h4><?php _e('You don’t have any products'); ?></h4>
-                        <p><?php _e('Create your first product right now.You are able to do that in very easy way!'); ?></p>
-                        <br/>
-                        <a href="<?php print$url; ?>" class="btn btn-primary btn-rounded"><?php _e('Create a Product'); ?></a>
-                    </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="no-items-box" style="background-image: url('<?php print modules_url(); ?>microweber/api/libs/mw-ui/assets/img/no_products.svg'); ">
+                    <h4><?php _e('You don’t have any products'); ?></h4>
+                    <p><?php _e('Create your first product right now.You are able to do that in very easy way!'); ?></p>
+                    <br/>
+                    <a href="<?php print$url; ?>" class="btn btn-primary btn-rounded"><?php _e('Create a Product'); ?></a>
                 </div>
             </div>
-
-
-            <script>
-                $(document).ready(function () {
-                    $('.js-hide-when-no-items').hide();
-                    //                    $('body > #mw-admin-container > .main').removeClass('show-sidebar-tree');
-                });
-            </script>
-            <script>
-                $(document).ready(function () {
-                    $('.manage-toobar').hide();
-                    $('.top-search').hide();
-                });
-            </script>
         </div>
-    <?php else: ?>
-        <div class="no-items-found posts">
-            <?php $url = "#action=new:post"; ?>
 
-            <?php if (isset($post_params['content_type']) AND $post_params['content_type'] == 'page'): ?>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="no-items-box" style="background-image: url('<?php print modules_url(); ?>microweber/api/libs/mw-ui/assets/img/no_pages.svg');">
-                            <h4><?php _e('You don’t have pages'); ?></h4>
-                            <p><?php _e('Create your first page right now.
-                                You are able to do that in very easy way!'); ?></p>
-                            <br/>
-                            <a href="<?php print admin_url() . 'view:content#action=new:page'; ?>" class="btn btn-primary btn-rounded"><?php _e('Create a Page'); ?></a>
-                        </div>
-                    </div>
-                </div>
-            <?php else: ?>
-                <div class="row">
-                    <div class="col-12">
-                        <div class="no-items-box" style="background-image: url('<?php print modules_url(); ?>microweber/api/libs/mw-ui/assets/img/no_content.svg'); ">
-                            <h4><?php _e('You don’t have any posts yet'); ?></h4>
-                            <p><?php _e('Create your first post right now.You are able to do that in very easy way!'); ?></p>
-                            <br/>
-                            <a href="<?php print$url; ?>" class="btn btn-primary btn-rounded"><?php _e('Create a Post'); ?></a>
-                             <!-- filter post -->
-                    <?php $rssOption = get_option('blog_filter', 'blog_filter_option'); ?>
-                    <select onchange="getComboA(this)" id="rssOption" name="rssOption[]" class="selectpicker js-search-by-selector form-control" data-width="120" data-style="btn-sm" tabindex="-98" aria-label="RSS option selected">
-                        <option <?php if (intval($rssOption) == 1 || $rssOption == false) {
-                                    echo "selected";
-                                } ?> value="1" selected><?php _e('Merge Posts'); ?></option>
-                        <option <?php if (intval($rssOption) == 2) {
-                                    echo "selected";
-                                } ?> value="2"><?php _e('Own Posts'); ?></option>
-                        <option <?php if (intval($rssOption) == 3) {
-                                    echo "selected";
-                                } ?> value="3"><?php _e('RSS Posts'); ?></option>
-                    </select>
-                    <!-- end filter post -->
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
 
-            <script>
-                $(document).ready(function () {
-                    $('.js-hide-when-no-items').hide()
-                    //                    $('body > #mw-admin-container > .main').removeClass('show-sidebar-tree');
-                });
-            </script>
+        <script>
+            $(document).ready(function () {
+                $('.js-hide-when-no-items').hide();
+                //                    $('body > #mw-admin-container > .main').removeClass('show-sidebar-tree');
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('.manage-toobar').hide();
+                $('.top-search').hide();
+            });
+        </script>
+    </div>
+        <script>
+            $(document).ready(function () {
+                $('.js-hide-when-no-items').hide()
+                //                    $('body > #mw-admin-container > .main').removeClass('show-sidebar-tree');
+            });
+        </script>
 
-            <script>
-                $(document).ready(function () {
-                    $('.manage-toobar').hide();
-                    $('.top-search').hide();
-                });
-            </script>
-        </div>
-    <?php endif; ?>
-
+        <script>
+            $(document).ready(function () {
+                $('.manage-toobar').hide();
+                $('.top-search').hide();
+            });
+        </script>
+    </div>
 <?php endif; ?>
-
 
 
 
@@ -970,44 +634,29 @@ if (is_array($data) and !empty($data)):
       }
 </style>
 
-<!-- start template install pageloader modal -->
-<div class="modal" id="page_screenshot" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="pre_loader" id="pageloader" >
-                    <div class="logo">
-                        <img src="<?php print modules_url(); ?>/content/views/page_preloader.gif" alt="prelaoder">
-                    </div>
-                    <p><?php _e('Generating Page Screenshot'); ?></p>
-                    <div class="progressbar"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- end template install pageloader modal -->
 
 <script>
     function delete_subscription_single_post(id) {
-        mw.tools.confirm("<?php _ejs("Attention: This is a subscription product. By deleting it, you will lose all recurring revenue. Do you want to proceed with the deletion? If yes, customers will be notified by email accordingly."); ?>", function () {
-            var arr = id;
-			$.post("<?=api_url('delete_product_info')?>", {
-                id:id
-            }).then((res, err) => {
-            // console.log(res, err);
-            });
-            // return;
-            mw.post.del(arr, function () {
-                mw.$(".manage-post-item-" + id).fadeOut(function () {
-                    $(this).remove()
+        mw.tools.confirm(
+            "Attention: This is a subscription product. By deleting it, you will lose all recurring revenue. Do you want to proceed with the deletion? If yes, customers will be notified by email accordingly.",
+            function() {
+                var arr = id;
+                $.post("<?=api_url('delete_product_info_V2');?>", {
+                    id: id
+                }).then((res, err) => {
+                    // console.log(res, err);
+                });
+                // return;
+                mw.post.del(arr, function() {
+                    mw.$(".manage-post-item-" + id).fadeOut(function() {
+                        $(this).remove()
+                    });
+                });
+                $.post("<?=api_url('delete_subscription_product_if_has'); ?>", {
+                    id: id
+                }).then((res, err) => {
+                    //console.log(res, err);
                 });
             });
-            $.post("<?=api_url('delete_subscription_product_if_has')?>", {
-                id:id
-            }).then((res, err) => {
-                //console.log(res, err);
-            });
-        });
     }
 </script>

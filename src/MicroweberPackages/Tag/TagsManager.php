@@ -2,6 +2,7 @@
 
 namespace MicroweberPackages\Tag;
 
+use Illuminate\Support\Facades\DB;
 
 class TagsManager
 {
@@ -186,5 +187,31 @@ class TagsManager
             }
 
         }
+    }
+
+    public function get_values_V2($params, $return_full = false)
+    {
+        if ($params == false) {
+            return;
+        }
+        $id = false;
+        if (isset($params)) {
+            $id = intval($params);
+        }
+        $get_tag =  DB::table('tagging_tags')
+                        ->join('tagging_tagged', 'tagging_tagged.tag_slug', '=', 'tagging_tags.slug')
+                        ->where('tagging_tagged.taggable_id', $id)
+                        ->where('tagging_tagged.taggable_type', 'product')
+                        ->select('tagging_tags.id', 'tagging_tags.name')
+                        ->get()
+                        ->toArray();
+
+        if (empty($get_tag)) {
+            $get_tag = array();
+        } else {
+            $get_tag = json_encode($get_tag);
+            $get_tag = json_decode($get_tag, true);
+        }
+        return $get_tag;
     }
 }

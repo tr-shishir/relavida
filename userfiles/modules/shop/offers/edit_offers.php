@@ -25,7 +25,7 @@ $allOffers = \MicroweberPackages\Offer\Models\Offer::getAll();
                 <tr class="small td-valign <?php if ($offer['is_active'] == 1): ?>js-table-active<?php else: ?>js-table-inactive<?php endif; ?> <?php print $class_product_deleted; ?> ">
                     <td><?php print($offer['id']) ?></td>
                     <td><?php print($offer['product_title']) ?></td>
-                    <td><?php _e($offer['price_name']) ?></td>
+                    <td><?php _e('price') ?></td>
                     <td><?php print currency_format($offer['price']) ?></td>
                     <td><?php print currency_format($offer['offer_price']) ?></td>
                     <td><?php if ($offer['expires_at'] and $offer['expires_at'] != '0000-00-00 00:00:00' ): ?><?php print date_system_format($offer['expires_at']) ?><?php else: ?>-<?php endif; ?></td>
@@ -36,9 +36,11 @@ $allOffers = \MicroweberPackages\Offer\Models\Offer::getAll();
                         <a href="<?php echo content_link($offer['product_id']) ?>" target="_new" class="btn btn-primary btn-sm" title="View"><?php _e('View'); ?></a>
                     </td>
                 </tr>
-                <?php
-            endforeach;
-        endif;
+            <?php endforeach; ?>
+        <?php endif;
         ?>
     </table>
+    <?php if($allOffers): ?>
+    <?= $allOffers->links(); ?>
+    <?php endif; ?>
 </div>

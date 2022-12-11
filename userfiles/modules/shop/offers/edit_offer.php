@@ -3,8 +3,8 @@
 <?php
 $date_format = get_date_format();
 //$products = offers_get_products();
-
-$all_products = get_products('nolimit=1');
+$all_products = DB::table('product')->where('is_deleted', 0)->get()->toArray();
+$all_products = json_decode(json_encode($all_products), true);
 
 if (isset($params['offer_id']) && $params['offer_id'] !== 'false') {
     $addNew = false;
@@ -85,23 +85,17 @@ if (isset($params['offer_id']) && $params['offer_id'] !== 'false') {
         <label class="control-label"><?php _e("Product title | Price"); ?></label>
 
         <select name="product_id_with_price_id" class="js-product-title selectpicker" data-size="5" data-live-search="true" data-width="100%">
-            <?php if ($all_products): ?>
+            <?php if ($all_products): 
+                $offer_product_price_id = $data['product_id'] . '|' . $data['price_id'];?>
                 <?php foreach ($all_products as $product) {
-
-                    $all_prices = get_product_prices($product['id'], true);
+                    $price = $product['vk_price'];
                     $product_id = $product['id'];
 
-                    if ($all_prices) {
-                        foreach ($all_prices as $a_price) {
-                            $offer_product_price_id = $data['product_id'] . '|' . $data['price_id'];
-                            $option_id = $product_id . '|' . $a_price['id'];
-                            $selected = ($offer_product_price_id == $option_id ? ' selected="selected"' : '');
-                            ?>
-
-                            <option value="<?php print $option_id; ?>"<?php print $selected; ?>><?php print $product['title'] . ' | ' . $a_price['name'] . ' : ' . mw()->shop_manager->currency_symbol() . ' ' . $a_price['value_plain']; ?></option>
+                    $option_id = $product_id . '|' . $price;
+                    $selected = ($offer_product_price_id == $option_id ? ' selected="selected"' : '');
+                    ?>
+                    <option value="<?php print $option_id; ?>"<?php print $selected; ?>><?php print $product['title'] . ' | price : ' . mw()->shop_manager->currency_symbol() . ' ' . $price; ?></option>
                             <?php
-                        }
-                    }
                 }
                 ?>
             <?php else: ?>

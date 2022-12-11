@@ -1127,6 +1127,44 @@ class ContentManagerCrud extends Crud
         return true;
     }
 
+
+    public function reorderV2($params)
+    {
+        $ids = $params['ids'];
+        if (empty($ids)) {
+            $ids = $_POST[0];
+        }
+        if (empty($ids)) {
+            return false;
+        }
+        $ids = array_unique($ids);
+        $ids = array_map('intval', $ids);
+        $ids_implode = implode(',', $ids);
+        $table = $this->app->database_manager->real_table_name('product');
+        $maxpos = 0;
+        $get_max_pos = "SELECT max(position) AS maxpos FROM $table  WHERE id IN ($ids_implode) ";
+        $get_max_pos = $this->app->database_manager->query($get_max_pos);
+        if (is_array($get_max_pos) and isset($get_max_pos[0]['maxpos'])) {
+            $maxpos = intval($get_max_pos[0]['maxpos']) + 1;
+        }
+
+        $i = 1;
+        foreach ($ids as $id) {
+            $id = intval($id);
+            $this->app->cache_manager->delete('content/' . $id);
+
+            $pox = $maxpos - $i;
+
+            DB::table('product')->whereId($id)->update(['position' => $pox]);
+            ++$i;
+        }
+
+        $this->app->cache_manager->delete('content');
+        $this->app->cache_manager->delete('categories');
+
+        return true;
+    }
+
     /**
      * Sets the database table names to use by the class.
      *

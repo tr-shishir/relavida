@@ -12,7 +12,7 @@
 
 $config = array();
 $config['name'] = "Offers";
-$config['author'] = "Nick Woolley";
+$config['author'] = "Zunaid Miah";
 $config['ui'] = false;
 $config['ui_admin'] = true;
 $config['categories'] = "online shop";
@@ -32,7 +32,7 @@ $config['tables'] = array(
 	'offers' => array(
 		'id' => 'integer',
 		'product_id' => 'integer',
-		'price_id' => 'integer',
+		'price' => 'float',
 	//	'price_key' => 'string',
 		'offer_price' => 'float',
 		'created_at' => 'datetime',

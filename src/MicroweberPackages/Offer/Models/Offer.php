@@ -37,7 +37,7 @@ class Offer extends Model
         if (isset($offerData['product_id_with_price_id'])) {
             $id_parts = explode('|', $offerData['product_id_with_price_id']);
             $offerData['product_id'] = $id_parts[0];
-            $offerData['price_id'] = $id_parts[1];
+            $offerData['price_id'] = (int)$id_parts[1];
         } else if (isset($offerData['product_id'])) {
             if (strstr($offerData['product_id'], '|')) {
                 $id_parts = explode('|', $offerData['product_id']);
@@ -66,16 +66,16 @@ class Offer extends Model
         } elseif ($offerData['is_active'] == 'on') {
             $offerData['is_active'] = 1;
         }
- if(isset($offerData['id'])){
-        $offer = Offer::updateOrCreate(
-            ['id' =>  $offerData['id']],
-            $offerData
-        );
- } else {
-     $offer = Offer::create(
-         $offerData
-     );
- }
+        if(isset($offerData['id'])){
+                $offer = Offer::updateOrCreate(
+                    ['id' =>  $offerData['id']],
+                    $offerData
+                );
+        } else {
+            $offer = Offer::create(
+                $offerData
+            );
+        }
         cache_delete('offers');
 
         return $offer;
@@ -91,18 +91,13 @@ class Offer extends Model
             'offers.updated_at',
             'offers.expires_at',
             'offers.is_active',
-            'content.title as product_title',
-            'content.is_deleted',
-            'custom_fields.name as price_name',
-            'custom_fields_values.value as price'
+            'product.title as product_title',
+            'product.is_deleted',
+            'product.vk_price as price'
         )
-            ->where('content.content_type', '=', 'product')
-            ->where('custom_fields.type', '=', 'price')
-            ->leftJoin('custom_fields', 'offers.price_id', '=', 'custom_fields.id')
-            ->leftJoin('custom_fields_values', 'custom_fields.id', '=', 'custom_fields_values.custom_field_id')
-            ->leftJoin('content', 'offers.product_id', '=', 'content.id')
-            ->get()
-            ->toArray();
+            // ->where(['product.id' ])
+            ->join('product', 'offers.product_id', '=', 'product.id')
+            ->paginate(10);
 
         return $offers;
     }
@@ -127,21 +122,19 @@ class Offer extends Model
     public static function getByProductId($productId)
     {
         $offers = Offer::select(
-            'custom_fields.id as id',
-            'offers.id as offer_id',
+            'offers.id',
+            'offers.product_id',
             'offers.offer_price',
-            'offers.expires_at',
             'offers.created_at',
-            'custom_fields.name as price_name',
-            'custom_fields_values.value as price'
+            'offers.updated_at',
+            'offers.expires_at',
+            'offers.is_active',
+            'product.title as product_title',
+            'product.is_deleted',
+            'product.vk_price as price'
         )
-            ->where('content.id', '=', $productId)
-            ->where('content.is_deleted', '=', 0)
-            ->where('offers.is_active', '=', 1)
-            ->where('custom_fields.type', '=', 'price')
-            ->leftJoin('content', 'offers.product_id', '=', 'content.id')
-            ->leftJoin('custom_fields', 'offers.price_id', '=', 'custom_fields.id')
-            ->leftJoin('custom_fields_values', 'custom_fields.id', '=', 'custom_fields_values.custom_field_id')
+            ->where('product.id' , $productId)
+            ->join('product', 'offers.product_id', '=', 'product.id')
             ->get()
             ->toArray();
 
@@ -174,7 +167,7 @@ class Offer extends Model
                     $offer['price_change_direction'] = $price_change_direction;
                 }
 
-                $specialOffers[strtolower($offer['price_name'])] = $offer;
+                $specialOffers['price'] = $offer;
 
             }
         }

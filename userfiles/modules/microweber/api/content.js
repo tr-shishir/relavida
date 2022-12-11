@@ -206,5 +206,12 @@ mw.post = mw.post || {
                 }
             });
         }
-    }
+    },
+    delV2: function (a, callback) {
+        var arr = $.isArray(a) ? a : [a];
+        var obj = {ids: arr}
+        $.post(mw.settings.api_url + "product/delete", obj, function (data) {
+            typeof callback === 'function' ? callback.call(data) : '';
+        });
+    },
 }

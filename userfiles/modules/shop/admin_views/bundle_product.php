@@ -473,9 +473,7 @@ input.minimum_p {
                     <div class="container1">
                         <?php
 
-                        use App\Models\Content;
-
-                        $products = Content::with(['media', 'contentData', 'customField', 'taggingTagged', 'categoryItem',])->where('content_type', 'product')->where('is_deleted', 0)->get();
+                        $products = DB::table('product')->where('content_type', 'product')->where('is_deleted', 0)->get();
                         //foreach($products as $product){
                         //}
                         $product_tags = product_tagging_tag();
@@ -489,10 +487,7 @@ input.minimum_p {
                                     tabindex="-98" aria-label="product slug selected">
                                     <option value=""><?php _e('Choose one'); ?></option>
                                     <?php foreach ($products as $product) :
-                                            $price = $product->customField->where('name_key', 'price')->where('type', 'price')->first();
-                                            if ($price) {
-                                                $price = $price->customFieldValue->first() ? $price->customFieldValue->first()->value : 0;
-                                            }
+                                            $price = $product->vk_price ? $product->vk_price : 0;
                                             if($price == 0){
                                                 continue;
                                             }
@@ -522,18 +517,15 @@ input.minimum_p {
                                     tabindex="-98" aria-label="product slug selected">
                                     <option value=""><?php _e('Choose one'); ?></option>
                                     <?php foreach ($products as $product) :
-                                            $price = $product->customField->where('name_key', 'price')->where('type', 'price')->first();
-                                            $sku = $product->contentData->where('field_name', 'sku')->first();
-                                            if ($price) {
-                                                $price = $price->customFieldValue->first() ? $price->customFieldValue->first()->value : 0;
-                                            }
+                                            $price = $product->vk_price ? $product->vk_price : 0;
+                                            $sku = $product->sku;
                                             if($price == 0){
                                                 continue;
                                             }
                                             // $all_prices = get_product_prices($product->id, true);
                                         ?>
                                     <option value="<?= $product->id ?>">
-                                        <?= $sku->field_value . ' | ' . $product->title; ?></option>
+                                        <?= $sku . ' | ' . $product->title; ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <div class="input-group-append">
@@ -571,10 +563,7 @@ input.minimum_p {
                                     tabindex="-98" aria-label="product slug selected">
                                     <option value=""><?php _e('Choose one'); ?></option>
                                     <?php foreach ($products as $product) :
-                                            $price = $product->customField->where('name_key', 'price')->where('type', 'price')->first();
-                                            if ($price) {
-                                                $price = $price->customFieldValue->first() ? $price->customFieldValue->first()->value : 0;
-                                            }
+                                            $price = $product->vk_price ? $product->vk_price : 0;
                                             if($price == 0){
                                                 continue;
                                             }
@@ -731,14 +720,11 @@ input.minimum_p {
                                 <?php
                                             $pro = $products->where('id', $bundle_product->product_id)->first();
                                             if(!$pro){ continue; }
-                                            $stock_qty = $pro->contentData->where('field_name', 'qty')->first();
+                                            $stock_qty = $pro->quantity ? $pro->quantity : 0;
                                             // $key = $pro->keys();
-                                            $product_prices = $pro->customField->where('name_key', 'price')->where('type', 'price')->first();
-                                            if ($product_prices) {
-                                                $product_prices = $product_prices->customFieldValue->first() ? $product_prices->customFieldValue->first()->value : 0;
-                                            }
+                                            $product_prices = $pro->vk_price ? $pro->vk_price : 0;
 
-                                            print $pro->title . ' | Preis : ' . $symbol . ' ' . $product_prices . ' | Verfügbarer Lagerbestand : ' . $stock_qty->field_value;
+                                            print $pro->title . ' | Preis : ' . $symbol . ' ' . $product_prices . ' | Verfügbarer Lagerbestand : ' . $stock_qty;
                                             ?>
                             </div>
                             <div class="bundel-product-admin-quantity-content"
@@ -795,11 +781,8 @@ $(document).ready(function() {
             '<div class="input-group"><select class="selectpicker js-search-by-selector form-control" name="product[]" id="product"  data-live-search="true" data-width="100%" data-style="btn-sm" tabindex="-98" aria-label="product slug selected">';
         html += '<option value=""><?php _e('Choose one'); ?></option>';
         <?php foreach ($products as $product) :
-                $price = $product->customField->where('name_key', 'price')->where('type', 'price')->first();
-                $sku = $product->contentData->where('field_name', 'sku')->first();
-                if ($price) {
-                    $price = $price->customFieldValue->first() ? $price->customFieldValue->first()->value : 0;
-                }
+                $price = $product->vk_price ? $product->vk_price : 0;
+                $sku = $product->sku ? $product->sku : 0;
                 if($price == 0){
                     continue;
                 } ?>
@@ -809,7 +792,7 @@ $(document).ready(function() {
                 `<option value = '<?= $product->id ?>' > <?= $product->ean . ' | ' . $product->title; ?> </option>`
         } else if (check_value == 'sku') {
             html +=
-                `<option value = '<?= $product->id ?>' > <?= $sku->field_value . ' | ' . $product->title; ?> </option>`
+                `<option value = '<?= $product->id ?>' > <?= $sku . ' | ' . $product->title; ?> </option>`
         } else if (check_value == 'tag') {
             html +=
                 `<option value = '<?= $product->id ?>' > <?= $product->title . ' | Preis : ' . mw()->shop_manager->currency_symbol() . ' ' . $price; ?> </option>`

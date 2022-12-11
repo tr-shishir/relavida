@@ -416,6 +416,11 @@ class ContentManager
         return $this->app->tags_manager->get_values($data, $return_full);
     }
 
+    public function tags_V2($content_id = false, $return_full = false)
+    {
+        return $this->app->tags_manager->get_values_V2($content_id, $return_full);
+    }
+
     public function attributes($content_id)
     {
         $data = array();
@@ -2626,6 +2631,26 @@ class ContentManager
         }
 
         return $this->crud->reorder($params);
+    }
+
+    public function reorderV2($params)
+    {
+        $id = $this->app->user_manager->is_admin();
+        if ($id == false) {
+            return array('error' => 'You must be admin to reorder content!');
+        }
+
+        return $this->crud->reorderV2($params);
+    }
+
+    public function deleteV2($params)
+    {
+        $id = $this->app->user_manager->is_admin();
+        if ($id == false) {
+            return array('error' => 'You must be admin to reorder content!');
+        }
+
+        return $this->crud->deleteV2($params);
     }
 
     /**

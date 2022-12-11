@@ -62,6 +62,11 @@ function content_categories($content_id = false, $data_type = 'categories')
 {
     return get_categories_for_content($content_id, $data_type);
 }
+
+function content_categories_V2($content_id = false, $data_type = 'categories')
+{
+    return get_categories_for_content_V2($content_id, $data_type);
+}
 //by dt team
 function contents_categories($content_ids = false, $data_type = 'categories')
 {
@@ -92,6 +97,11 @@ function content_tags($content_id = false, $return_full = false)
     return app()->content_manager->tags($content_id, $return_full);
 }
 
+function content_tags_V2($content_id = false, $return_full = false)
+{
+    return app()->content_manager->tags_V2($content_id, $return_full);
+}
+
 
 function media_tags($media_id = false, $return_full = false)
 {
@@ -114,6 +124,18 @@ function get_categories_for_content($content_id = false, $data_type = 'categorie
     }
 
     return app()->category_manager->get_for_content($content_id, $data_type);
+}
+
+function get_categories_for_content_V2($content_id = false, $data_type = 'categories')
+{
+    if (intval($content_id) == 0) {
+        if (!defined('CONTENT_ID')) {
+            return false;
+        } else {
+            $content_id = CONTENT_ID;
+        }
+    }
+    return app()->category_manager->get_for_content_V2($content_id, $data_type);
 }
 
 function category_link($id)

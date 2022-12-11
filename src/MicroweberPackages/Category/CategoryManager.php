@@ -358,6 +358,34 @@ class CategoryManager
         return $get_category;
     }
 
+    public function get_for_content_V2($content_id, $data_type = 'categories')
+    {
+        if (intval($content_id) == 0) {
+            return false;
+        }
+        $get_category =  DB::table('categories')
+                        ->join('categories_items', 'categories_items.parent_id', '=', 'categories.id')
+                        ->where('categories_items.rel_id', $content_id)
+                        ->where('categories_items.rel_type', 'product')
+                        ->select('categories.id', 'categories.title')
+                        ->get()
+                        ->toArray();
+
+        if (empty($get_category)) {
+            $get_category = array();
+        } else {
+            $get_category = json_encode($get_category);
+            $get_category = json_decode($get_category, true);
+        }
+
+        if (empty($get_category)) {
+            return false;
+        }
+
+        return $get_category;
+    }
+
+    
     /**
      * Gets category items count.
      *

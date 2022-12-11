@@ -1374,14 +1374,16 @@ $user = get_user_by_id($user_id);
                     </a>
                     <div class="dropdown-menu">
                         <a href="<?php print admin_url(); ?>view:products/action:view" class="dropdown-item <?php if ($view == 'products' and $action == 'view'): ?>active<?php endif; ?>">
-                            <?php _e('View'); ?>
+                            <?php _e('Products'); ?>
+                            <span data-href="<?php print admin_url(); ?>view:products/action:create" class="btn btn-success btn-rounded btn-icon btn-sm add-new" data-toggle="tooltip" title="Add Product"><i class="mdi mdi-plus"></i></span>
                         </a>
-                        <a href="<?php print admin_url(); ?>view:products/action:create" class="dropdown-item <?php if ($view == 'products' and $action == 'create'): ?>active<?php endif; ?>">
+                        <!-- <a href="<?php print admin_url(); ?>view:products/action:create" class="dropdown-item <?php if ($view == 'products' and $action == 'create'): ?>active<?php endif; ?>">
                             <?php _e('Create'); ?>
-                        </a>
+                        </a> -->
                     </div>
                 </li>
                 <?php endif; ?>
+
 
                 <li class="nav-item">
                     <a href="https://www.youtube.com/channel/UCwIT78TfHENKEIZ6aZoPXxw" class="nav-link" target="_blank" style="display: flex;align-items:center">

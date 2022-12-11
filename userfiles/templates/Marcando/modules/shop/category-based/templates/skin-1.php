@@ -4,88 +4,92 @@
 
 type: layout
 
-name: Default
+name: Default V2
 
-description: Default
+description: Default Version 2
 
 */
-dd('fdh');
 ?>
 <link rel="stylesheet" href="<?php print template_url(); ?>modules/shop/products_style.css" type="text/css"/>
 <?php
-    $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
-    $is_logged = is_logged();
-    if (CATEGORY_ID != false) {
-        $cat = DB::table('categories')->where('id', CATEGORY_ID)->first();
-        $cat_img = array(
-            'rel_type'  => "categories",
-            'rel_id' => $cat->id
-        );
-        $media_cat = get_pictures($cat_img);
-    }
+$update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
+$is_logged = is_logged();
+if (CATEGORY_ID != false) {
+    $cat = DB::table('categories')->where('id', CATEGORY_ID)->first();
+    $cat_img = array(
+        'rel_type'  => "categories",
+        'rel_id' => $cat->id
+    );
+    $media_cat = get_pictures($cat_img);
+}
 ?>
 <?php if (CATEGORY_ID != false) : ?>
     <?php if ($cat->show_category == null || $cat->show_category == 0 || $cat->show_category == 1 || $cat->show_category == false) : ?>
         <module type="category-details" />
     <?php endif; ?>
 <?php endif; ?>
-<?php if (isset($_GET['wishlist_id'])): ?>
-    <module type="shop/products" template="skin-1" hide_paging="true" limit="100" />
-<?php endif; ?>
-<?php if (isset($_GET['slug'])): ?>
-    <module type="shop/products" template="skin-1" hide_paging="true" limit="100" />
-<?php endif; ?>
 <?php
-    $shop_category_header_ignore = (array)json_decode($GLOBALS['custom_shop_category_header_ignore']) ?? [];
-    $showHeader = category_hide_or_show();
-
-    if(is_admin()){ ?>
-        <div id="hide_shop" style="display:flex;align-items:center" class="<?php print $showHeader['button']??'';?>">
-            <p style="margin-bottom:0px;margin-right:10px;">Category show in header :</p>
-            <input type="checkbox" data-toggle="toggle" data-size="mini" name="shop" id="shop_cat" data-on="Off" data-off="On" value="<?php (in_array(PAGE_ID,$shop_category_header_ignore)) ? print 0 : print PAGE_ID ;?>" <?php (in_array(PAGE_ID,$shop_category_header_ignore)) ? print "checked" : "" ;?>>
-
-        </div>
-    <?php } ?>
+if (isset($_GET['wishlist_id'])) {
+    $ids = array(0);
+    $pro_ids = DB::table('wishlist_session_products')->where('wishlist_id', '=', $_GET['wishlist_id'])->pluck('product_id')->toArray();
 
 
-    <script>
-        $('#shop_cat').change(function (){
-            var shop_id = $('#shop_cat').val();
-            var page_id = <?=PAGE_ID?>
+    ?>
+
+    <form action="<?php print api_url('share_wishlist'); ?>" class="form-inline" id="wishlist_short_url_form">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <?php foreach($pro_ids as $pro_id): ?>
+                <input type="hidden" name="products[]" value="<?= $pro_id; ?>">
+                    <?php endforeach; ?>
+                <input  type="hidden" name="user_id" value="<?= user_id(); ?>">
+
+                <button type="button" class="btn btn-primary" id="clickBtn">Wunschliste teilen</button>
+            </div>
+        </form>
+    <input onClick="this.select();" type="text" class="form-control share_input-text" id="input_text" >
 
 
-            $.post('<?= url('/') ?>/api/v1/not_show', { shop_cat: shop_id,page_id: page_id }, (res) => {
-                if($(this).prop( 'checked')){
-                    mw.notification.success('Category off in header');
-                    $('#shop_cat').val('0');
-                    $('.header-cat').hide();
-                }else if($(this).prop('checked',false)){
-                    mw.notification.success('Category on in header');
-                    $('#shop_cat').val('<?=PAGE_ID?>');
-                    $('.header-cat').attr('style','display: block !important;');
+        <?php
 
-                }
-            });
 
-        });
-    </script>
-<?php if (!empty($data) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])):
-         $user_country_name = user_country(user_id());
-         if($user_country_name){
+//    dd(user_id());
+
+    // $data = collect($data)->whereIn('content_id', $pro_ids)->toArray();
+    $data = DB::table('products')->whereIn('content_id',$pro_ids)->get()->toArray();
+//        if(!empty($pro_ids)) {
+//            foreach ($pro_ids as $pid) {
+//                $ids[] = $pid->product_id;
+//            }
+//        }
+}
+
+    if (isset($_GET['slug'])) {
+
+        $products = DB::table('wishlist_link')->where('slug', $_GET['slug'])->first()->products_id;
+//        dd($products);
+        $data = DB::table('products')->whereIn('content_id',explode(',',$products))->get()->toArray();
+
+    }
+
+
+ ?>
+<?php if (!empty($data)):
+        $user_country_name = user_country(user_id());
+        if($user_country_name){
             $tax_rate_list = DB::table('tax_rates')->where('country','LIKE','%'.$user_country_name.'%')->first();
-         }else{
+        }else{
             $tax= mw()->tax_manager->get();
             $tax_rate_list = DB::table('tax_rates')->where('country','LIKE','%'.$tax['0']['name'].'%')->first();
-         }
-         if(isset($tax_rate_list)){
-             $original_tax = $tax_rate_list->charge;
-             $reduced_tax = $tax_rate_list->reduced_charge;
-         }else{
-             $original_tax = null;
-             $reduced_tax = null;
-         }
+        }
+        if(isset($tax_rate_list)){
+            $original_tax = $tax_rate_list->charge;
+            $reduced_tax = $tax_rate_list->reduced_charge;
+        }else{
+            $original_tax = null;
+            $reduced_tax = null;
+        }
     ?>
-        <div class="row shop-products">
+    <div class="row shop-products">
         <?php foreach ($data as $item):
                 $item = collect($item)->toArray();
                 if($item['image']){
@@ -128,13 +132,15 @@ dd('fdh');
                                 </a>
                             </div>
                         <?php endif; ?>
-                        <div class="product-tax-text" style="">
-                            <span class="edit">
+                        <div class="product-tax-text">
+                            <?php if (isset($item['price']) && normalPrice($item['price']) > 0): ?>
+                                <span class="edit">
                                 inkl. <?php print $taxrate; ?>% MwSt.
-                            </span>
-                            <span class="textTax" data-toggle="modal" data-target="#termModal" style="margin-left:5px;display:inline-block;">
-                                zzgl. Versand
-                            </span>
+                                </span>
+                                <span data-toggle="modal" data-target="#termModal">
+                                    zzgl. Versand
+                                </span>
+                            <?php endif; ?>
                         </div>
                         <?php if ($is_logged) { ?>
                             <?php if (get_option('enable_wishlist', 'shop')) : ?>
@@ -186,7 +192,6 @@ dd('fdh');
 
                         </div>
 
-
                         <div class="product-sample-hover-right">
                             <?php if (is_admin()): ?>
                                 <a class="quick-checkout-btn copy-url" data-id="<?php echo $item['content_id']; ?>" data-lang="<?= url_segment(0); ?>">
@@ -199,18 +204,17 @@ dd('fdh');
                         </div>
                         <div class="product-sample-hover-bottom">
                             <?php if (!isset($in_stock) or $in_stock == false) :?>
-                                <a href="javascript:;" disabled="disabled" class="btn btn-primary product-cart-icon cart-disable">
+                                 <a href="javascript:;" disabled="disabled" class="btn btn-primary product-cart-icon cart-disable">
                                     <i class="material-icons">remove_shopping_cart</i><?php _e("Out Of Stock"); ?>
                                 </a>
                             <?php elseif(isset($item['price']) && !(floatval($item['price']) > 0)): ?>
                                 <a href="javascript:;" title="<?php _e('Price On Request'); ?>" onclick="priceModal(); price_on_request_product_id_get(<?php print $item['content_id']; ?>,'<?php print $item['title']; ?>');"   class="btn btn-primary" ><?php _e('Price On Request'); ?></a>
                             <?php else: ?>
 
-                                <a href="javascript:;" onclick="<?php if(isset(mw()->user_manager->session_get('bundle_product_checkout')[0]) && $update_global_bundle_discount_condition == 0) { ?>carttoggole('.shop-products .item-<?php print $item['content_id'] ?>');<?php }else{ ?>carttoggolee('.shop-products .item-<?php print $item['content_id'] ?>');<?php } ?>" class="btn btn-primary product-cart-icon"><i class="material-icons ">shopping_cart</i> in den Warenkorb</a>
+                                <a href="javascript:;" onclick="<?php if(isset(mw()->user_manager->session_get('bundle_product_checkout')[0]) && $update_global_bundle_discount_condition == 0) { ?>carttoggole('.shop-products .item-<?php print $item['content_id'] ?>');<?php }else{ ?>carttoggolee('.shop-products .item-<?php print $item['content_id'] ?>');<?php } ?>" class="btn btn-primary product-cart-icon"><i class="material-icons">shopping_cart</i> in den Warenkorb</a>
                             <?php endif; ?>
                         </div>
                     </div>
-
                     <?php
                         if (isset($offer['price']['offer_price']) && $offer['price']['expires_at'] != 0) {
                             //                        dd($offer);
@@ -239,9 +243,8 @@ dd('fdh');
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
-<input type="hidden" name="category_status" id="shop_<?=PAGE_ID?>" data-<?=PAGE_ID?>="shop" value="<?=PAGE_ID?>">
 
-<?php if (isset($pages_count) and $pages_count > 1 and isset($paging_param) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])): ?>
+<?php if (isset($pages_count) and $pages_count > 1 and isset($paging_param)): ?>
     <module type="pagination" template="bootstrap4" pages_count="<?php echo $pages_count; ?>" paging_param="<?php echo $paging_param; ?>"/>
 <?php endif; ?>
 <?php if (CATEGORY_ID != false) : ?>
@@ -252,7 +255,7 @@ dd('fdh');
 
 
 <script type="text/javascript">
-    <?php if ($is_logged && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])) { ?>
+    <?php if ($is_logged) { ?>
         $(document).ready(function(){
 		  $('.js-example-basic-multiple').select2();
 	  });
@@ -265,6 +268,7 @@ dd('fdh');
                     console.log(session);
                     list.push('<option value=' + session['id'] + '>' + session['name'] + '</option>');
 
+
                     session['products'].forEach(function (prod) {
                         if (selected[parseInt(prod['product_id'])] === undefined) {
                             selected[parseInt(prod['product_id'])] = [];
@@ -276,9 +280,9 @@ dd('fdh');
 
             <?php if (!empty($data)): ?>
             <?php foreach ($data as $item):
-                    if(!is_array($item)){
-                        $item = (array)$item;
-                    }
+                if(!is_array($item)){
+                    $item = (array)$item;
+                }
             ?>
             var wishlistProduct = $(".wishlist-select-<?php echo $item['content_id'];?>");
             wishlistProduct.empty();

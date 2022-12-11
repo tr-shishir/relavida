@@ -1758,13 +1758,38 @@ function delete_product_info($id){
     }
 }
 
+api_expose('delete_product_info_V2');
+function delete_product_info_V2($id){
+    // dd($id);
+    $productInfo = DB::table('product')->where('id',$id['id'])->first();
+    if(isset($productInfo) and isset($productInfo->content_type) and $productInfo->content_type=="product")  {
+        $pId = DB::table('categories_items')->where('rel_id',$productInfo->id)->first();
+        if($pId!= null) {
+            $category = DB::table('categories')->where('id',$pId->parent_id)->where('rel_type', 'product')->first();
+            if($category){
+                // dd($productInfo->url);
+                DB::table('delete_product_info')->insert([
+                    'product_url' => $productInfo->url,
+                    'category_url' => $category->url
+                ]);
+            }
+        } else {
+            DB::table('delete_product_info')->insert([
+                'product_url' => $productInfo->url,
+                'category_url' => "null"
+            ]);
+        }
+    }
+}
+
+
 api_expose('delete_products_info');
 function delete_products_info($id){
     $total = count($id['id']);
     for ($i=0; $i < $total; $i++) {
         $productInfo = DB::table('content')->where('id',$id['id'][$i])->first();
         if(isset($productInfo->content_type) and $productInfo->content_type=="product")  {
-            $pId = DB::table('categories_items')->where('rel_id',$productInfo->id)->first();
+            $pId = DB::table('categories_items')->where('rel_id',$productInfo->id)->where('rel_type', 'product')->first();
             if($pId!= null) {
                 $category = DB::table('categories')->where('id',$pId->parent_id)->first();
                 // dd($productInfo->url);
@@ -1772,6 +1797,32 @@ function delete_products_info($id){
                     'product_url' => $productInfo->url,
                     'category_url' => $category->url
                 ]);
+            } else {
+                DB::table('delete_product_info')->insert([
+                    'product_url' => $productInfo->url,
+                    'category_url' => "null"
+                ]);
+            }
+        }
+    }
+}
+
+api_expose('delete_products_info_V2');
+function delete_products_info_V2($id){
+    $total = count($id['id']);
+    for ($i=0; $i < $total; $i++) {
+        $productInfo = DB::table('product')->where('id',$id['id'][$i])->first();
+        if(isset($productInfo->content_type) and $productInfo->content_type=="product")  {
+            $pId = DB::table('categories_items')->where('rel_id',$productInfo->id)->first();
+            if($pId!= null) {
+                $category = DB::table('categories')->where('id',$pId->parent_id)->first();
+                if($category){
+                    // dd($productInfo->url);
+                    DB::table('delete_product_info')->insert([
+                        'product_url' => $productInfo->url,
+                        'category_url' => $category->url
+                    ]);
+                }
             } else {
                 DB::table('delete_product_info')->insert([
                     'product_url' => $productInfo->url,
@@ -3761,7 +3812,6 @@ function edit_bundle_product($data)
 
     $bundle_title = $bundles->title;
 
-    $products = \App\Models\Content::with('customField')->where('content_type', 'product')->where('is_deleted', 0)->get();
     $symbol = mw()->shop_manager->currency_symbol();
     $product_html = '';
     if(isset($bundles->tag_name) && !empty($bundles->tag_name)){
@@ -3773,12 +3823,9 @@ function edit_bundle_product($data)
     }
     $i  = 1;
     foreach ($bundles->bundle_products as $bundle_product) {
-        $product = $products->where('id',$bundle_product->product_id)->first();
+        $product = DB::table('product')->where('id',$bundle_product->product_id)->select('id', 'title', 'vk_price')->first();
         if($product){
-            $price = $product->customField->where('name_key', 'price')->where('type', 'price')->first();
-            if ($price) {
-                $price = $price->customFieldValue->first() ? $price->customFieldValue->first()->value : 0;
-            }
+            $price = $product->vk_price ? $product->vk_price : 0;
             $pro = $product->title . ' | Preis : ' . $symbol . ' ' . $price;
 
             $product_html .= '<div class="form-group previous-'.$product->id.'-'.$bundle_product->product_qty.'">' . "\n";

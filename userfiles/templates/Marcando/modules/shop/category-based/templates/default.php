@@ -4,14 +4,64 @@
 
 type: layout
 
-name: Default
+name: Default V2
 
-description: Default
+description: Default Version 2
 
 */
 ?>
 <link rel="stylesheet" href="<?php print template_url(); ?>modules/shop/products_style.css" type="text/css"/>
-<?php
+<?php 
+    $show_fields = [];
+    $settings = getProductModuleSettings($params['id']);
+    $hide_paging = true;
+    $per_page_items = 6;
+    $query = DB::table('product')->where('is_active', 1)->where('is_deleted', 0);
+    if(isset($settings['data-hide-paging']) and $settings['data-hide-paging']->value == 'y'){
+        $hide_paging = false;
+    }
+    if(isset($settings['data-limit'])){
+        $per_page_items = $settings['data-limit']->value;
+    }
+    if(isset($settings['tags']) and !empty($settings['tags']->value)){
+        $tags = $settings['tags']->value;
+        $tags = explode(',', $tags);
+        $taggable_id = DB::table('tagging_tagged')->whereIn('tag_name', $tags)->select('taggable_id')->get()->pluck('taggable_id')->toArray();
+    }
+
+    if(isset($settings['categories']) and !empty($settings['categories']->value)){
+        $categories = $settings['categories']->value;
+        $categories = DB::table('categories_items')->where('parent_id', $categories)->where('rel_type', 'product')->select('rel_id')->get()->pluck('rel_id')->toArray();
+    }
+    if(isset($categories) and isset($taggable_id)){
+        $taggable_id = array_unique($taggable_id);
+        $categories = array_unique($categories);
+        $data_id = array_merge($taggable_id, $categories);
+        $data_id = array_unique($data_id);
+        $query = $query->whereIn('id', $data_id);
+    }else if(isset($categories)){
+        $categories = array_unique($categories);
+        $query = $query->whereIn('id', $categories);
+    } else if(isset($taggable_id)){
+        $taggable_id = array_unique($taggable_id);
+        $query = $query->whereIn('id', $taggable_id);
+    }
+
+    $order_by = 'position';
+    $ordering = 'desc';
+    if(isset($settings['position'])){
+        $order_data = $settings['position']->value;
+        $order_data = explode(" ", $order_data);
+        $order_by = $order_data[0];
+        $ordering = $order_data[1];
+    }
+    $paging_param = sha1($params['id']);
+    if(isset($_GET[$paging_param])){
+        $data = $query->orderBy($order_by, $ordering)->select('id as content_id', 'title', 'url', 'vk_price as price', 'quantity', 'tax_type')->paginate($per_page_items, ['*'], $paging_param, $_GET[$paging_param]);
+    }else{
+        $data = $query->orderBy($order_by, $ordering)->select('id as content_id', 'title', 'url', 'vk_price as price', 'quantity', 'tax_type')->paginate($per_page_items);
+    }
+    $pages_count = $data->lastPage();
     $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
     $is_logged = is_logged();
     if (CATEGORY_ID != false) {
@@ -22,18 +72,11 @@ description: Default
         );
         $media_cat = get_pictures($cat_img);
     }
+    $title_character_limit = 255;
+    if(isset($settings['data-title-limit'])){
+        $title_character_limit = $settings['data-title-limit']->value;
+    }
 ?>
-<?php if (CATEGORY_ID != false) : ?>
-    <?php if ($cat->show_category == null || $cat->show_category == 0 || $cat->show_category == 1 || $cat->show_category == false) : ?>
-        <module type="category-details" />
-    <?php endif; ?>
-<?php endif; ?>
-<?php if (isset($_GET['wishlist_id'])): ?>
-    <module type="shop/products" template="skin-1" hide_paging="true" limit="100" />
-<?php endif; ?>
-<?php if (isset($_GET['slug'])): ?>
-    <module type="shop/products" template="skin-1" hide_paging="true" limit="100" />
-<?php endif; ?>
 <?php
     $shop_category_header_ignore = (array)json_decode($GLOBALS['custom_shop_category_header_ignore']) ?? [];
     $showHeader = category_hide_or_show();
@@ -69,14 +112,9 @@ description: Default
         });
     </script>
 <?php if (!empty($data) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])):
-         $user_country_name = user_country(user_id());
-         if($user_country_name){
-            $tax_rate_list = DB::table('tax_rates')->where('country','LIKE','%'.$user_country_name.'%')->first();
-         }else{
-            $tax= mw()->tax_manager->get();
-            $tax_rate_list = DB::table('tax_rates')->where('country','LIKE','%'.$tax['0']['name'].'%')->first();
-         }
-         if(isset($tax_rate_list)){
+        $tax_rate_list = $GLOBALS['tax'] ?? false;
+
+         if(isset($tax_rate_list) and !empty($tax_rate_list)){
              $original_tax = $tax_rate_list->charge;
              $reduced_tax = $tax_rate_list->reduced_charge;
          }else{
@@ -87,11 +125,8 @@ description: Default
         <div class="row shop-products">
         <?php foreach ($data as $item):
                 $item = collect($item)->toArray();
-                if($item['image']){
-                    $image_link = $item['image'];
-                }else{
-                    $image_link = '';
-                }
+
+                $item['image'] = $image_link = get_picture($item['content_id']);
                 $in_stock = false;
                 if($item['quantity'] > 0 || $item['quantity'] == 'nolimit') {
                     $in_stock = true;
@@ -122,18 +157,20 @@ description: Default
                         <?php if ($show_fields == false or in_array('title', $show_fields)): ?>
                             <div class="product-sample-content">
                                 <a href="<?php print url($item['url']); ?>" class="product-sample-title">
-                                    <h5><?php print $item['title'] ?>
+                                    <h5><?php print character_limiter($item['title'], $title_character_limit); ?>
                                     </h5>
                                 </a>
                             </div>
                         <?php endif; ?>
-                        <div class="product-tax-text" style="">
-                            <span class="edit">
+                        <div class="product-tax-text">
+                            <?php if (isset($item['price']) && normalPrice($item['price']) > 0): ?>
+                                <span class="edit">
                                 inkl. <?php print $taxrate; ?>% MwSt.
-                            </span>
-                            <span class="textTax" data-toggle="modal" data-target="#termModal" style="margin-left:5px;display:inline-block;">
-                                zzgl. Versand
-                            </span>
+                                </span>
+                                <span data-toggle="modal" data-target="#termModal">
+                                    zzgl. Versand
+                                </span>
+                            <?php endif; ?>
                         </div>
                         <?php if ($is_logged) { ?>
                             <?php if (get_option('enable_wishlist', 'shop')) : ?>
@@ -198,7 +235,7 @@ description: Default
                         </div>
                         <div class="product-sample-hover-bottom">
                             <?php if (!isset($in_stock) or $in_stock == false) :?>
-                                <a href="javascript:;" disabled="disabled" class="btn btn-primary product-cart-icon cart-disable">
+                                 <a href="javascript:;" disabled="disabled" class="btn btn-primary product-cart-icon cart-disable">
                                     <i class="material-icons">remove_shopping_cart</i><?php _e("Out Of Stock"); ?>
                                 </a>
                             <?php elseif(isset($item['price']) && !(floatval($item['price']) > 0)): ?>
@@ -240,7 +277,7 @@ description: Default
 <?php endif; ?>
 <input type="hidden" name="category_status" id="shop_<?=PAGE_ID?>" data-<?=PAGE_ID?>="shop" value="<?=PAGE_ID?>">
 
-<?php if (isset($pages_count) and $pages_count > 1 and isset($paging_param) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])): ?>
+<?php if (isset($pages_count) and $pages_count > 1 and $hide_paging): ?>
     <module type="pagination" template="bootstrap4" pages_count="<?php echo $pages_count; ?>" paging_param="<?php echo $paging_param; ?>"/>
 <?php endif; ?>
 <?php if (CATEGORY_ID != false) : ?>

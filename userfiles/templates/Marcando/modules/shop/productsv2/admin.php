@@ -1,4 +1,5 @@
 <?php
+$rand = uniqid();
 $settings = getProductModuleSettings($params['id']);
 $is_shop = true;
 if (isset($params['is_shop'])) {
@@ -46,13 +47,7 @@ if (isset($params['global'])) {
     }
 }
 if ($is_global == false) {
-    if (isset($params['is_shop']) and ($params['is_shop'] == 'y' or $params['is_shop'] == 1)) {
-        $add_post_q .= ' content_type="product"   ';
-    } else if (isset($params['content_type']) and $params['content_type'] != '') {
-        $add_post_q .= ' content_type="' . $params['content_type'] . '"   ';
-    } else {
-        $add_post_q .= ' content_type="post" ';
-    }
+    $add_post_q .= ' content_type="product"   ';
 }
 
 $posts_parent_page = get_option('data-content-id', $params['id']);
@@ -90,9 +85,10 @@ if ($posts_parent_category != false) {
 if (!isset($params['global']) and $posts_parent_page != false and $posts_parent_category != false and intval($posts_parent_category) > 0) {
 
     $str0 = 'table=categories&limit=1000&data_type=category&what=categories&' . 'parent_id=0&rel_id=' . $posts_parent_page;
-    $page_categories = db_get($str0);
+    //$page_categories = db_get($str0);
     $sub_cats = array();
-    $page_categories = db_get($str0);
+    // $page_categories = db_get($str0);
+    $page_categories = false;
     if (is_array($page_categories)) {
         foreach ($page_categories as $item_cat) {
             $sub_cats[] = $item_cat['id'];
@@ -166,48 +162,6 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
     };
 
 
-    mw.on.hashParam("action", function () {
-        var id = (this.split(':')[1]);
-
-        if (this == 'new:post' || this == 'new:page' || this == 'new:product') {
-            mw.add_new_content_live_edit(id);
-        } else if (this == 'editpage') {
-            // $('#mw_posts_create_live_edit').html("Content is added");
-        } else {
-            mw.edit_content_live_edit(id);
-        }
-    });
-
-    mw.add_new_content_live_edit = function ($cont_type) {
-        $('a[href="#last-1"]').trigger('click');
-
-        $('#mw_posts_create_live_edit').removeAttr('data-content-id');
-        $('#mw_posts_create_live_edit').attr('from_live_edit', 1);
-        if ($cont_type == undefined) {
-            $('#mw_posts_create_live_edit').removeAttr('content_type');
-
-        } else {
-            if ($cont_type == 'page') {
-                $('#mw_posts_create_live_edit').removeAttr('subtype');
-            } else {
-                $('#mw_posts_create_live_edit').attr('subtype', $cont_type);
-
-            }
-            $('#mw_posts_create_live_edit').attr('content_type', $cont_type);
-        }
-        <?php if($parent_page): ?>
-        mw.$('#mw_posts_create_live_edit').attr('parent-content-id', "<?php print $parent_page; ?>");
-        <?php endif; ?>
-        mw.$('#mw_posts_create_live_edit').attr('content-id', 0);
-        mw.$('#mw_posts_create_live_edit').attr('quick_edit', 1);
-        mw.$('#mw_posts_create_live_edit').removeAttr('live_edit');
-        $('#mw_posts_edit_live_edit').html('');
-        mw.load_module('content/edit', '#mw_posts_create_live_edit', function () {
-
-            resizeModal();
-        });
-    }
-
     mw.manage_live_edit_content = function ($id) {
         sessionStorage.setItem("managetabsesstion", 1);
 
@@ -223,38 +177,6 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
 
     }
 
-    mw.edit_content_live_edit = function ($cont_id) {
-        $('a[href="#last-2"]').trigger('click');
-        mw.$('#mw_posts_edit_live_edit').empty();
-        if (window.thismodal && thismodal.dialogContainer) {
-            thismodal.dialogContainer.querySelector('iframe').style.height = 'auto';
-            thismodal.dialogContainer.scrollTop = 0;
-        }
-
-        $('#mw_posts_edit_live_edit').attr('content-id', $cont_id);
-        $('#mw_posts_edit_live_edit').removeAttr('live_edit');
-        $('#mw_posts_edit_live_edit').attr('quick_edit', 1);
-
-        $('#mw_posts_create_live_edit').html('');
-        mw.load_module('content/edit', '#mw_posts_edit_live_edit', function () {
-            resizeModal();
-        });
-    }
-
-    mw.delete_content_live_edit = function (a, callback) {
-        mw.tools.confirm("<?php _ejs("Do you want to delete this post"); ?>?", function () {
-            var arr = $.isArray(a) ? a : [a];
-            var obj = {ids: arr}
-            $.post(mw.settings.site_url + "api/content/delete", obj, function (data) {
-                typeof callback === 'function' ? callback.call(data) : '';
-                $('.manage-post-item-' + a).fadeOut();
-                mw.notification.warning("<?php _ejs('Content was sent to Trash'); ?>.");
-                mw.reload_module_parent('posts')
-                mw.reload_module_parent('shop/products')
-                mw.reload_module_parent('content')
-            });
-        });
-    }
 
     $(mwd).ready(function () {
         thismodal.width('800px');
@@ -314,12 +236,6 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
             });
         </script>
 <?php
-        }else{
-?>
-        <a class="btn btn-outline-secondary justify-content-center active" onclick="mw.manage_live_edit_content('<?php print $params['id'] ?>');" data-toggle="tab" href="#list"><i class="mdi mdi-format-list-bulleted-square mr-1"></i> <?php _e("Manage"); ?></a>
-        <a class="btn btn-outline-secondary justify-content-center" data-toggle="tab" href="#settings"><i class="mdi mdi-cog-outline mr-1"></i> <?php print _e('Settings'); ?></a>
-        <a class="btn btn-outline-secondary justify-content-center" data-toggle="tab" href="#templates"><i class="mdi mdi-pencil-ruler mr-1"></i> <?php print _e('Templates'); ?></a>
-<?php
         }
     ?>
         <a class="btn btn-outline-secondary justify-content-center" style="display: none;" data-toggle="tab" href="#last-1"></a>
@@ -335,31 +251,20 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                 <div></div>
                 <div>
                     <label class="d-inline-block">
-                        <?php $ord_by = get_option('data-order-by', $params['id']); ?>
+                        <?php $ord_by = $settings['position']->value ?? 'position desc'; ?>
                         <?php _e("Order by"); ?>
                     </label>
 
-                    <select name="data-order-by" class="mw_option_field selectpicker" data-width="auto" data-also-reload="<?php print  $config['the_module'] ?>">
-                        <option value="" <?php if ((0 == intval($ord_by))): ?>   selected="selected"  <?php endif; ?>><?php _e("Position"); ?>(Oldest)</option>
-                        <option value="position asc" <?php if (('position asc' == trim($ord_by))): ?>   selected="selected"  <?php endif; ?>><?php _e("Position"); ?>(Newest)</option>
-                        <option value="created_at desc" <?php if (('created_at desc' == trim($ord_by))): ?>   selected="selected"  <?php endif; ?>><?php _e("Date"); ?>(Oldest)</option>
-                        <option value="created_at asc" <?php if (('created_at asc' == trim($ord_by))): ?>   selected="selected"  <?php endif; ?>><?php _e("Date"); ?>(Newest)</option>
-                        <option value="title asc" <?php if (('title asc' == trim($ord_by))): ?>   selected="selected"  <?php endif; ?>><?php _e("Title"); ?>(A to Z)</option>
-                        <option value="title desc" <?php if (('title desc' == trim($ord_by))): ?>   selected="selected"  <?php endif; ?>><?php _e("Title"); ?>(Z to A)</option>
+                    <select id="data-order-by" name="data-order-by" class="mw_option_field_dt selectpicker" data-width="auto" data-also-reload="<?php print  $config['the_module'] ?>">
+                        <option value="position desc" <?php if ('position desc' == $ord_by): ?>   selected="selected"  <?php endif; ?>><?php _e("Position"); ?>(Oldest)</option>
+                        <option value="position asc" <?php if ('position asc' == $ord_by): ?>   selected="selected"  <?php endif; ?>><?php _e("Position"); ?>(Newest)</option>
+                        <option value="created_at desc" <?php if ('created_at desc' == $ord_by): ?>   selected="selected"  <?php endif; ?>><?php _e("Date"); ?>(Oldest)</option>
+                        <option value="created_at asc" <?php if ('created_at asc' == $ord_by): ?>   selected="selected"  <?php endif; ?>><?php _e("Date"); ?>(Newest)</option>
+                        <option value="title asc" <?php if ('title asc' == $ord_by): ?>   selected="selected"  <?php endif; ?>><?php _e("Title"); ?>(A to Z)</option>
+                        <option value="title desc" <?php if ('title desc' == $ord_by): ?>   selected="selected"  <?php endif; ?>><?php _e("Title"); ?>(Z to A)</option>
                     </select>
                 </div>
             </div>
-            <div class="text-right">
-                <?php if (isset($params['global'])): ?>
-                    <a href="javascript:;" class="btn btn-success btn-sm" onclick="mw.add_new_content_live_edit('<?php print addslashes($set_content_type_mod); ?>');" style="position: absolute;top: 12px;right: 12px;z-index: 2;"><i class="mdi mdi-<?php print trim($set_content_type_mod); ?>"></i>
-                        <?php _e("Add new"); ?> <?php _e(ucwords($set_content_type_mod)); ?></a>
-                <?php elseif ($is_shop) : ?>
-                    <!-- <a href="javascript:;" class="btn btn-success btn-sm" onclick="mw.add_new_content_live_edit('product');"><i class="mdi mdi-shopping"></i> New Product </a> -->
-                <?php else : ?>
-                    <a href="javascript:;" class="btn btn-success btn-sm" onclick="mw.add_new_content_live_edit('post');"><i class="mdi mdi-text"></i> <?php _e("New Post"); ?></a>
-                <?php endif; ?>
-            </div>
-
             <div id="products_module">
                 <div class="preloader">
                     <div class="loader"></div>
@@ -378,7 +283,7 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                 $set_content_type = get_option('data-content-type', $params['id']);
             }
 
-            $rand = uniqid(); ?>
+            ?>
 
                 <script type="text/javascript">
                     $(document).ready(function () {
@@ -400,73 +305,21 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                     }
                 </script>
 
-            <?php if (!isset($is_shop) or $is_shop == false): ?>
-                <?php $is_shop = false;
-                $pages = get_content('content_type=page&subtype=dynamic&is_shop=1&limit=1000'); ?>
-            <?php else: ?>
-                <?php $pages = get_content('content_type=page&is_shop=0&limit=1000'); ?>
-            <?php endif; ?>
-
             <?php $posts_parent_page = get_option('data-page-id', $params['id']); ?>
 
             <?php if (isset($params['global']) and $params['global'] != false) : ?>
-                <?php if ($set_content_type == 'product'): ?>
-                    <?php $is_shop = 1;
-                    $pages = get_content('content_type=page&is_shop=0&limit=1000'); ?>
-                <?php endif; ?>
-
+                    <?php $is_shop = 1; ?>
                 <label class="mw-ui-label"><?php _e("Content type"); ?></label>
                 <select name="data-content-type" id="the_post_data-content-type<?php print  $rand ?>" class="mw-ui-field w100 mw_option_field" onchange="mw_reload_content_mod_window(1)">
                     <option value="" <?php if (('' == trim($set_content_type))): ?>  selected="selected"  <?php endif; ?>><?php _e("Choose content type"); ?></option>
-                    <option value="page" <?php if (('page' == trim($set_content_type))): ?>   selected="selected"  <?php endif; ?>><?php _e("Pages"); ?></option>
-                    <option value="post" <?php if (('post' == trim($set_content_type))): ?>   selected="selected"  <?php endif; ?>><?php _e("Posts"); ?></option>
                     <option value="product" <?php if (('product' == trim($set_content_type))): ?>   selected="selected"  <?php endif; ?>><?php _e("Product"); ?></option>
-                    <option value="none" <?php if (('none' == trim($set_content_type))): ?>   selected="selected"  <?php endif; ?>><?php _e("None"); ?></option>
                 </select>
             <?php endif; ?>
 
             <?php if (!isset($set_content_type) or $set_content_type != 'none') :
-                        if ($is_shop == false) {
-                            ?>
-                <div class="form-group">
-                    <label class="control-label d-block"><?php echo _e("Display", true) . ' ' . $set_content_type . ' ' . _e("from page", true); ?></label>
-
-                    <select name="data-page-id" id="the_post_data-page-id<?php print  $rand ?>" class="mw_option_field selectpicker" data-width="100%" data-size="5" data-live-search="true" onchange="mw_reload_content_mod_window()">
-                        <?php if (intval($posts_parent_page) > 0 and !get_content_by_id($posts_parent_page)) { ?>
-                            <option value="" selected="selected"><?php _e("Unknown page"); ?></option>
-                        <?php } ?>
-                        <option value="current_page" <?php if (('current_page' == ($posts_parent_page))): ?>   selected="selected"  <?php endif; ?>>-- <?php _e("Current page"); ?></option>
-                        <option value="0" <?php if ($posts_parent_page != 'current_page' and (0 == intval($posts_parent_page))): ?>   selected="selected"  <?php endif; ?>><?php _e("All pages"); ?></option>
-                        <?php
-                        $pt_opts = array();
-                        $pt_opts['link'] = "{title}";
-                        //     $pt_opts['list_tag'] = "optgroup";
-                        //   $pt_opts['list_tag'] = " ";
-                        //   $pt_opts['list_item_tag'] = "option";
-
-                        $pt_opts['list_tag'] = " ";
-                        $pt_opts['list_item_tag'] = "option";
-
-                        //$pt_opts['include_categories'] = "option";
-                        $pt_opts['active_ids'] = $posts_parent_page;
-                        $pt_opts['remove_ids'] = $params['id'];
-                        $pt_opts['active_code_tag'] = '   selected="selected"  ';
-                        if ($is_shop != false) {
-                            $pt_opts['is_shop'] = 'y';
-                        }
-                        if ($set_content_type == 'product') {
-                            $pt_opts['is_shop'] = 'y';
-                        }
-
-                        pages_tree($pt_opts);
-                        ?>
-                    </select>
-                </div>
-                <?php }else{
                     $posts_parent_page = $GLOBALS['shop_data'][0]['id'];
-                }
-                if ($posts_parent_page != false and intval($posts_parent_page) > 0): ?>
-                    <?php $posts_parent_category = $settings['categories']->value ?? null;
+                    if ($posts_parent_page != false and intval($posts_parent_page) > 0):
+                    $posts_parent_category = $settings['categories']->value ?? null;
                     $categories = DB::table('categories')->where('is_hidden',0)->where('status',1)->where('rel_id',$posts_parent_page)->get();
                     ?>
 
@@ -475,26 +328,16 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                         <select name="data-category-id" id="the_post_data-page-id<?php print  $rand ?>" class="mw_option_field_dt selectpicker" data-width="100%" data-size="5" data-live-search="true" data-also-reload="<?php print  $config['the_module'] ?>">
                             <option value='' <?php if ((0 == intval($posts_parent_category))): ?>   selected="selected"  <?php endif; ?>><?php _e("Select a category"); ?></option>
                             <?php
-                            $pt_opts = array();
-                            $pt_opts['link'] = " {title}";
-
-                            $pt_opts['list_tag'] = " ";
-                            $pt_opts['list_item_tag'] = "option";
-
-                            //  $pt_opts['list_tag'] = " ";
-                            //   $pt_opts['list_tag'] = "optgroup";
-
-                            //  $pt_opts['list_item_tag'] = "option";
-                            $pt_opts['active_ids'] = $posts_parent_category;
-                            $pt_opts['active_code_tag'] = '   selected="selected"  ';
-                            $pt_opts['rel_type'] = 'content';
-                            $pt_opts['rel_id'] = $posts_parent_page;
-                            category_tree($pt_opts);
+                                $pt_opts = array();
+                                $pt_opts['link'] = " {title}";
+                                $pt_opts['list_tag'] = " ";
+                                $pt_opts['list_item_tag'] = "option";
+                                $pt_opts['active_ids'] = $posts_parent_category;
+                                $pt_opts['active_code_tag'] = '   selected="selected"  ';
+                                $pt_opts['rel_type'] = 'content';
+                                $pt_opts['rel_id'] = $posts_parent_page;
                             ?>
                             <option value='0' <?php if ((0 == intval($posts_parent_category))): ?>   selected="selected"  <?php endif; ?>>-- <?php _e("All"); ?></option>
-                            <!-- <option value='related' <?php //if (('related' == trim($posts_parent_category))): ?>   selected="selected"  <?php //endif; ?>>-- <?php //_e("Related"); ?></option>
-                            <option value='sub_pages' <?php //if (('sub_pages' == trim($posts_parent_category))): ?>   selected="selected"  <?php //endif; ?>>-- <?php //_e("Sub Pages"); ?></option>
-                            <option value='current_category' <?php //if (('current_category' == trim($posts_parent_category))): ?>   selected="selected"  <?php //endif; ?>>-- <?php //_e("Current category"); ?></option> -->
                             <?php
                                 foreach($categories as $category){
                                     ?>
@@ -508,61 +351,56 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
 
                 <div class="bootstrap3ns">
                     <?php
-                    // dd($is_shop);
-                    session()->put("content", $is_shop);
-                    $all_existing_tags = json_encode(content_tags());
-                    if ($all_existing_tags == null) {
-                        $all_existing_tags = '[]';
-                    }
-
-
-
-
+                        session()->put("content", $is_shop);
+                        $all_existing_tags = json_encode(content_tags());
+                        if ($all_existing_tags == null) {
+                            $all_existing_tags = '[]';
+                        }
                     ?>
 
 
                     <div>
                         <?php
-                        $tags_val_arr = [];
-                        $tags_val = $settings['tags']->value ?? '';
-                        if ($tags_val and is_string($tags_val)) {
-                            $tags_val = explode(',', $tags_val);
-                            $tags_val = array_trim($tags_val);
-                            $tags_val = array_filter($tags_val);
-                            $tags_val = array_filter($tags_val,'addslashes');
-                            $tags_val = array_unique($tags_val);
-                            $tags_val_arr = $tags_val;
+                            $tags_val_arr = [];
+                            $tags_val = $settings['tags']->value ?? '';
+                            if ($tags_val and is_string($tags_val)) {
+                                $tags_val = explode(',', $tags_val);
+                                $tags_val = array_trim($tags_val);
+                                $tags_val = array_filter($tags_val);
+                                $tags_val = array_filter($tags_val,'addslashes');
+                                $tags_val = array_unique($tags_val);
+                                $tags_val_arr = $tags_val;
 
-                            $tags_val = implode(',', $tags_val);
-                        }
-                        $listOfoptions = [
-                            "data-title-limit",
-                            "data-character-limit",
-                            "data-add-to-cart-text",
-                            "filter-only-in-stock",
-                            "content_limit_for_live_edit_module",
-                            "data-read-more-text",
-                            "data-hide-paging",
-                            "data-limit",
-                        ];
-                        if(isset($_GET['col_count']) && $_GET['col_count'] >= 3){
-                            $showProduct = ($_GET['col_count']*2);
-                        }
-                        $getDefaultOptions = DB::table('options')->select('option_value','option_key','option_group')->where('option_group', $params['id'])->whereIn('option_key',$listOfoptions)->get()->keyBy('option_key')->toArray();
-                        foreach($listOfoptions as $option) {
-                            if(!in_array($option, array_keys($getDefaultOptions))){
+                                $tags_val = implode(',', $tags_val);
+                            }
+                            $listOfoptions = [
+                                "data-title-limit",
+                                "data-character-limit",
+                                "data-add-to-cart-text",
+                                "filter-only-in-stock",
+                                "content_limit_for_live_edit_module",
+                                "data-read-more-text",
+                                "data-hide-paging",
+                                "data-limit",
+                            ];
+                            if(isset($_GET['col_count']) && $_GET['col_count'] >= 3){
+                                $showProduct = ($_GET['col_count']*2);
+                            }
+                            $getDefaultOptions = DB::table('options')->select('option_value','option_key','option_group')->where('option_group', $params['id'])->whereIn('option_key',$listOfoptions)->get()->keyBy('option_key')->toArray();
+                            foreach($listOfoptions as $option) {
+                                if(!in_array($option, array_keys($getDefaultOptions))){
+                                    if($option == 'data-limit'){
+                                        $getDefaultOptions[$option] = (object)['option_value' => $showProduct??3];
+                                    }else{
+                                        $getDefaultOptions[$option] = (object)['option_value' => ""];
+                                    }
+                                }
                                 if($option == 'data-limit'){
-                                    $getDefaultOptions[$option] = (object)['option_value' => $showProduct??3];
-                                }else{
-                                    $getDefaultOptions[$option] = (object)['option_value' => ""];
+                                    if($getDefaultOptions[$option]->option_value == ""){
+                                        $getDefaultOptions[$option] = (object)['option_value' => $showProduct??3];
+                                    }
                                 }
                             }
-                            if($option == 'data-limit'){
-                                if($getDefaultOptions[$option]->option_value == ""){
-                                    $getDefaultOptions[$option] = (object)['option_value' => $showProduct??3];
-                                }
-                            }
-                        }
 
                         ?>
 
@@ -642,14 +480,14 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                 <?php
 
                 
-                $show_fields = get_option('data-show', $params['id']);
-                if (is_string($show_fields)) {
-                    $show_fields = explode(',', $show_fields);
-                    $show_fields = array_trim($show_fields);
-                }
-                if ($show_fields == false or !is_array($show_fields)) {
-                    $show_fields = array("thumbnail","title","description","price","add_to_cart","content_limit_for_live_edit_module","read_more","created_at");
-                }
+                    $show_fields = get_option('data-show', $params['id']);
+                    if (is_string($show_fields)) {
+                        $show_fields = explode(',', $show_fields);
+                        $show_fields = array_trim($show_fields);
+                    }
+                    if ($show_fields == false or !is_array($show_fields)) {
+                        $show_fields = array("thumbnail","title","description","price","add_to_cart","content_limit_for_live_edit_module","read_more","created_at");
+                    }
                 ?>
 
                 <style type="text/css">
@@ -725,12 +563,12 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                 //Start timeout when user start typing
                 my_input.on('keyup', function () {
                 clearTimeout(type_timer);
-                type_timer = setTimeout(finished_typing, finished_writing_interval);
+                    type_timer = setTimeout(finished_typing, finished_writing_interval);
                 });
 
                 //Clear timeout on key down event
                 my_input.on('keydown', function () {
-                clearTimeout(type_timer);
+                    clearTimeout(type_timer);
                 });
 
                 //This function runs when user has finished writing in input
@@ -757,6 +595,7 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                     }
                     
                 }
+
                 setTimeout($("#content_limit_for_live_edit_module").on("keyup",function (){
                     var n_data = {
                             key: "content_limit_for_live_edit_module",
@@ -774,6 +613,7 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
 
                     });
                 }),1000);
+
                 setTimeout($("#data-title-limit").on("keyup",function (){
                     var n_data = {
                             key: "data-title-limit",
@@ -791,6 +631,7 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
 
                     });
                 }),1000);
+
                 setTimeout($("#the_post_data-page-id<?php print  $rand ?>").on("change",function (){
                     var n_data = {
                             key: "categories",
@@ -808,6 +649,7 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
 
                     });
                 }),1000);
+
                 setTimeout($("#tags").on("change",function (){
                     var n_data = {
                             key: "tags",
@@ -825,6 +667,7 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
 
                     });
                 }),1000);
+
                 setTimeout($("#data-hide-paging").on("change",function (){
                     var n_data = {
                             key: "data-hide-paging",
@@ -836,6 +679,25 @@ if (isset($params['is_shop']) and $params['is_shop'] == 'y') {
                         if(res.success){
                             mw.notification.success('Settings are saved.');
                             mw.reload_module_parent("#<?=$params['id']?>")
+                            mw.reload_module_everywhere('content/manager_content_v2');
+
+                        }
+
+                    });
+                }),1000);
+
+                setTimeout($("#data-order-by").on("change",function (){
+                    console.log($(this).val());
+                    var n_data = {
+                            key: "position",
+                            module_id: "<?=$params['id']?>",
+                            value: $(this).val()
+                        }
+                    $.post('<?=url("/")?>/api/v1/module_setting_save', n_data , (res) => {
+
+                        if(res.success){
+                            mw.notification.success('Settings are saved.');
+                            mw.reload_module_parent("#<?=$params['id']?>");
                             mw.reload_module_everywhere('content/manager_content_v2');
 
                         }

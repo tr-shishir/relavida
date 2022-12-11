@@ -7,52 +7,52 @@
 </script>
 <?php
 
-if(isset($_GET['id'])){
-    $data = (array)DB::table('product')
-    ->where('id',$_GET['id'])
-    ->first();
-    $categories = DB::table('categories_items')
-    ->where('rel_id',$data['id'])
-    ->where('rel_type','product')
-    ->pluck('parent_id')
-    ->toArray();
-    $data['category'] = implode(',',$categories);
-}
+    if(isset($_GET['id'])){
+        $data = (array)DB::table('product')
+        ->where('id',$_GET['id'])
+        ->first();
+        $categories = DB::table('categories_items')
+        ->where('rel_id',$data['id'])
+        ->where('rel_type','product')
+        ->pluck('parent_id')
+        ->toArray();
+        $data['category'] = implode(',',$categories);
+    }
 
-$edit_page_info = isset($data) ? $data : $data = [
-    "id" => 0,
-    "content_type" => "product",
-    "title" => false,
-    "content" => false,
-    "content_body" => false,
-    "url" => "",
-    "thumbnail" => "",
-    "is_active" => 1,
-    "is_home" => 0,
-    "is_shop" => 1,
-    "require_login" => 0,
-    "subtype" => "product",
-    "description" => "",
-    "active_site_template" => "",
-    "subtype_value" => "",
-    "parent" => 2,
-    "layout_name" => "",
-    "layout_file" => "inherit",
-    "original_link" => ""
-  ];
+    $edit_page_info = isset($data) ? $data : $data = [
+        "id" => 0,
+        "content_type" => "product",
+        "title" => false,
+        "content" => false,
+        "content_body" => false,
+        "url" => "",
+        "thumbnail" => "",
+        "is_active" => 1,
+        "is_home" => 0,
+        "is_shop" => 1,
+        "require_login" => 0,
+        "subtype" => "product",
+        "description" => "",
+        "active_site_template" => "",
+        "subtype_value" => "",
+        "parent" => 2,
+        "layout_name" => "",
+        "layout_file" => "inherit",
+        "original_link" => ""
+    ];
 
-$module_id = $is_quick = $just_saved = $is_live_edit = 1;
-$rand = 2;
-$categories_active_ids = $edit_page_info['category'] ?? false;
-if (!isset($edit_page_info['title'])) {
-    $edit_page_info['title'] = _e('Content title', true);
-}
+    $module_id = $is_quick = $just_saved = $is_live_edit = 1;
+    $rand = 2;
+    $categories_active_ids = $edit_page_info['category'] ?? false;
+    if (!isset($edit_page_info['title'])) {
+        $edit_page_info['title'] = _e('Content title', true);
+    }
 
-$quick_edit = false;
+    $quick_edit = false;
 
-if (isset($params['quick_edit']) and $params['quick_edit']) {
-    $quick_edit = true;
-}
+    if (isset($params['quick_edit']) and $params['quick_edit']) {
+        $quick_edit = true;
+    }
 ?>
 
 <?php if (isset($edit_page_info['title'])): ?>
@@ -64,37 +64,21 @@ if (isset($params['quick_edit']) and $params['quick_edit']) {
     }
 </style>
 <?php
-if (isset($data['content_type']) and $data['content_type'] == 'page') {
-    $parent_page_active = 0;
-    if ($data['parent'] != 0 and $data['id'] == 0) {
-        $data['parent'] = $recommended_parent = 0;
-    } elseif (isset($data['parent'])) {
-        $parent_page_active = $data['parent'];
+    if (isset($data['id']) and intval($data['id']) == 0 and isset($data['parent']) and intval($data['parent']) != 0) {
+        $parent_data = get_content_by_id($data['parent']);
+        if (is_array($parent_data) and isset($parent_data['is_active']) and ($parent_data['is_active']) == 0) {
+            $data['is_active'] = 0;
+        }
     }
-}
 
-
-if (isset($data['id']) and intval($data['id']) == 0 and isset($data['parent']) and intval($data['parent']) != 0) {
-    $parent_data = get_content_by_id($data['parent']);
-    if (is_array($parent_data) and isset($parent_data['is_active']) and ($parent_data['is_active']) == 0) {
-        $data['is_active'] = 0;
-    }
-}
-
-if ($edit_page_info['content_type'] == 'product') {
     $type = 'Product';
-}
 
-$action_text = _e($type, true);
-if (isset($edit_page_info['id']) and intval($edit_page_info['id']) != 0) {
-    $action_text = _e("Editing " . strtolower($type), true);
-} else {
-    $action_text = _e("Add " . strtolower($type), true);
-}
-
-if (isset($edit_page_info['content_type']) and $edit_page_info['content_type'] == 'post' and isset($edit_page_info['subtype'])) {
-    //     $action_text2 = $edit_page_info['subtype'];
-}
+    $action_text = _e($type, true);
+    if (isset($edit_page_info['id']) and intval($edit_page_info['id']) != 0) {
+        $action_text = _e("Editing " . strtolower($type), true);
+    } else {
+        $action_text = _e("Add " . strtolower($type), true);
+    }
 ?>
 
 <?php if (!$quick_edit) { ?>
@@ -190,25 +174,12 @@ if (isset($params['quick_edit'])) {
     <?php
     $data['id'] = intval($data['id']);
     $formActionUrl = site_url() . 'api/save_content_admin';
-    if ($type == 'Page') {
-        $formActionUrl = route('api.page.index');
-        if ($data['id'] > 0) {
-            $formActionUrl = route('api.page.update', $data['id']);
-        }
-    }
     if ($type == 'Product') {
         $formActionUrl = route('product.store');
         if ($data['id'] > 0) {
             $formActionUrl = route('product.update', $data['id']);
         }
     }
-    if ($type == 'Post') {
-        $formActionUrl = route('api.post.index');
-        if ($data['id'] > 0) {
-            $formActionUrl = route('api.post.update', $data['id']);
-        }
-    }
-
     ?>
 
     <form method="post"  class="mw_admin_edit_content_form" action="<?php echo $formActionUrl; ?>" id="quickform-edit-content" autocomplete="off">
@@ -230,10 +201,6 @@ if (isset($params['quick_edit'])) {
                             $type_icon = 'mdi-text';
                             if ($type == 'Product') {
                                 $type_icon = 'mdi-shopping';
-                            } elseif ($type == 'Post') {
-                                $type_icon = 'mdi-text';
-                            } elseif ($type == 'Page') {
-                                $type_icon = 'mdi-file-document';
                             }
                             ?>
                             <h5><i class="mdi <?php echo $type_icon; ?> text-primary mr-3"></i> <strong><?php  _e($action_text); ?></strong></h5>
@@ -266,12 +233,6 @@ if (isset($params['quick_edit'])) {
 
                                 <div id="content-title-field-buttons">
                                     <button type="submit" onclick="reload_module();" disabled class="btn btn-sm btn-success btn-save js-bottom-save" form="quickform-edit-content"><span><?php print _e('Save'); ?></span></button>
-                                    <?php if(isset($data['id']) && $data['id'] >0 && $data['content_type'] == "page"):
-                                        $hide_delete = hide_delete() ?? [];
-                                        $tk_url = explode('/',$data['url']);
-                                        ?>
- -->
-                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -281,17 +242,6 @@ if (isset($params['quick_edit'])) {
                         function reload_module(){
                             $.ajax({
                                 url: "<?=api_url('mw_reload_modules')?>"
-                            });
-                        }
-                        mw.delete_single_post = function (id) {
-                            mw.tools.confirm("<?php _ejs("Do you want to delete this page"); ?>?", function () {
-                                var arr = id;
-                                mw.post.del(arr, function () {
-                                    mw.$(".manage-post-item-" + id).fadeOut(function () {
-                                        $(this).remove()
-                                    });
-                                });
-                                history.go(-1);
                             });
                         }
                     </script>
@@ -305,44 +255,23 @@ if (isset($params['quick_edit'])) {
                                 </label>
                                 <input type="text" autocomplete="off" class="form-control product-title-bind-meta" name="title" onkeyup="slugFromTitle()" id="content-title-field" value="<?php print ($title_for_input) ?>">
 
-                                <?php if($data['content_type'] == 'product'):?>
-                                    <div data-target="content-title-field" class="line_bar">
-                                        <div class="line"></div>
-                                    </div>
-                                <?php endif;?>
+                                <div data-target="content-title-field" class="line_bar">
+                                    <div class="line"></div>
+                                </div>
 
                                 <div class="mw-admin-post-slug">
-                                    <?php
-                                    $is_rss = $data['is_rss'] ?? false;
-
-                                    if ($is_rss != 1) : ?>
                                         <i class="mdi mdi-link mdi-20px lh-1_3 mr-1 text-silver float-left" title="Copy link" onclick="copy_url_of_page();" style="cursor: copy"></i>
                                         <span class="mw-admin-post-slug-text">
                                             <?php
-                                            if (isset($data['slug_prefix_url'])) {
-                                                $site_prefix_url = $data['slug_prefix_url'];
-                                            } else {
-                                                $site_prefix_url = site_url();
-                                            }
+                                                if (isset($data['slug_prefix_url'])) {
+                                                    $site_prefix_url = $data['slug_prefix_url'];
+                                                } else {
+                                                    $site_prefix_url = site_url();
+                                                }
                                             ?>
-
                                             <span class="text-silver" id="slug-base-url"><?php print $site_prefix_url; ?></span>
-                                            <?php
-                                                $hide_edite = hide_edite();
-                                                $url =site_url('admin');
-                                                if(in_array($data['url'], $hide_edite)):?>
-                                                    <script>
-                                                        var adminUrl = "<?php print $url; ?>";
-                                                        console.log(adminUrl);
-                                                        $(document).ready(function(){
-                                                            console.log(adminUrl);
-                                                            location.replace(adminUrl)
-                                                        });
-                                                    </script>
-                                            <?php endif; ?>
                                             <span class="contenteditable js-slug-base-url" data-toggle="tooltip" data-title="edit" data-placement="right" contenteditable="true"><?php print $data['url']; ?></span>
                                         </span>
-                                    <?php endif; ?>
                                 </div>
 
                                 <div class="d-none">
@@ -401,72 +330,58 @@ if (isset($params['quick_edit'])) {
 
 
 
-                            <?php $content_edit_modules = mw('ui')->module('admin.content.edit.text'); ?>
-                            <?php $modules = array(); ?>
-                            <?php
-                            if (!empty($content_edit_modules) and !empty($data)) {
-                                foreach ($content_edit_modules as $k1 => $content_edit_module) {
-                                    foreach ($data as $k => $v) {
-                                        if (isset($content_edit_module[$k])) {
-                                            $v1 = $content_edit_module[$k];
-                                            $v2 = $v;
-                                            if (trim($v1) == trim($v2)) {
-                                                $modules[] = $content_edit_module['module'];
-                                            }
-                                        }
+                            <?php 
+                                // $content_edit_modules = mw('ui')->module('admin.content.edit.text');
+                                // $modules = array();
+                                // if (!empty($content_edit_modules) and !empty($data)) {
+                                //     foreach ($content_edit_modules as $k1 => $content_edit_module) {
+                                //         foreach ($data as $k => $v) {
+                                //             if (isset($content_edit_module[$k])) {
+                                //                 $v1 = $content_edit_module[$k];
+                                //                 $v2 = $v;
+                                //                 if (trim($v1) == trim($v2)) {
+                                //                     $modules[] = $content_edit_module['module'];
+                                //                 }
+                                //             }
 
-                                    }
-                                }
-                                $modules = array_unique($modules);
-                            }
+                                //         }
+                                //     }
+                                //     $modules = array_unique($modules);
+                                // }
                             ?>
 
                             <div id="mw-edit-page-editor-holder">
-                                <?php event_trigger('content.edit.richtext', $data); ?>
-                                <?php $content_edit_modules = mw()->ui->module('content.edit.richtext'); ?>
-                                <?php $modules = array(); ?>
-                                <?php
-
-                                if (!empty($content_edit_modules) and !empty($data)) {
-                                    foreach ($content_edit_modules as $k1 => $content_edit_module) {
-                                        if (isset($content_edit_module['module'])) {
-                                            $modules[] = $content_edit_module['module'];
-                                        }
-                                    }
-                                    $modules = array_unique($modules);
-                                }
-                                ?>
-                                <?php if (!empty($modules)): ?>
-                                    <?php foreach ($modules as $module) : ?>
-                                        <?php print load_module($module, $data); ?>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <?php if (isset($data['content_type']) and ($data['content_type'] != 'page')): ?>
-                                        <div class="form-group">
-                                            <?php if (isset($data['content_type']) and ($data['content_type'] == 'product')): ?>
+                                <?php 
+                                    // event_trigger('content.edit.richtext', $data);
+                                    // $content_edit_modules = mw()->ui->module('content.edit.richtext');
+                                    // $modules = array();
+                                    // if (!empty($content_edit_modules) and !empty($data)) {
+                                    //     foreach ($content_edit_modules as $k1 => $content_edit_module) {
+                                    //         if (isset($content_edit_module['module'])) {
+                                    //             $modules[] = $content_edit_module['module'];
+                                    //         }
+                                    //     }
+                                    //     $modules = array_unique($modules);
+                                    // }
+                                    //if (!empty($modules)): ?>
+                                    <?php //foreach ($modules as $module) : ?>
+                                        <?php //print load_module($module, $data); ?>
+                                    <?php //endforeach; ?>
+                                <?php //else: ?>
+                                    <div class="form-group">
+                                        <?php if (isset($data['content_type']) and ($data['content_type'] == 'product')): ?>
 
 
-                                                <label class="control-label" title="Content Body"><?php _e('Description') ?></label>
+                                            <label class="control-label" title="Content Body"><?php _e('Description') ?></label>
 
-                                                <div id="mw-admin-content-iframe-editor">
+                                            <div id="mw-admin-content-iframe-editor">
 
-                                                    <textarea id="content_template" name="content_body"><?php print $data['content_body']; ?></textarea>
+                                                <textarea id="content_template" name="content_body"><?php print $data['content_body']; ?></textarea>
 
-                                                </div>
-                                            <?php else: ?>
-                                                <label class="control-label"><?php _e("Content"); ?></label>
-
-                                                <div id="mw-admin-content-iframe-editor">
-
-                                                    <textarea id="content_template" name="content"><?php print $data['content']; ?></textarea>
-
-                                                </div>
-                                            <?php endif; ?>
-
-
-                                        </div>
-                                    <?php endif; ?>
-                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php //endif; ?>
                             </div>
 
                             <div>
@@ -514,26 +429,7 @@ if (isset($params['quick_edit'])) {
                 </div>
 
                 <div class="admin-manage-content-wrap">
-                    <?php if (isset($data['content_type']) and ($data['content_type'] == 'page')): ?>
-                        <?php if (isset($data['id']) and ($data['id'] == 0)): ?>
-                            <module type="content/views/layout_selector" id="mw-quick-add-choose-layout-middle-pos" autoload="yes" template-selector-position="top" live-edit-btn-overlay="true" content-id="<?php print $data['id']; ?>" edit_page_id="<?php print $data['id']; ?>" inherit_from="<?php print $data['parent']; ?>"/>
-                        <?php else: ?>
-                            <module type="content/views/layout_selector" id="mw-quick-add-choose-layout-middle-pos" autoload="yes" template-selector-position="top" live-edit-btn-overlay="true" content-id="<?php print $data['id']; ?>" edit_page_id="<?php print $data['id']; ?>" inherit_from="<?php print $data['parent']; ?>" small="true" layout_file"="<?php print $data['layout_file']; ?>"   />
-                        <?php endif; ?>
-
-                        <?php
-                        $data['recommended_parent'] = $recommended_parent;
-                        $data['active_categories'] = $categories_active_ids;
-                        ?>
-                    <?php else: ?>
-                        <div id="mw-admin-edit-content-main-area"></div>
-                    <?php endif; ?>
-
-                    <?php if (isset($data['subtype']) and $data['subtype'] == 'dynamic' and (isset($data['content_type']) and $data['content_type'] == 'page')): ?>
-                        <script>
-                            mw.$("#quick-add-post-options-item-template-btn").hide();
-                        </script>
-                    <?php endif; ?>
+                    <div id="mw-admin-edit-content-main-area"></div>
 
                     <div class="mw-admin-edit-content-holder">
                     <?php if (!isset($data)) {
@@ -549,28 +445,23 @@ if (isset($params['quick_edit'])) {
 
 
                         <div id="settings-tabs">
-                            <?php
-                            $is_rss = $data['is_rss'] ?? false;
-
-                            if ($is_rss != 1) : ?>
-                                <div class="card style-1 mb-3 images">
-                                    <div class="card-header no-border" id="post-media-card-header">
-                                        <h6><strong><?php _e('Pictures'); ?></strong></h6>
-                                        <div class="post-media-type-holder">
-                                            <select class="selectpicker" data-title="<?php _e('Add media from'); ?>" data-style="btn-sm" data-width="auto" id="mw-admin-post-media-type">
-                                                <option value="url"><?php _e('Add image from URL'); ?></option>
-                                                <option value="server"><?php _e('Browse uploaded'); ?></option>
-                                                <option value="instagram"><?php _e('Instagram images'); ?></option>
-                                                <option value="library"><?php _e('Select from Unsplash'); ?></option>
-                                                <option value="file"><?php _e('Upload file'); ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="card-body pt-3">
-                                        <module id="edit-post-gallery-main" type="picturesv2/admin" class="pictures-admin-content-type-<?php print trim($data['content_type']) ?>" for="content" content_type="<?php print trim($data['content_type']) ?>" for-id="<?php print $data['id']; ?>" />
+                            <div class="card style-1 mb-3 images">
+                                <div class="card-header no-border" id="post-media-card-header">
+                                    <h6><strong><?php _e('Pictures'); ?></strong></h6>
+                                    <div class="post-media-type-holder">
+                                        <select class="selectpicker" data-title="<?php _e('Add media from'); ?>" data-style="btn-sm" data-width="auto" id="mw-admin-post-media-type">
+                                            <option value="url"><?php _e('Add image from URL'); ?></option>
+                                            <option value="server"><?php _e('Browse uploaded'); ?></option>
+                                            <option value="instagram"><?php _e('Instagram images'); ?></option>
+                                            <option value="library"><?php _e('Select from Unsplash'); ?></option>
+                                            <option value="file"><?php _e('Upload file'); ?></option>
+                                        </select>
                                     </div>
                                 </div>
-                            <?php endif; ?>
+                                <div class="card-body pt-3">
+                                        <module id="edit-post-gallery-main" type="picturesv2/admin" class="pictures-admin-content-type-<?php print trim($data['content_type']) ?>" for="content" content_type="<?php print trim($data['content_type']) ?>" for-id="<?php print $data['id']; ?>" />
+                                </div>
+                            </div>
                             <?php event_trigger('mw_admin_edit_page_tab_2', $data); ?>
 
 
@@ -762,10 +653,10 @@ if (isset($params['quick_edit'])) {
 
 
 
-                                <?php if($product['id']): ?>
+                                <?php if($data['id']): ?>
                                     <?php
                                         $productUpsellingData = DB::table('product_upselling')->get()->all();
-                                        $selectproductUpsellingData = DB::table('product_upselling_item')->where('product_id',$product['id'])->get(['item_id']);
+                                        $selectproductUpsellingData = DB::table('product_upselling_item')->where('product_id',$data['id'])->get(['item_id']);
                                         $itemcount = 0;
                                         $passloop = false;
                                     ?>
@@ -821,7 +712,7 @@ if (isset($params['quick_edit'])) {
                                                         <script>
                                                             $('#<?php print $pitem->id;  ?>').click(function() {
                                                                 if($('#<?php print $pitem->id;  ?>').is(':checked')){
-                                                                    var product_id = '<?php echo $product['id'];?>';
+                                                                    var product_id = '<?php echo $data['id'];?>';
                                                                     var item_id = $('#<?php print $pitem->id;  ?>').val();
                                                                     $.ajax({
                                                                         type: "POST",
@@ -837,7 +728,7 @@ if (isset($params['quick_edit'])) {
 
                                                                 }
                                                                 else{
-                                                                    var product_id = '<?php echo $product['id'];?>';
+                                                                    var product_id = '<?php echo $data['id'];?>';
                                                                     var item_id = '<?php print $pitem->id;  ?>';
                                                                     $.ajax({
                                                                         type: "POST",
@@ -889,7 +780,7 @@ if (isset($params['quick_edit'])) {
 
 
 
-                                <?php if($product['id']): ?>
+                                <?php if($data['id']): ?>
                                     <div class="card style-1 mb-3">
                                         <div class="card-header no-border">
                                         <h6><strong><?php _e('Thank You Product Templates') ?></strong></h6>
@@ -899,7 +790,7 @@ if (isset($params['quick_edit'])) {
                                                 <?php
                                                     for ($x = 1; $x <= 6; $x++) {
                                                 ?>
-                                                    <?php if(DB::table("thank_you_pages")->where('template_name',$x)->where('product_id',$product['id'])->get()->count()):  ?>
+                                                    <?php if(DB::table("thank_you_pages")->where('template_name',$x)->where('product_id',$data['id'])->get()->count()):  ?>
                                                     <div class="col-md-4">
                                                         <div class="checkbox">
                                                             <label><input onclick="check('<?php print $x; ?>')" checked type="checkbox" id="theme<?php print $x; ?>" value="<?php print $x; ?>"> <?php _e('Thank You') ?>-<?php print $x; ?> </label>
@@ -928,7 +819,7 @@ if (isset($params['quick_edit'])) {
                                             $.ajax({
                                                 type: "POST",
                                                 url: "<?=api_url('productModulesInsert')?>",
-                                                data:{ template_name : templateName, product_id : '<?php echo $product['id'];?>' },
+                                                data:{ template_name : templateName, product_id : '<?php echo $data['id'];?>' },
                                                 success: function(response) {
                                                     // console.log(response.message);
                                                 },
@@ -943,7 +834,7 @@ if (isset($params['quick_edit'])) {
                                             $.ajax({
                                                 type: "POST",
                                                 url: "<?=api_url('productModulesDelete')?>",
-                                                data:{ template_name : templateName, product_id : '<?php echo $product['id'];?>' },
+                                                data:{ template_name : templateName, product_id : '<?php echo $data['id'];?>' },
                                                 success: function(response) {
                                                     // console.log(response.message);
                                                 },
@@ -979,14 +870,14 @@ if (isset($params['quick_edit'])) {
 
 
 
-                                <?php if($product['id']): ?>
+                                <?php if($data['id']): ?>
                                     <div class="card style-1 mb-3">
                                         <div class="card-header no-border">
                                         <h6><strong><?php _e("Checkout Bumbs") ?></strong></h6>
                                         </div>
                                         <div class="card-body pt-3">
                                             <div class="row">
-                                                    <?php if(DB::table("checkout_bumbs")->where('product_id',$product['id'])->get()->count()):  ?>
+                                                    <?php if(DB::table("checkout_bumbs")->where('product_id',$data['id'])->get()->count()):  ?>
                                                     <div class="col-md-12">
                                                         <div class="checkbox">
                                                             <label><input onclick="bumbs()" checked type="checkbox" id="checkBumbs" > <?php _e("Select This Product") ?> </label>
@@ -1053,7 +944,7 @@ if (isset($params['quick_edit'])) {
                                             $.ajax({
                                                 type: "POST",
                                                 url: "<?=api_url('checkoutBumbsInsert')?>",
-                                                data:{ product_id : '<?php echo $product['id'];?>',show_cart : show_cart, show_checkout: show_checkout },
+                                                data:{ product_id : '<?php echo $data['id'];?>',show_cart : show_cart, show_checkout: show_checkout },
                                                 success: function(response) {
                                                     // console.log(response.message);
                                                 },
@@ -1066,7 +957,7 @@ if (isset($params['quick_edit'])) {
                                             $.ajax({
                                                 type: "POST",
                                                 url: "<?=api_url('checkoutBumbsDelete')?>",
-                                                data:{ product_id : '<?php echo $product['id'];?>' },
+                                                data:{ product_id : '<?php echo $data['id'];?>' },
                                                 success: function(response) {
                                                     $('#scart').prop('checked', false);
                                                     $('#scheckout').prop('checked', false);
@@ -1134,87 +1025,14 @@ if (isset($params['quick_edit'])) {
                                     </div>
                                 <?php endif; ?>
 
-                                <?php if($product['id']): ?>
-                                    <div class="card style-1 mb-3">
-                                        <div class="card-header no-border">
-                                        <h6><strong><?php _e("Select for customer group") ?></strong></h6>
-                                        </div>
-                                        <div class="card-body pt-3">
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <div class="checkbox">
-                                                        <label><?php _e("Available customer group") ?> </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card-body pt-3" style="margin-left: 10px; ">
-                                            <?php
-                                                $customer_groups = DB::table("customer_groups")->get();
-                                                $this_product_group = DB::table("group_product")->where('product_id',$product['id'])->select('group_id')->get()->toArray();
-                                            ?>
-                                            <div class="row">
-                                                <?php foreach($customer_groups as $customer_group){ ?>
-                                                <div class="form-check" style="margin-right: 10px; ">
-                                                    <?php
-                                                        $check =  '';
-                                                        if(isset($this_product_group)){
-                                                            foreach($this_product_group as $groupId){
-                                                                if($groupId->group_id == $customer_group->id){
-                                                                    $check =  'checked';
-                                                                }
-                                                            }
-                                                        }
-                                                    ?>
-                                                        <input class="form-check-input"  type="checkbox" name="customer_group[]" value="<?php echo $customer_group->id; ?>" <?php echo $check; ?>>
-
-                                                        <label class="form-check-label" for="flexRadioDefault2">
-                                                        <?php _e($customer_group->group_name) ?>
-                                                    </label>
-                                                </div>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                <?php else: ?>
-                                    <div class="card style-1 mb-3">
-                                        <div class="card-header no-border">
-                                        <h6><strong><?php _e("Select for customer group") ?></strong></h6>
-                                        </div>
-                                        <div class="card-body pt-3">
-                                            <div class="row">
-                                                <div class="col-md-4">
-                                                    <div class="checkbox">
-                                                        <label><?php _e("Available customer group") ?> </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card-body pt-3" style="margin-left: 10px; ">
-                                            <?php $customer_groups = DB::table("customer_groups")->get();  ?>
-                                            <div class="row">
-                                                <?php foreach($customer_groups as $customer_group){ ?>
-                                                <div class="form-check" style="margin-right: 10px; ">
-                                                <input class="form-check-input"  type="checkbox" name="customer_group[]" value="<?php echo $customer_group->id; ?>" <?php if($customer_group->id == 1 || $customer_group->id == 10){ echo 'checked';} ?>>
-                                                    <label class="form-check-label" for="flexRadioDefault2">
-                                                        <?php _e($customer_group->group_name) ?>
-                                                    </label>
-                                                </div>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
                                 <!-- Subscription product start from here -->
                                 <?php
-                                    if($product['id']):
+                                    if($data['id']):
                                     //$type="product";
                                     //$optionValue= DB::table('subscription_items')->get()->all();
                                     // dd($optionValue);
                                     $isChecked=null;
-                                    $status=DB::table('subscription_status')->where('product_id',$product['id'])->get();
+                                    $status=DB::table('subscription_status')->where('product_id',$data['id'])->get();
                                         if(count($status)>0){
                                             $isChecked="checked";
                                         }
@@ -1242,7 +1060,7 @@ if (isset($params['quick_edit'])) {
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <label for="live"><?php _e('Available Subscription Interval'); ?></label><br><br>
-                                                <input type="hidden" name="id" id="id" value="<?php print $product['id']; ?>">
+                                                <input type="hidden" name="id" id="id" value="<?php print $data['id']; ?>">
                                                 <div class="row">
                                                 <?php
                                                     $sub=DB::table('subscription_items')->groupBy('sub_interval')->get();
@@ -1252,7 +1070,7 @@ if (isset($params['quick_edit'])) {
                                                     <?php foreach($sub as $item):  ?>
                                                         <?php
                                                             $z="";
-                                                            $a=DB::table('subscription_status')->where('product_id',$product['id'])->where('sub_id',$item->id)->get();
+                                                            $a=DB::table('subscription_status')->where('product_id',$data['id'])->where('sub_id',$item->id)->get();
                                                             if(count($a)>0){
                                                                 $z="checked";
                                                             }
@@ -3139,7 +2957,7 @@ if (isset($params['quick_edit'])) {
                                     <div class="form-group">
                                         <label for="usr"><?php _e('Suplier'); ?>:</label>
                                         <div style="display: flex;align-items: center;">
-                                            <select class="form-control" id="suplier" name="suplier" required>
+                                            <select class="form-control" id="suplier" name="suplier">
 
                                             </select>
                                             <a class="btn btn-success" href="https://drm.software/admin/delivery_companies/add" style="margin-left: 5px;" target="_blank"><?php _e('Add'); ?></a>

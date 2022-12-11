@@ -290,6 +290,39 @@ class ContentManagerHelpers extends ContentManagerCrud
         return $del_ids;
     }
 
+    public function deleteV2($data)
+    {
+        if (!is_array($data)) {
+            $del_data = array();
+            $del_data['id'] = intval($data);
+            $data = $del_data;
+        }
+
+        $del_ids = array();
+        $this->app->event_manager->trigger('content.before.delete', $data);
+
+        if (isset($data['ids']) and is_array($data['ids'])) {
+
+            foreach ($data['ids'] as $value) {
+                $c_id = intval($value);
+                if ($c_id) {
+                    $del_ids[] = $c_id;
+                    // DB::table('product')->where('id',$c_id)->delete();
+                    // DB::table('categories_items')->where('rel_id',$c_id)->where('rel_type', 'product')->delete();
+                    // DB::table('media')->where('rel_id',$c_id)->where('rel_type', 'product')->delete();
+                    // DB::table('tagging_tagged')->where('taggable_id',$c_id)->where('taggable_type', 'product')->delete();
+                }
+            }
+        }
+
+        $this->app->cache_manager->delete('menus');
+        $this->app->cache_manager->delete('content');
+        $this->app->cache_manager->delete('categories');
+        $this->app->cache_manager->delete('content');
+
+        return $del_ids;
+    }
+
     public function reset_modules_settings($modules_ids)
     {
         if (isset($modules_ids['modules_ids'])) {
@@ -345,6 +378,60 @@ class ContentManagerHelpers extends ContentManagerCrud
         return true;
 
 
+    }
+
+    public function bulk_assign_V2($data)
+    {
+        if (is_string($data)) {
+            $data = parse_params($data);
+        }
+        $categories = [];
+        if (isset($data['categories'])) {
+            foreach($data['categories'] as $cats){
+                if(intval($cats)){
+                    $category = \MicroweberPackages\Category\Models\Category::where('id', $cats)->with('parent')->get()->toArray()[0];
+                    $categories[] = $category['id'];
+                    for (; ;) {
+                        if (is_array($category['parent'])) {
+                            $categories[] = $category['parent']['id'];
+                            $category = $category['parent'];
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (isset($data['content_ids'])) {
+            $content_ids = $data['content_ids'];
+
+            if (is_array($content_ids)) {
+                $arr = array();
+                foreach ($content_ids as $content_id) {
+                    if(intval($content_id)){
+                        if (isset($categories) and !empty($categories)) {
+                            foreach($categories as $cats){
+                                $to_save = array();
+                                if(intval($cats)){
+                                    $to_save['rel_id'] = $content_id;
+                                    $to_save['rel_type'] = 'product';
+                                    $to_save['parent_id'] = $cats;
+                                }
+                                $arr[] = $to_save;
+                            }
+                            
+                            CategoryItem::where('rel_id',$content_id)->where('rel_type','product')->delete();
+                        }
+                    }
+                }
+                if(!empty($arr)){
+                    DB::table('categories_items')->insert($arr);
+                }
+            }
+        }
+
+        return array('success' => 'Content is moved');
     }
 
     public function bulk_assign($data)
