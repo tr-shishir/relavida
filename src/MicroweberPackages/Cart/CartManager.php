@@ -892,19 +892,19 @@ class CartManager extends Crud
             //  $cart_check_db =  \DB::table('cart')->where($cart)->first();
 
 
-//            $cart_check = $cart;
-//            $cart_return = $cart;
-//            $check_cart = [];
-//
-//            if($cart_check_db){
-//                $check_cart = (array) $cart_check_db;
-//
-//            }
+        //            $cart_check = $cart;
+        //            $cart_return = $cart;
+        //            $check_cart = [];
+        //
+        //            if($cart_check_db){
+        //                $check_cart = (array) $cart_check_db;
+        //
+        //            }
 
             //  $check_cart = $this->app->database_manager->get('cart',$cart_check);
             //     d($cart_check);
 
-//  d($check_cart);
+        //  d($check_cart);
             //  d($cart_check);
             $cart_check_q = $cart;
             $cart_check_q['order_completed']=0;
@@ -921,6 +921,272 @@ class CartManager extends Crud
 
             $cart['order_completed'] = 0;
             $cart_return['custom_fields_data'] = $add;
+            $cart_return['price'] = $cart['price'];
+
+
+            if ($found_price and $check_cart != false and is_array($check_cart) and isset($check_cart[0])) {
+
+                foreach ($check_cart as $cart_item) {
+                    $drm_ref_id = DB::table('cart')->where('rel_id',$cart_item['rel_id'])->where('drm_ref_id',$cart_item['drm_ref_id'])->select('drm_ref_id','title')->first();
+                    //dd($cart_item);
+                    if ($cart_item and isset($cart_item['price']) and (doubleval($cart_item['price']) == doubleval($found_price))) {
+                        $cart['id'] = $cart_item['id'];
+                        if ($update_qty > 0) {
+                            $cart['qty'] = $cart_item['qty'] + $update_qty;
+                        } elseif ($update_qty_new > 0) {
+                            $cart['qty'] = $update_qty_new;
+                        } else {
+                            $cart['qty'] = $cart_item['qty'] + 1;
+                        }
+                    }elseif($cart_item and isset($cart_item['price']) and $cart_item['title'] == $drm_ref_id->title){
+                        $cart['id'] = $cart_item['id'];
+                        if ($update_qty > 0) {
+                            $cart['qty'] = $cart_item['qty'] + $update_qty;
+                        } elseif ($update_qty_new > 0) {
+                            $cart['qty'] = $update_qty_new;
+                        } else {
+                            $cart['qty'] = $cart_item['qty'] + 1;
+                        }
+                    }
+                }
+            } else {
+                if ($update_qty > 0) {
+                    $cart['qty'] = $update_qty;
+                } else {
+                    $cart['qty'] = 1;
+                }
+            }
+
+            if (isset($cont_data['qty']) and trim($cont_data['qty']) != 'nolimit') {
+                if (intval($cont_data['qty']) < intval($cart['qty'])) {
+                    $cart['qty'] = $cont_data['qty'];
+                }
+            }
+
+
+            if (isset($cont_data['max_qty_per_order']) and intval($cont_data['max_qty_per_order']) != 0) {
+                if ($cart['qty'] > intval($cont_data['max_qty_per_order'])) {
+                    $cart['qty'] = intval($cont_data['max_qty_per_order']);
+                }
+            }
+
+
+            if (isset($data['other_info']) and is_string($data['other_info'])) {
+                $cart['other_info'] = strip_tags($data['other_info']);
+            }
+
+            if (isset($data['description']) and is_string($data['description'])) {
+                $cart_return['description'] = $cart['description'] = $this->app->format->clean_html($data['description']);
+            }
+            if (isset($data['image']) and is_string($data['image'])) {
+                $cart_return['item_image'] = $cart['item_image'] = $this->app->format->clean_html($data['image']);
+            }
+            if (isset($data['item_image']) and is_string($data['item_image'])) {
+                $cart_return['item_image'] = $cart['item_image'] = $this->app->format->clean_html($data['item_image']);
+            }
+            if (isset($data['link']) and is_string($data['link'])) {
+                $cart_return['link'] = $cart['link'] = $this->app->format->clean_html($data['link']);
+            }
+
+            if (isset($data['currency']) and is_string($data['currency'])) {
+                $cart_return['currency'] = $cart['currency'] = $this->app->format->clean_html($data['link']);
+            }
+            if(isset($data['varianted_price'])){
+                $var_de = DB::table('variants')->where('rel_id',$cart['rel_id'])->where('drm_ref_id',$_REQUEST['drm_variant_id'])->first();
+                if(isset($var_de)){
+                    $cart['title'] = $var_de->title;
+                    $cart['price'] = $var_de->price;
+                }
+            }
+
+            if(isset($cart['rel_id'])){
+                $cart['tax_rate'] = taxRate($cart['rel_id']);
+            }
+
+
+            if(isset($cart['price']) && (int)$cart['price'] == 0){
+                return false;
+            }
+
+
+            $cart_saved_id = $this->app->database_manager->save($table, $cart);
+            if(isset($cart['rel_id'])){
+                $digital_product_download_limit = DB::table('product_details')->where('rel_id',$cart['rel_id'])->where('digital_opt',  1)->first();
+                if(!empty($digital_product_download_limit)){
+                    Cart::where('id',$cart_saved_id)->update(['download_limit' => $digital_product_download_limit->download_limit, 'digital_product' => 1]);
+                }
+            }
+            if(isset($data['tax_rate'])){
+                Cart::where('id',$cart_saved_id)->update(['tax_rate' => $data['tax_rate']]);
+            }
+
+
+            $user_id = user_id();
+            // varianted insert code
+            if(isset($data['varianted_price'])){
+                Cart::where('id',$cart_saved_id)->update(['drm_ref_id' => $_REQUEST['drm_variant_id']]);
+                DB::table('product_variants')->insert([
+                    'user_id'         => $user_id,
+                    'variant_id'  => $data['drm_variant_id'],
+                    'content_id'      => $data['for_id'],
+                    'varianted_price' =>floatval($data['varianted_price']),
+                ]);
+            }
+            $this->app->cache_manager->delete('cart');
+            $this->app->cache_manager->delete('cart_orders');
+
+            if (isset($cart['rel_type']) and isset($cart['rel_id']) and $cart['rel_type'] == 'content') {
+                $cart_return['image'] = $this->app->media_manager->get_picture($cart['rel_id']);
+                $cart_return['product_link'] = $this->app->content_manager->link($cart['rel_id']);
+            }
+            $cart_sum = $this->sum(true);
+            $cart_qty = $this->sum(false);
+            return array('success' => 'Item added to cart', 'product' => $cart_return, 'cart_sum' => $cart_sum, 'cart_items_quantity' => $cart_qty);
+        } else {
+            return array('error' => 'Invalid cart items');
+        }
+    }
+
+
+    public function update_cart_v2($data)
+    {
+        if (!isset($data['for']) and isset($data['rel_type'])) {
+            $data['for'] = $data['rel_type'];
+        }
+        if (!isset($data['for_id']) and isset($data['rel_id'])) {
+            $data['for_id'] = $data['rel_id'];
+        }
+        if (!isset($data['for']) and !isset($data['rel_type'])) {
+            $data['for'] = 'product';
+        }
+
+        if (isset($data['content_id'])) {
+            $data['for'] = 'product';
+            $for_id = $data['for_id'] = $data['content_id'];
+        }
+        $override = $this->app->event_manager->trigger('mw.shop.update_cart_v2', $data);
+        if (is_array($override)) {
+            foreach ($override as $resp) {
+                if (is_array($resp) and !empty($resp)) {
+                    $data = array_merge($data, $resp);
+                }
+            }
+        }
+
+
+        $update_qty = 0;
+        $update_qty_new = 0;
+
+        if (isset($data['qty'])) {
+            $update_qty_new = $update_qty = intval($data['qty']);
+            unset($data['qty']);
+        }
+        if (!isset($data['for']) or !isset($data['for_id'])) {
+            if (!isset($data['id'])) {
+
+            } else {
+                $cart = array();
+                $cart['id'] = intval($data['id']);
+                $cart['limit'] = 1;
+                $data_existing = $this->get($cart);
+                if (is_array($data_existing) and is_array($data_existing[0])) {
+                    $data = array_merge($data, $data_existing[0]);
+                }
+            }
+        }
+
+        if (!isset($data['for']) and !isset($data['for_id'])) {
+            return array('error' => 'Invalid for and for_id params');
+        }
+
+        $data['for'] = $this->app->database_manager->assoc_table_name($data['for']);
+        $for = $data['for'];
+        $for_id = intval($data['for_id']);
+        if ($for_id == 0) {
+            return array('error' => 'Invalid data for_id');
+        }
+
+        $cont_data = false;
+
+        if ($update_qty > 0) {
+            $data['qty'] = $update_qty;
+        }
+
+        if ($data['for'] == 'product') {
+            $cont = (array)DB::table('product')->where('id',$for_id)->first();
+            $cont_data = $cont;
+
+            if ($cont == false) {
+                return array('error' => 'Invalid product?');
+            } else {
+                if (is_array($cont) and isset($cont['title'])) {
+                    $data['title'] = $cont['title'];
+                }
+            }
+        }
+
+        if (isset($data['title']) and is_string($data['title'])) {
+            $data['title'] = (strip_tags($data['title']));
+        }
+
+        $found_price = false;
+
+        $prices = array();
+
+        $skip_keys = array();
+
+        $content_custom_fields = array();
+
+        $product_prices = array();
+
+
+
+
+        if ($found_price == false and is_array($prices)) {
+            $found_price = $cont['vk_price'];
+        }
+        if ($found_price == false) {
+            $found_price = 0;
+        }
+
+        if (is_array($prices)) {
+            $table = $this->table;
+            $cart = array();
+            $cart['rel_type'] = trim($data['for']);
+            $cart['rel_id'] = intval($data['for_id']);
+            $cart['session_id'] = mw()->user_manager->session_id();
+            $cart['no_cache'] = 1;
+            $cart['disable_triggers'] = 1;
+
+            // $cart['price'] = doubleval($found_price);
+            //  $cart_check_db =  \DB::table('cart')->where($cart)->first();
+
+
+        //            $cart_check = $cart;
+        //            $cart_return = $cart;
+        //            $check_cart = [];
+        //
+        //            if($cart_check_db){
+        //                $check_cart = (array) $cart_check_db;
+        //
+        //            }
+
+            //  $check_cart = $this->app->database_manager->get('cart',$cart_check);
+            //     d($cart_check);
+
+        //  d($check_cart);
+            //  d($cart_check);
+            $cart_check_q = $cart;
+            $cart_check_q['order_completed']=0;
+            $check_cart = $this->app->database_manager->get('cart', $cart_check_q);
+
+            $cart['allow_html'] = 1;
+            $cart['price'] = doubleval($found_price);
+            $cart['limit'] = 1;
+
+            $cart['title'] = mw()->format->clean_html($data['title']);
+
+            $cart['order_completed'] = 0;
             $cart_return['price'] = $cart['price'];
 
 

@@ -40,6 +40,32 @@ mw.cart = {
             });
     },
 
+    add_item_v2: function (content_id, price, c) {
+        var data = {};
+        if (content_id == undefined) {
+            return;
+        }
+
+        data.content_id = content_id;
+
+        if (price != undefined && data != undefined) {
+            data.price = price;
+        }
+
+        $.post(mw.settings.api_url + 'update_cart_v2', data,
+            function (data) {
+
+             //   mw.cart.after_modify(data);
+
+
+                if (typeof c === 'function') {
+                    c.call(data);
+                }
+                mw.cart.after_modify(data,['mw.cart.add']);
+
+              //  mw.trigger('mw.cart.add', [data]);
+            });
+    },
 
     add_item_bundle: function (content_id, qty) {
         var data = {};
@@ -94,7 +120,7 @@ mw.cart = {
             then((res, err) => {
                 console.log(res, err);
             });
-    }
+        }
 
 
         var is_form_valid = true;
@@ -129,6 +155,101 @@ mw.cart = {
             data.price = 0;
         }
         $.post(mw.settings.api_url + 'update_cart', data,
+            function (data) {
+
+               // mw.trigger('mw.cart.add', [data]);
+
+                if (typeof c === 'function') {
+                    c.call(data);
+                }
+                mw.cart.after_modify(data,['mw.cart.add']);
+
+
+
+            });
+			 $.post("<?=api_url('ecommerce_tracking_add_cart')?>",{
+                id: data
+            },(res) => {
+                $(".main").append(res.message);
+            }).then((res, err) => {
+                console.log(res, err);
+                });
+
+			if (status != null) {
+                if(value==1){
+                    if(sub!=0){
+                        window.location.href = "<?=url('/')?>/checkout";
+                    }
+                }
+            }
+
+    },
+
+    add_v2: function (selector, price, c, status) {
+        var data = mw.form.serialize(selector);
+		if (status != null) {
+            var value=document.getElementById('valueSub').value;
+            if(value==1){
+                var cycle=document.getElementById('cycles').value;
+                var sub=document.getElementById('subId').value;
+                var pro_id=document.getElementById('pId').value;
+                var pro_price=document.getElementById('totalPrice').value;
+                var uID = document.getElementById('uId').value;
+                if(sub!=0)
+                {
+                    // window.alert(pro_id);
+                    $.post("<?=api_url('save_sub_cart')?>", {
+                        product_id: pro_id,
+                        subscription_id: sub,
+                        order_price : pro_price,
+                        cycles : cycle,
+                        user_id: uID
+
+                        }).then((res, err) => {
+                            console.log(res, err);
+                        });
+                }
+            }
+        } else{
+            $.post("<?=api_url('delete_sub_session') ?>").
+            then((res, err) => {
+                console.log(res, err);
+            });
+        }
+
+
+        var is_form_valid = true;
+        mw.$('[required],.required', selector).each(function () {
+
+            if (!this.validity.valid) {
+                is_form_valid = false
+
+                var is_form_valid_check_all_fields_tip = mw.tooltip({
+                    id: 'mw-cart-add-invalid-form-tooltip-show',
+                    content: 'This field is required',
+                    close_on_click_outside: true,
+                    group: 'mw-cart-add-invalid-tooltip',
+                    skin: 'warning',
+                    element: this
+                });
+
+
+                return false;
+            }
+        });
+
+        if (!is_form_valid) {
+            return;
+        }
+
+
+        if (price != undefined && data != undefined) {
+            data.price = price;
+        }
+        if (data.price == null) {
+            data.price = 0;
+        }
+        $.post(mw.settings.api_url + 'update_cart_v2', data,
             function (data) {
 
                // mw.trigger('mw.cart.add', [data]);

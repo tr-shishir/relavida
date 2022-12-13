@@ -125,6 +125,7 @@ api_expose('empty_cart');
 api_expose('payment_options');
 api_expose('remove_cart_item');
 api_expose('update_cart');
+api_expose('update_cart_v2');
 api_expose('update_cart_item_qty');
 
 api_expose('shop/redirect_to_checkout', function () {

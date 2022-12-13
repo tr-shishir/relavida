@@ -2312,7 +2312,7 @@ class FrontendController extends Controller
             }
 
             if ($is_editmode == true and $this->isolate_by_html_id == false and !isset($_REQUEST['isolate_content_field'])) {
-                if ($is_admin == true && ($page_url != 'shop' and $page_url != 'shhopv2')) {
+                if ($is_admin == true && ($page_url != 'shhop' and $page_url != 'shhopv2')) {
                     $tb = mw_includes_path() . DS . 'toolbar' . DS . 'toolbar.php';
 
                     $layout_toolbar = new View($tb);

@@ -719,7 +719,6 @@ description: Full width cart template
                 if(count($data)){
                     $default_tax = single_tax($txx);
                 }
-
                 foreach ($data as $item) :
 
                     if(DB::table('checkout_bumbs')->where('product_id',$item['rel_id'])->get()->count()){
@@ -757,7 +756,7 @@ description: Full width cart template
                             <strong>Item Number:</strong> <?php if($item['rel_id'] != null){ print $item['rel_id']; }else{ print "XXX" ;}?>
                         </span>
                                 <span>
-                            <strong>EAN:</strong> <?php if(get_content_by_id($item['rel_id'])['ean'] != null){ print get_content_by_id($item['rel_id'])['ean']; }else{ print "XXX" ; } ?>
+                            <strong>EAN:</strong> <?php //if(get_content_by_id($item['rel_id'])['ean'] != null){ print get_content_by_id($item['rel_id'])['ean']; }else{ print "XXX" ; } ?>
                         </span>
                                 <!-- <span>
                                     <strong>Brand:</strong> xaoimi
