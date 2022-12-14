@@ -16,101 +16,99 @@ description: Default Version 2
     $settings = getProductModuleSettings($params['id']);
     $hide_paging = true;
     $per_page_items = 6;
-    $query = DB::table('product')->where('is_active', 1)->where('is_deleted', 0);
+    $query = DB::table('group_product')
+                ->leftJoin('product', 'group_product.product_id', '=', 'product.id')
+                ->leftJoin('product_media',function($joining){
+
+                    $joining->on('group_product.product_id', '=', 'product_media.rel_id');
+                    $joining->where('product_media.position' , 0);
+
+                })
+                ->leftJoin('offers',function($joining){
+
+                    $joining->on('group_product.product_id', '=', 'offers.product_id');
+                    $joining->where('offers.is_active' , 1);
+
+                });
     if(isset($settings['data-hide-paging']) and $settings['data-hide-paging']->value == 'y'){
         $hide_paging = false;
     }
     if(isset($settings['data-limit'])){
         $per_page_items = $settings['data-limit']->value;
     }
-    if(isset($settings['tags']) and !empty($settings['tags']->value)){
-        $tags = $settings['tags']->value;
-        $tags = explode(',', $tags);
-        $taggable_id = DB::table('tagging_tagged')->whereIn('tag_name', $tags)->select('taggable_id')->get()->pluck('taggable_id')->toArray();
-    }
 
     if(isset($settings['categories']) and !empty($settings['categories']->value)){
         $categories = $settings['categories']->value;
-        $categories = DB::table('categories_items')->where('parent_id', $categories)->where('rel_type', 'product')->select('rel_id')->get()->pluck('rel_id')->toArray();
-    }
-    if(isset($categories) and isset($taggable_id)){
-        $taggable_id = array_unique($taggable_id);
-        $categories = array_unique($categories);
-        $data_id = array_merge($taggable_id, $categories);
-        $data_id = array_unique($data_id);
-        $query = $query->whereIn('id', $data_id);
-    }else if(isset($categories)){
-        $categories = array_unique($categories);
-        $query = $query->whereIn('id', $categories);
-    } else if(isset($taggable_id)){
-        $taggable_id = array_unique($taggable_id);
-        $query = $query->whereIn('id', $taggable_id);
+        $query = $query->leftJoin('categories_items',function($joining){
+                            $joining->on('group_product.product_id', '=', 'categories_items.rel_id');
+                    })
+                    ->where('categories_items.parent_id' , $categories)
+                    ->where('categories_items.rel_type' , 'product');
     }
 
-    $order_by = 'position';
+    $order_by = 'product.position';
     $ordering = 'desc';
     if(isset($settings['position'])){
         $order_data = $settings['position']->value;
         $order_data = explode(" ", $order_data);
-        $order_by = $order_data[0];
+        $order_by = 'product.' . $order_data[0];
         $ordering = $order_data[1];
     }
     $paging_param = sha1($params['id']);
     if(isset($_GET[$paging_param])){
-        $data = $query->orderBy($order_by, $ordering)->select('id as content_id', 'title', 'url', 'vk_price as price', 'quantity', 'tax_type')->paginate($per_page_items, ['*'], $paging_param, $_GET[$paging_param]);
+        $data = $query->where('group_product.group_id', 1)->orderBy($order_by, $ordering)->select('group_product.product_id as content_id', 'product.title as title', 'product.url as url', 'product.vk_price as price', 'product.quantity as quantity', 'product.tax_type as tax_type','product_media.webp_image as webp_image','product_media.resize_image as resize_image','product_media.filename as filename' , 'offers.offer_price as offer_price', 'offers.expires_at as expires_at', 'offers.created_at as created_at')->distinct('group_product.product_id')->simplePaginate($per_page_items, ['*'], $paging_param, $_GET[$paging_param]);
+        $count = $query->where('group_product.group_id', 1)->select('group_product.product_id as content_id')->distinct('group_product.product_id')->count();
     }else{
-        $data = $query->orderBy($order_by, $ordering)->select('id as content_id', 'title', 'url', 'vk_price as price', 'quantity', 'tax_type')->paginate($per_page_items);
-    }
-    $pages_count = $data->lastPage();
-    $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
-    $is_logged = is_logged();
-    if (CATEGORY_ID != false) {
-        $cat = DB::table('categories')->where('id', CATEGORY_ID)->first();
-        $cat_img = array(
-            'rel_type'  => "categories",
-            'rel_id' => $cat->id
-        );
-        $media_cat = get_pictures($cat_img);
+        $data = $query->where('group_product.group_id', 1)->orderBy($order_by, $ordering)->select('group_product.product_id as content_id', 'product.title as title', 'product.url as url', 'product.vk_price as price', 'product.quantity as quantity', 'product.tax_type as tax_type','product_media.webp_image as webp_image','product_media.resize_image as resize_image','product_media.filename as filename' ,'offers.offer_price as offer_price', 'offers.expires_at as expires_at', 'offers.created_at as created_at')->distinct('group_product.product_id')->simplePaginate($per_page_items);
+        $count = $query->where('group_product.group_id', 1)->select('group_product.product_id as content_id')->distinct('group_product.product_id')->count();
     }
     $title_character_limit = 255;
     if(isset($settings['data-title-limit'])){
         $title_character_limit = $settings['data-title-limit']->value;
     }
-?>
-<?php
-    $shop_category_header_ignore = (array)json_decode($GLOBALS['custom_shop_category_header_ignore']) ?? [];
-    $showHeader = category_hide_or_show();
+    $pages_count = 0;
+    $pages_count_found = $count/$per_page_items;
+    if(is_int($pages_count_found)){
+        $pages_count = (int)$pages_count_found;
+    } else{
+        $pages_count = (int)$pages_count_found + 1;
+    }
+    $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
+    $is_logged = is_logged();
 
-    if(is_admin()){ ?>
+    if(is_admin()){
+        $shop_category_header_ignore = (array)json_decode($GLOBALS['custom_shop_category_header_ignore']) ?? [];
+        $showHeader = category_hide_or_show(); ?>
         <div id="hide_shop" style="display:flex;align-items:center" class="<?php print $showHeader['button']??'';?>">
             <p style="margin-bottom:0px;margin-right:10px;">Category show in header :</p>
             <input type="checkbox" data-toggle="toggle" data-size="mini" name="shop" id="shop_cat" data-on="Off" data-off="On" value="<?php (in_array(PAGE_ID,$shop_category_header_ignore)) ? print 0 : print PAGE_ID ;?>" <?php (in_array(PAGE_ID,$shop_category_header_ignore)) ? print "checked" : "" ;?>>
 
         </div>
+
+        <script>
+            $('#shop_cat').change(function (){
+                var shop_id = $('#shop_cat').val();
+                var page_id = <?=PAGE_ID?>
+
+
+                $.post('<?= url('/') ?>/api/v1/not_show', { shop_cat: shop_id,page_id: page_id }, (res) => {
+                    if($(this).prop( 'checked')){
+                        mw.notification.success('Category off in header');
+                        $('#shop_cat').val('0');
+                        $('.header-cat').hide();
+                    }else if($(this).prop('checked',false)){
+                        mw.notification.success('Category on in header');
+                        $('#shop_cat').val('<?=PAGE_ID?>');
+                        $('.header-cat').attr('style','display: block !important;');
+
+                    }
+                });
+
+            });
+        </script>
+        
     <?php } ?>
 
-
-    <script>
-        $('#shop_cat').change(function (){
-            var shop_id = $('#shop_cat').val();
-            var page_id = <?=PAGE_ID?>
-
-
-            $.post('<?= url('/') ?>/api/v1/not_show', { shop_cat: shop_id,page_id: page_id }, (res) => {
-                if($(this).prop( 'checked')){
-                    mw.notification.success('Category off in header');
-                    $('#shop_cat').val('0');
-                    $('.header-cat').hide();
-                }else if($(this).prop('checked',false)){
-                    mw.notification.success('Category on in header');
-                    $('#shop_cat').val('<?=PAGE_ID?>');
-                    $('.header-cat').attr('style','display: block !important;');
-
-                }
-            });
-
-        });
-    </script>
 <?php if (!empty($data) && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])):
         $tax_rate_list = $GLOBALS['tax'] ?? false;
 
@@ -126,11 +124,12 @@ description: Default Version 2
         <?php foreach ($data as $item):
                 $item = collect($item)->toArray();
 
-                $item['image'] = $image_link = get_picture($item['content_id']);
+                $item['image'] = $item['webp_image'] ?? $item['resize_image'] ?? $item['filename'];
                 $in_stock = false;
                 if($item['quantity'] > 0 || $item['quantity'] == 'nolimit') {
                     $in_stock = true;
                 }
+                $item['url'] = "product/".$item['url'];
 
                 if($item['tax_type'] == '2'){
                     $taxrate =  $reduced_tax;
@@ -188,11 +187,9 @@ description: Default Version 2
                         <?php } ?>
                         <div class="product-price">
                             <?php
-                                $offer = \MicroweberPackages\Offer\Models\Offer::getByProductId($item['content_id']);
-                                if (isset($offer['price']['offer_price'])) {
+                                if (isset($item['offer_price'])) {
                                     $val4 = normalPrice($item['price']);
                                     if (isset($in_stock) && $in_stock != false) { ?>
-
                                     <div class="dt-old-price">
                                         <p><?php print currency_format(roundPrice($val4)); ?></p>
                                     </div>
@@ -203,8 +200,8 @@ description: Default Version 2
                             <?php if ($show_fields == false or in_array('price', $show_fields)):?>
                                 <?php if (isset($item['price'])): ?>
                                     <?php
-                                        if(isset($offer['price']['offer_price'])){
-                                            $val1 = normalPrice($offer['price']['offer_price']);
+                                        if(isset($item['offer_price'])){
+                                            $val1 = normalPrice($item['offer_price']);
                                             $val1 = $val1 + product_tax_amount($val1,$taxrate);
                                         }else{
                                             $val1 = normalPrice($item['price']);
@@ -248,12 +245,12 @@ description: Default Version 2
                     </div>
 
                     <?php
-                        if (isset($offer['price']['offer_price']) && $offer['price']['expires_at'] != 0) {
+                        if (isset($item['offer_price']) && $item['expires_at'] != 0) {
                             //                        dd($offer);
-                            if (\Carbon\Carbon::now()->diffInSeconds($offer['price']['created_at'], false) > 0) {
-                                $remaining = \Carbon\Carbon::parse($offer['price']['created_at'])->diffInSeconds($offer['price']['expires_at'], false);
+                            if (\Carbon\Carbon::now()->diffInSeconds($item['created_at'], false) > 0) {
+                                $remaining = \Carbon\Carbon::parse($item['created_at'])->diffInSeconds($item['expires_at'], false);
                             } else {
-                                $remaining = \Carbon\Carbon::now()->diffInSeconds($offer['price']['expires_at'], false);
+                                $remaining = \Carbon\Carbon::now()->diffInSeconds($item['expires_at'], false);
                             }
                             $remaining = $remaining > 0 ? $remaining : 0;
                             $counter = Config::get('custom.counter');
@@ -275,107 +272,113 @@ description: Default Version 2
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
+
 <input type="hidden" name="category_status" id="shop_<?=PAGE_ID?>" data-<?=PAGE_ID?>="shop" value="<?=PAGE_ID?>">
 
 <?php if (isset($pages_count) and $pages_count > 1 and $hide_paging): ?>
     <module type="pagination" template="bootstrap4" pages_count="<?php echo $pages_count; ?>" paging_param="<?php echo $paging_param; ?>"/>
-<?php endif; ?>
-<?php if (CATEGORY_ID != false) : ?>
-    <?php if ($cat->show_category == 2) : ?>
+<?php endif;
+
+if (CATEGORY_ID != false) {
+    $cat = DB::table('categories')->where('id', CATEGORY_ID)->first();
+    if ($cat->show_category == 2) : ?>
         <module type="category-details" />
-    <?php endif; ?>
-<?php endif; ?>
+    <?php endif; 
+} ?>
 
 
 <script type="text/javascript">
+
     <?php if ($is_logged && !isset($_GET['slug']) && !isset($_GET['wishlist_id'])) { ?>
         $(document).ready(function(){
-		  $('.js-example-basic-multiple').select2();
-	  });
-    $(document).ready(() => {
-        $.get(`<?= api_url('get_wishlist_sessions'); ?>`, result => {
-            const selected = [];
-            const list = [];
-            if(result!='false'){
-                result.forEach(function (session) {
-                    console.log(session);
-                    list.push('<option value=' + session['id'] + '>' + session['name'] + '</option>');
+            $('.js-example-basic-multiple').select2();
+        });
 
-                    session['products'].forEach(function (prod) {
-                        if (selected[parseInt(prod['product_id'])] === undefined) {
-                            selected[parseInt(prod['product_id'])] = [];
+        $(document).ready(() => {
+            $.get(`<?= api_url('get_wishlist_sessions'); ?>`, result => {
+                const selected = [];
+                const list = [];
+                if(result!='false'){
+                    result.forEach(function (session) {
+                        console.log(session);
+                        list.push('<option value=' + session['id'] + '>' + session['name'] + '</option>');
+
+                        session['products'].forEach(function (prod) {
+                            if (selected[parseInt(prod['product_id'])] === undefined) {
+                                selected[parseInt(prod['product_id'])] = [];
+                            }
+                            selected[parseInt(prod['product_id'])].push(session.id.toString())
+                        })
+                    });
+                }
+
+                <?php if (!empty($data)): ?>
+                <?php foreach ($data as $item):
+                        if(!is_array($item)){
+                            $item = (array)$item;
                         }
-                        selected[parseInt(prod['product_id'])].push(session.id.toString())
-                    })
+                ?>
+                var wishlistProduct = $(".wishlist-select-<?php echo $item['content_id'];?>");
+                wishlistProduct.empty();
+                wishlistProduct.append('<option disabled value="null"></option>');
+                list.forEach(function (value) {
+                    wishlistProduct.append(value);
                 });
-            }
 
-            <?php if (!empty($data)): ?>
-            <?php foreach ($data as $item):
-                    if(!is_array($item)){
-                        $item = (array)$item;
+                var didd = <?php echo $item['content_id'];?>;
+                wishlist_details(didd);
+
+                <?php endforeach; ?>
+                <?php endif; ?>
+
+                selected.forEach(function (value, index) {
+                    const wishlistProduct2 = $(".wishlist-select-" + index.toString());
+                    wishlistProduct2.select2().val(value).trigger("change");
+                });
+                function wishlist_details(didd) {
+                    if (selected[didd] && selected[didd].length > 0){
+                        $(".wishlist-logo-"+didd).text("favorite");
+                }
+                    else{
+                        $(".wishlist-logo-"+didd).text("favorite_border");
                     }
-            ?>
-            var wishlistProduct = $(".wishlist-select-<?php echo $item['content_id'];?>");
-            wishlistProduct.empty();
-            wishlistProduct.append('<option disabled value="null"></option>');
-            list.forEach(function (value) {
-                wishlistProduct.append(value);
-            });
+                }
 
-            var didd = <?php echo $item['content_id'];?>;
-            wishlist_details(didd);
+            });
+        });
+
+        <?php if (!empty($data)): ?>
+            <?php foreach ($data as $item):
+                if(!is_array($item)){
+                    $item = (array)$item;
+                }
+                ?>
+                $(".wishlist-select-<?php echo $item['content_id'];?>").on('select2:unselect', function (e) {
+                    removeProduct(<?php echo $item['content_id'];?>, e.params.data.id)
+                    if ($(".wishlist-select-<?php echo $item['content_id'];?>").val().length == 0) {
+                        $(".wishlist-logo-<?php echo $item['content_id'];?>").text("favorite_border");
+                    }
+                });
+
+                $(".wishlist-select-<?php echo $item['content_id'];?>").on('select2:select', function (e) {
+                    addProduct(<?php echo $item['content_id'];?>, e.params.data.id)
+                    $(".wishlist-logo-<?php echo $item['content_id'];?>").text("favorite");
+                });
 
             <?php endforeach; ?>
-            <?php endif; ?>
+        <?php endif; ?>
 
-            selected.forEach(function (value, index) {
-                const wishlistProduct2 = $(".wishlist-select-" + index.toString());
-                wishlistProduct2.select2().val(value).trigger("change");
+        function removeProduct(productId, sessionId) {
+            $.post("<?php print api_url('remove_wishlist_sessions'); ?>", {productId: productId, sessionId: sessionId}, () => {
             });
-            function wishlist_details(didd) {
-                if (selected[didd] && selected[didd].length > 0){
-                    $(".wishlist-logo-"+didd).text("favorite");
-            }
-                else{
-                    $(".wishlist-logo-"+didd).text("favorite_border");
-                }
-            }
-
-        });
-    });
-
-    <?php if (!empty($data)): ?>
-    <?php foreach ($data as $item):
-        if(!is_array($item)){
-            $item = (array)$item;
         }
-    ?>
-    $(".wishlist-select-<?php echo $item['content_id'];?>").on('select2:unselect', function (e) {
-        removeProduct(<?php echo $item['content_id'];?>, e.params.data.id)
-        if ($(".wishlist-select-<?php echo $item['content_id'];?>").val().length == 0) {
-            $(".wishlist-logo-<?php echo $item['content_id'];?>").text("favorite_border");
+
+        function addProduct(productId, sessionId) {
+            $.post("<?php print api_url('add_wishlist_sessions'); ?>", {productId: productId, sessionId: sessionId}, () => {
+            });
         }
-    });
-
-    $(".wishlist-select-<?php echo $item['content_id'];?>").on('select2:select', function (e) {
-        addProduct(<?php echo $item['content_id'];?>, e.params.data.id)
-        $(".wishlist-logo-<?php echo $item['content_id'];?>").text("favorite");
-    });
-
-    <?php endforeach; ?>
-    <?php endif; ?>
-
-    function removeProduct(productId, sessionId) {
-        $.post("<?php print api_url('remove_wishlist_sessions'); ?>", {productId: productId, sessionId: sessionId}, () => {
-        });
-    }
-
-    function addProduct(productId, sessionId) {
-        $.post("<?php print api_url('add_wishlist_sessions'); ?>", {productId: productId, sessionId: sessionId}, () => {
-        });
-    }
     <?php } ?>
+
     function wishlist_filter(wId){
         $.post("<?php print site_url('en/shop'); ?>", {wishlist_id: wId}, () => {
         });
@@ -392,6 +395,7 @@ description: Default Version 2
         this.select();
         document.execCommand('copy');
     });
+    
     function share_wishlist() {
         return $.post($('form#wishlist_short_url_form').attr('action'), $('form#wishlist_short_url_form').serialize(), (res) => {
             $('#input_text').val(res.url)
@@ -399,62 +403,30 @@ description: Default Version 2
     }
 
     $(document).on('click','#edit_sss', function(){
+        let name = $(this).data('name');
+        $("#exampleInputEmailedit").val(name);
+        $("#exampleInputEmailedithide").val(name);
+    });
 
-let name = $(this).data('name');
+    $(document).on('click','#delete_sss', function(){
 
-console.log(name);
-// console.log(id);
+        let name = $(this).data('name');
 
+        $.post("<?php print api_url('delete_wishlist_sessions'); ?>", {name: name}, function (sessions) {
+            if (sessions === 'false') {
+                location.reload();
 
-$("#exampleInputEmailedit").val(name);
-$("#exampleInputEmailedithide").val(name);
-});
+            } else {
+                location.reload();
+            }
+        });
 
-
-$(document).on('click','#delete_sss', function(){
-
-let name = $(this).data('name');
-
-console.log(name);
-// console.log(id);
-$.post("<?php print api_url('delete_wishlist_sessions'); ?>", {name: name}, function (sessions) {
-                if (sessions === 'false') {
-                    // emailHelp.show();
-                    location.reload();
-
-                } else {
-                    location.reload();
-                }
-            });
-
-
-});
-
-
-</script>
-<script>
+    });
 
     $(document).ready(function(){
 
         function copyTextToClipboard(text) {
             var textArea = document.createElement("textarea");
-
-            //
-            // *** This styling is an extra step which is likely not required. ***
-            //
-            // Why is it here? To ensure:
-            // 1. the element is able to have focus and selection.
-            // 2. if the element was to flash render it has minimal visual impact.
-            // 3. less flakyness with selection and copying which **might** occur if
-            //    the textarea element is not visible.
-            //
-            // The likelihood is the element won't even render, not even a
-            // flash, so some of these are just precautions. However in
-            // Internet Explorer the element is visible whilst the popup
-            // box asking the user for permission for the web page to
-            // copy to the clipboard.
-            //
-
             // Place in the top-left corner of screen regardless of scroll position.
             textArea.style.position = 'fixed';
             textArea.style.top = 0;
@@ -487,83 +459,65 @@ $.post("<?php print api_url('delete_wishlist_sessions'); ?>", {name: name}, func
         }
 
         function copyClipBoardText(className) {
-        /* Get the text field */
-        // var copyText = document.getElementsByClassName(class);
-        var copyText = document.getElementsByClassName(className);
-        // console.log(copyText);
-        /* Select the text field */
-        copyText[0].select();
-
-        /* Copy the text inside the text field */
-        document.execCommand("copy");
-
-        /* Alert the copied text */
-        // alert("Copied the text: " + copyText[0].value);
-    }
-       $(document).on('click','.copy-url',function() {
-            // event.preventDefault();
-            let id = $(this).data('id');
-            let lang = $(this).data('lang');
-            $.ajax({
-                method: 'POST',
-                url: "<?php print api_url('guest_checkout'); ?>",
-                data: {iid: id, lang: lang},
-                success: function(response){
-                    if (response.success) {
-                        // $('.clipboard-data-'+id).val(response.url);
-                        // console.log(response.url);
-                        copyTextToClipboard(response.url);
-                        // copyClipBoardText('clipboard-data-'+id);
-
+            var copyText = document.getElementsByClassName(className);
+            copyText[0].select();
+            document.execCommand("copy");
+        }
+        $(document).on('click','.copy-url',function() {
+                let id = $(this).data('id');
+                let lang = $(this).data('lang');
+                $.ajax({
+                    method: 'POST',
+                    url: "<?php print api_url('guest_checkout'); ?>",
+                    data: {iid: id, lang: lang},
+                    success: function(response){
+                        if (response.success) {
+                            copyTextToClipboard(response.url);
+                        }
                     }
-                }
-            });
-            // $.post("<?php print api_url('guest_checkout'); ?>", {iid: id, lang: lang}, (res) => {
-            //     console.log(res);
-            // });
+                });
         });
 
 
-            //Update trial clock
-            function updateDTTemplateTrialClock(el){
-                let time_interval = setInterval(function() {
-                    let total = el.data('end');
+        //Update trial clock
+        function updateDTTemplateTrialClock(el){
+            let time_interval = setInterval(function() {
+                let total = el.data('end');
 
-                    if(!total){
-                        el.hide();
-                        el.html('');
-                        clearInterval(time_interval);
-                        return;
-                    }
+                if(!total){
+                    el.hide();
+                    el.html('');
+                    clearInterval(time_interval);
+                    return;
+                }
 
-                    const seconds = Math.floor( total % 60 );
-                    const minutes = Math.floor( (total/60) % 60 );
-                    const hours = Math.floor( (total/(60*60)) % 24 );
-                    const days = Math.floor( total/(60*60*24) );
-                    --total;
+                const seconds = Math.floor( total % 60 );
+                const minutes = Math.floor( (total/60) % 60 );
+                const hours = Math.floor( (total/(60*60)) % 24 );
+                const days = Math.floor( total/(60*60*24) );
+                --total;
 
-                    el.data('end', total);
-                    el.css('padding', '10px 15px');
-                    el.html(`<div class="days-wrapper"><p>${days < 10? ' 0'+days : days}</p> <span class="su">Tage</span><span class="su-res">T</span></div> <div class="hours-wrapper"><p>${hours < 10?  '0'+hours : hours}</p><span class="su">Stunden</span><span class="su-res">S</span></div> <div class="minutes-wrapper"><p>${minutes < 10?  '0'+minutes : minutes}</p> <span class="su">Minuten</span><span class="su-res">M</span></div><div class="seconds-wrapper"><p>${seconds < 10?  '0'+seconds : seconds}</p><span class="su">Sekunden</span><span class="su-res">S</span></div>`);
+                el.data('end', total);
+                el.css('padding', '10px 15px');
+                el.html(`<div class="days-wrapper"><p>${days < 10? ' 0'+days : days}</p> <span class="su">Tage</span><span class="su-res">T</span></div> <div class="hours-wrapper"><p>${hours < 10?  '0'+hours : hours}</p><span class="su">Stunden</span><span class="su-res">S</span></div> <div class="minutes-wrapper"><p>${minutes < 10?  '0'+minutes : minutes}</p> <span class="su">Minuten</span><span class="su-res">M</span></div><div class="seconds-wrapper"><p>${seconds < 10?  '0'+seconds : seconds}</p><span class="su">Sekunden</span><span class="su-res">S</span></div>`);
 
-                }, 1000);
-            }
+            }, 1000);
+        }
 
-            function show_dt_template_trial_countdown()
-            {
-                if(!$('.dt_t_countdown_data').length) return;
+        function show_dt_template_trial_countdown(){
+            if(!$('.dt_t_countdown_data').length) return;
 
-                $('.dt_t_countdown_data').each(function() {
-                    let _st = $(this).data('end');
-                    if(_st){
-                        updateDTTemplateTrialClock($(this))
-                    }
-                });
-            }
+            $('.dt_t_countdown_data').each(function() {
+                let _st = $(this).data('end');
+                if(_st){
+                    updateDTTemplateTrialClock($(this))
+                }
+            });
+        }
 
-            $(document).ready(function(){
-                show_dt_template_trial_countdown();
-            })
+        $(document).ready(function(){
+            show_dt_template_trial_countdown();
+        })
 
     });
 </script>

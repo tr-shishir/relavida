@@ -2,7 +2,7 @@
 if (!function_exists('category_shop_inner_show')) {
     function category_shop_inner_show($id){
         $para = $id;
-        $categories = DB::table('categories_items')->where('rel_id', $para)->get();
+        $categories = DB::table('categories_items')->where('rel_id', $para)->where('rel_type', 'product')->get();
         $data ='';
         $count = count($categories);
         if($count > 0){

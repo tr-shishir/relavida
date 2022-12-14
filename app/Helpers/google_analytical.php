@@ -1,5 +1,6 @@
 <?php
 //this function run the google analytical script for seo data
+// created by Zunaid Miah
 
 if (!function_exists('dt_google_analytical_product_script')) {
     function dt_google_analytical_product_script($id, $v){
@@ -108,6 +109,106 @@ if (!function_exists('dt_google_analytical_product_script')) {
         }
     }
 }
+
+if (!function_exists('dt_google_analytical_product_script_V2')) {
+    function dt_google_analytical_product_script_V2($info, $offer){
+        if(!is_array($info)){
+            $info = (array)$info;
+        }
+        if(!is_array($offer)){
+            $offer = (array)$offer;
+        }
+        $images = DB::table('product_media')->where('rel_id', intval($info['id']))->select('filename')->get()->pluck('filename')->toArray();
+        if(isset($info) and !empty($info)){
+            $image = '"';
+            $sku = "";
+            $name = "";
+            $url = site_url();
+            $des = strip_tags($info['content_body']);
+            if(isset($images) and !empty($images)){
+                $count = count($images);
+            }else{
+                $count = 0;
+            }
+            for($i=0;$i<$count;$i++){
+                $image .= str_replace('{SITE_URL}', $url, $images[$i]);
+                if(($i+1)<$count){
+                    $image.='",
+                    "';
+                }
+                elseif(($i+1)==$count){
+                    $image.='"';
+                }
+            }
+            $brand = $info['brand'] ?? null;
+            $sku = $info['sku'] ?? null;
+            $brand_show ="";
+            if($brand != null){
+                $brand_show = <<<EOD
+                "brand": {
+                                "@type": "Brand",
+                                "name": "{$brand}"
+                                },
+                EOD;
+            }
+            if($info['created_by'] != null){
+                $user_id = $info['created_by'];
+                $name = user_name($user_id, $mode = 'full');
+            } else{
+                $user_id = (int) get_users("is_admin=1")[0]['id'];
+                $name = user_name($user_id, $mode = 'full');
+            }
+            $offers = "";
+            if(isset($offer) and !empty($offer)){
+                $time = date('Y-m-d', strtotime($offer['expires_at']));
+                $offers = <<<EOD
+                "offers": {
+                                "@type": "Offer",
+                                "url": "{$info['url']}",
+                                "price": "{$info['price']}",
+                                "priceCurrency": "EUR",
+                                "priceValidUntil": "{$time}",
+                                "availability": "https://schema.org/InStock"
+                                }
+                EOD;
+            }
+            else{
+                $time = date('Y-m-d', strtotime('now'. ' +'.'60 days'));
+                $offers = <<<EOD
+                "offers": {
+                                "@type": "Offer",
+                                "url": "{$info['url']}",
+                                "price": "{$info['price']}",
+                                "priceCurrency": "EUR",
+                                "priceValidUntil": "{$time}",
+                                "availability": "https://schema.org/InStock"
+                                }
+                EOD;
+            }
+            // dd($offer_check);
+            template_head('<script type="application/ld+json">
+            {
+                "@context": "https://schema.org/",
+                "@type": "Product",
+                "name": "'.$info['title'].'",
+                "image": [
+                    '.$image.'
+                ],
+                "description": "'.$des.'",
+                "sku": "'.$sku.'",
+                "author": {
+                "@type": "Person",
+                "name": "'.$name.'"
+                },
+                "datePublished": "'.date('Y-m-d',strtotime($info['created_at'])).'",
+                '.$brand_show.'
+                '.$offers.'
+            }
+            </script>');
+        }
+    }
+}
+
 if (!function_exists('basicGoogleAnalytical')) {
     function basicGoogleAnalytical()
     {
@@ -254,6 +355,106 @@ if (!function_exists('dt_google_analytical_ecommerce_tracking')) {
     }
 }
 
+if (!function_exists('dt_google_analytical_ecommerce_tracking_V2')) {
+    function dt_google_analytical_ecommerce_tracking_V2($id){
+        $url_string = url()->previous();
+        if(strpos($url_string, "thank-you") !== false){
+            $product_rel = <<<EOD
+            item_list_id: "Thank-You Page Upsell",
+            item_list_name: "Thank-You Page Upsell",
+            EOD;
+        } else{
+            if(Config::get('custom.item_list') != null){
+                $product_rel = <<<EOD
+                item_list_id: "Homepage-products",
+                item_list_name: "Homepage Products",
+                EOD;
+            } else{
+                $product_rel = <<<EOD
+                item_list_id: "related-products",
+                item_list_name: "Related Products",
+                EOD;
+            }
+        }
+        Config::set('custom.item_list', null);
+        Config::save(array('custom'));
+        $order_details = get_order_by_id($id);
+        $item_deatils = get_cart("order_id=$id");
+        $coupon = "";
+        $discount = "";
+        $hasCoupon = DB::table('cart_coupons')->first();
+        if($hasCoupon){
+            $coupon =<<<EOD
+            coupon: "{$hasCoupon->coupon_name}",
+            EOD;
+            $discount =<<<EOD
+            discount: {$hasCoupon->discount_value},
+            EOD;
+        }
+        $transaction_data =<<<EOD
+        gtag("event", "purchase", {
+            currency: "EUR",
+            transaction_id: "{$order_details['id']}",
+            value: {$order_details['amount']},
+            affiliation: "Google Store",
+            {$coupon}
+            shipping: {$order_details['shipping']},
+            tax: {$order_details['taxes_amount']},
+            items: [
+        EOD;
+        $text = "";
+        if($item_deatils){
+        foreach($item_deatils as $item){
+            $category = "";
+            $cat = DB::table('categories_items')->where('rel_id', $id)->first();
+            $item_content = DB::table('product')->where('id', $item['rel_id'])->select('brand', 'item_size', 'sku')->first();
+            $price =  taxPrice($item['price']);
+            $price = $price + $item['price'];
+            if($cat){
+                $cat_details = DB::table('categories')->where('id', $cat->parent_id)->first();
+                if($cat_details){
+                    $category = $cat_details->title;
+                }
+            }
+            $brand = $item_content->brand ?? "";
+            $weight = $item_content->single_size ?? "";
+            $category = "";
+            $cat = DB::table('categories_items')->where('rel_id', $item['rel_id'])->first();
+            if($cat){
+                $cat_details = DB::table('categories')->where('id', $cat->parent_id)->first();
+                if($cat_details){
+                    $category = $cat_details->title;
+                }
+            }
+            $sku = $item_content->sku ?? "";;
+            $item_data = <<<EOD
+                    {
+                        item_id: "{$item['rel_id']}",
+                        item_name: "{$item['title']}",
+                        affiliation: "Google Store",
+                        {$coupon}
+                        currency: "EUR",
+                        {$discount}
+                        index: {$order_details['id']},
+                        item_brand: "{$brand}",
+                        item_category: "{$category}",
+                        {$product_rel}
+                        item_variant: "{$weight}",
+                        price: {$price},
+                        quantity: {$item['qty']}
+                        },
+             EOD;
+             $text=$text."\n\t".$item_data;
+        }
+        template_head("<script>{$transaction_data}
+             {$text}
+            ]
+            });
+            </script>");
+        }
+    }
+}
+
 if (!function_exists('dt_google_analytical_view_item')) {
     function dt_google_analytical_view_item($id, $price){
         $params = array("id" => $id);
@@ -319,6 +520,66 @@ if (!function_exists('dt_google_analytical_view_item')) {
     }
 }
 
+if (!function_exists('dt_google_analytical_view_item_V2')) {
+    function dt_google_analytical_view_item_V2($info){
+        if(!is_array($info)){
+            $info = (array)$info;
+        }
+        if(isset($info) and !empty($info)){
+            $id = $info['id'];
+            $coupon = "";
+            $discount = "";
+            $hasCoupon = DB::table('cart_coupons')->first();
+            if($hasCoupon){
+                $coupon =<<<EOD
+                coupon: "{$hasCoupon->coupon_name}",
+                EOD;
+                $discount =<<<EOD
+                discount: {$hasCoupon->discount_value},
+                EOD;
+            }
+            $category = "";
+            $cat = DB::table('categories_items')->where('rel_id', $id)->where('rel_type', 'product')->select('parent_id')->first();
+            if($cat){
+                $cat_details = DB::table('categories')->where('id', $cat->parent_id)->select('title')->first();
+                if($cat_details){
+                    $category = $cat_details->title;
+                }
+            }
+            $sku = $info['sku'] ?? "";;
+            $brand = $info['brand'] ?? "";
+            $weight = $info['item_size'] ?? "";
+            $script =<<<EOD
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag("event", "view_item", {
+                currency: "EUR",
+                value: {$info['price']},
+                items: [
+                {
+                    item_id: "{$info['id']}",
+                    item_name: "{$info['title']}",
+                    affiliation: "Google Store",
+                    {$coupon}
+                    currency: "EUR",
+                    {$discount}
+                    index: {$info['id']},
+                    item_brand: "{$brand}",
+                    item_category: "{$category}",
+                    item_list_id: "related_products",
+                    item_variant: "{$weight}",
+                    price: {$info['price']},
+                    quantity: 1
+                }
+                ]
+            });
+            EOD;
+            template_head("<script>{$script}</script>");
+        }
+    }
+}
+
 if (!function_exists('dt_google_analytical_checkout')) {
     function dt_google_analytical_checkout($data){
         // dd($data);
@@ -354,6 +615,71 @@ if (!function_exists('dt_google_analytical_checkout')) {
                 $sku = $item['content_data']['sku'];
             }
             $brand = $details[0]['brand'] ?? "";
+            $category = "";
+            $cat = DB::table('categories_items')->where('rel_id', $item['rel_id'])->first();
+            if($cat){
+                $cat_details = DB::table('categories')->where('id', $cat->parent_id)->first();
+                if($cat_details){
+                    $category = $cat_details->title;
+                }
+            }
+            $item_data =<<<EOD
+            {
+                  item_id: "{$item['rel_id']}",
+                  item_name: "{$item['title']}",
+                  affiliation: "Google Store",
+                  {$coupon}
+                  currency: "EUR",
+                  {$discount}
+                  index: {$item['rel_id']},
+                  item_brand: "{$brand}",
+                  item_category: "{$category}",
+                  item_list_id: "related_products",
+                  price: {$price},
+                  quantity: {$item['qty']}
+                },
+            EOD;
+            $text=$text."\n\t".$item_data;
+        }
+        template_head("<script>{$main_part}
+             {$text}
+    ]
+    });
+    </script>");
+    }
+}
+
+if (!function_exists('dt_google_analytical_checkout_V2')) {
+    function dt_google_analytical_checkout_V2($data){
+        // dd($data);
+        $coupon = "";
+        $discount = "";
+        $hasCoupon = DB::table('cart_coupons')->first();
+        if($hasCoupon){
+            $coupon =<<<EOD
+            coupon: "{$hasCoupon->coupon_name}",
+            EOD;
+            $discount =<<<EOD
+            discount: {$hasCoupon->discount_value},
+            EOD;
+        }
+        $main_part =<<<EOD
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag("event", "begin_checkout", {
+            currency: "EUR",
+            value: 7.77,
+            {$coupon}
+            items: [
+        EOD;
+        $text = "";
+        foreach($data as $item){
+            $price =  taxPrice($item['price']);
+            $price = $price + $item['price'];
+            $details = DB::table('product')->where('id', $item['rel_id'])->select('brand', 'sku')->first();
+            $sku = $details->sku ?? "";;
+            $brand = $details->brand ?? "";
             $category = "";
             $cat = DB::table('categories_items')->where('rel_id', $item['rel_id'])->first();
             if($cat){

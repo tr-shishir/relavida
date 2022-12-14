@@ -2513,6 +2513,11 @@ class ContentManager
         return $this->next_content($content_id, $mode = 'prev');
     }
 
+    public function prev_content_V2($content_id = false)
+    {
+        return $this->next_content_V2($content_id, $mode = 'prev');
+    }
+
     public function next_content($content_id = false, $mode = 'next', $content_type = false)
     {
         if ($content_id == false) {
@@ -2621,6 +2626,47 @@ class ContentManager
 
             return false;
         }
+    }
+
+    public function next_content_V2($content_id = false, $mode = false)
+    {
+        if ($content_id == false) {
+            return false;
+        } else {
+            $content_id = intval($content_id);
+        }
+        if($mode == "next"){
+            $data = DB::table('group_product')
+                        ->join('product', 'group_product.product_id', '=', 'product.id')
+                        ->leftJoin('product_media',function($joining){
+                            $joining->on('group_product.product_id', '=', 'product_media.rel_id');
+                            $joining->where('product_media.position' , 0);
+                        })
+                        ->where('group_product.product_id', '>', $content_id)
+                        ->select('product.id', 'product.url', 'product.title', 'product_media.filename', 'product_media.resize_image', 'product_media.webp_image')
+                        ->orderBy('group_product.product_id')
+                        ->first();
+            if(!isset($data) or empty($data)){
+                return false;
+            }
+        }else{
+            $data = DB::table('group_product')
+                        ->join('product', 'group_product.product_id', '=', 'product.id')
+                        ->leftJoin('product_media',function($joining){
+                            $joining->on('group_product.product_id', '=', 'product_media.rel_id');
+                            $joining->where('product_media.position' , 0);
+                        })
+                        ->where('group_product.product_id', '<', $content_id)
+                        ->select('product.id', 'product.url', 'product.title', 'product_media.filename', 'product_media.resize_image', 'product_media.webp_image')
+                        ->orderBy('group_product.product_id', 'desc')
+                        ->first();
+            if(!isset($data) or empty($data)){
+                return false;
+            }
+        }
+        $data = (array)$data;
+        return $data;
+        
     }
 
     public function reorder($params)

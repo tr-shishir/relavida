@@ -416,6 +416,11 @@ function next_content($content_id = false)
     return app()->content_manager->next_content($content_id);
 }
 
+function next_content_V2($content_id = false, $mode = false)
+{
+    return app()->content_manager->next_content_V2($content_id, $mode);
+}
+
 function next_post($content_id = false)
 {
     return app()->content_manager->next_content($content_id, $mode = 'next', $content_type = 'post');
@@ -429,6 +434,11 @@ function prev_post($content_id = false)
 function prev_content($content_id = false)
 {
     return app()->content_manager->prev_content($content_id);
+}
+
+function prev_content_V2($content_id = false)
+{
+    return app()->content_manager->prev_content_V2($content_id);
 }
 
 function breadcrumb($params = false)

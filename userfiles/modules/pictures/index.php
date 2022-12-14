@@ -17,29 +17,35 @@ template_stack_add(modules_url()."pictures/styles.css");
 
 $no_img = false;
 
-if (isset($params['content_id'])) {
-    $params['rel_id'] = intval($params['content_id']);
-    $params['rel_type'] = 'content';
-}
-if (isset($params['no_img'])){
-    $no_img = $params['no_img'];
-}
-
-
-if (isset($params['rel'])){
-	$params['rel_type'] = $params['rel'];
-}
-if (isset($params['rel_type']) and trim(strtolower(($params['rel_type']))) == 'post' and defined('POST_ID')) {
-    $params['rel_id'] = POST_ID;
-    $params['for'] = 'content';
-}
-if (isset($params['rel_type']) and trim(strtolower(($params['rel_type']))) == 'page' and defined('PAGE_ID')) {
-    $params['rel_id'] = PAGE_ID;
-    $params['for'] = 'content';
-}
-if (isset($params['rel_type']) and trim(strtolower(($params['rel_type']))) == 'content' and defined('CONTENT_ID')) {
-    $params['rel_id'] = CONTENT_ID;
-    $params['for'] = 'content';
+if(isset($params['rel']) and $params['rel'] == "product"){
+    $params['rel_id'] = intval($params['product-id']);
+    $params['rel_type'] = 'product';
+    $params['for'] = 'product';
+}else{
+    if (isset($params['content_id'])) {
+        $params['rel_id'] = intval($params['content_id']);
+        $params['rel_type'] = 'content';
+    }
+    if (isset($params['no_img'])){
+        $no_img = $params['no_img'];
+    }
+    
+    
+    if (isset($params['rel'])){
+        $params['rel_type'] = $params['rel'];
+    }
+    if (isset($params['rel_type']) and trim(strtolower(($params['rel_type']))) == 'post' and defined('POST_ID')) {
+        $params['rel_id'] = POST_ID;
+        $params['for'] = 'content';
+    }
+    if (isset($params['rel_type']) and trim(strtolower(($params['rel_type']))) == 'page' and defined('PAGE_ID')) {
+        $params['rel_id'] = PAGE_ID;
+        $params['for'] = 'content';
+    }
+    if (isset($params['rel_type']) and trim(strtolower(($params['rel_type']))) == 'content' and defined('CONTENT_ID')) {
+        $params['rel_id'] = CONTENT_ID;
+        $params['for'] = 'content';
+    }
 }
 $default_images = false;
 if (isset($params['images']) and trim(strtolower(($params['images']))) != '') {
@@ -94,17 +100,22 @@ $handle_empty = $params['handle_empty'];
 if (isset($params['rel_id']) == true) {
     $for_id = $params['rel_id'];
     $get_for_session = false;
-    if ($for == 'content' and intval($for_id) == 0 and user_id()) {
-        $get_for_session = true;
-    }
-    if ($get_for_session == false) {
-        $data = get_pictures('rel_id=' . $params['rel_id'] . '&for=' . $for);
+    if(isset($params['rel']) and $params['rel'] == "product"){
+        $data = DB::table('product_media')->where('rel_id', intval($params['product-id']))->select('filename', 'image_id')->get();
+        $data = json_decode(json_encode($data), true);
+    }else{
+        if ($for == 'content' and intval($for_id) == 0 and user_id()) {
+            $get_for_session = true;
+        }
+        if ($get_for_session == false) {
+            $data = get_pictures('rel_id=' . $params['rel_id'] . '&for=' . $for);
 
-    } else {
-        $sid = mw()->user_manager->session_id();
+        } else {
+            $sid = mw()->user_manager->session_id();
 
-        $data = get_pictures("rel_id=0&rel_type={$for}&session_id={$sid}");
+            $data = get_pictures("rel_id=0&rel_type={$for}&session_id={$sid}");
 
+        }
     }
     if (!is_array($data)) {
         if (is_array($default_images) and !empty($default_images)) {

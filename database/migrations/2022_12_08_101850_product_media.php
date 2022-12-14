@@ -13,8 +13,8 @@ class ProductMedia extends Migration
      */
     public function up()
     {
-        if(!Schema::hasTable('product_module_setting')){
-            Schema::create('product_module_setting', function (Blueprint $table) {
+        if(!Schema::hasTable('product_media')){
+            Schema::create('product_media', function (Blueprint $table) {
                 $table->id();
                 $table->string('session_id');
                 $table->integer('rel_id');
