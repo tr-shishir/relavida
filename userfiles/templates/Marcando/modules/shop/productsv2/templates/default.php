@@ -31,6 +31,7 @@ description: Default Version 2
 
                 });
 
+
     if(isset($settings['data-hide-paging']) and $settings['data-hide-paging']->value == 'y'){
         $hide_paging = false;
     }
@@ -88,12 +89,11 @@ description: Default Version 2
         $ordering = $order_data[1];
     }
     $paging_param = sha1($params['id']);
+    $count = $query->where('group_product.group_id', 1)->select('group_product.product_id as content_id')->distinct('group_product.product_id')->count();
     if(isset($_GET[$paging_param])){
         $data = $query->where('group_product.group_id', 1)->orderBy($order_by, $ordering)->select('group_product.product_id as content_id', 'product.title as title', 'product.url as url', 'product.vk_price as price', 'product.quantity as quantity', 'product.tax_type as tax_type','product_media.webp_image as webp_image','product_media.resize_image as resize_image','product_media.filename as filename' , 'offers.offer_price as offer_price', 'offers.expires_at as expires_at', 'offers.created_at as created_at')->distinct('group_product.product_id')->simplePaginate($per_page_items, ['*'], $paging_param, $_GET[$paging_param]);
-        $count = $query->where('group_product.group_id', 1)->select('group_product.product_id as content_id')->distinct('group_product.product_id')->count();
     }else{
         $data = $query->where('group_product.group_id', 1)->orderBy($order_by, $ordering)->select('group_product.product_id as content_id', 'product.title as title', 'product.url as url', 'product.vk_price as price', 'product.quantity as quantity', 'product.tax_type as tax_type','product_media.webp_image as webp_image','product_media.resize_image as resize_image','product_media.filename as filename' ,'offers.offer_price as offer_price', 'offers.expires_at as expires_at', 'offers.created_at as created_at')->distinct('group_product.product_id')->simplePaginate($per_page_items);
-        $count = $query->where('group_product.group_id', 1)->select('group_product.product_id as content_id')->distinct('group_product.product_id')->count();
     }
     $pages_count = 0;
     $pages_count_found = $count/$per_page_items;
@@ -102,7 +102,6 @@ description: Default Version 2
     } else{
         $pages_count = (int)$pages_count_found + 1;
     }
-    dd();
     $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
     $is_logged = is_logged();
     $title_character_limit = 255;
