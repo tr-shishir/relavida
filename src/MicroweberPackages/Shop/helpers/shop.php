@@ -16,6 +16,11 @@ function update_cart($data)
     return mw()->shop_manager->update_cart($data);
 }
 
+function update_cart_v2($data)
+{
+    return mw()->shop_manager->update_cart_v2($data);
+}
+
 function empty_cart()
 {
     return mw()->shop_manager->empty_cart();

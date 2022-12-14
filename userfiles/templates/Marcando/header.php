@@ -671,9 +671,9 @@
                         $.post("<?php print url('api/v1/remove_session') ?>",{ key:'bundle_product_checkout'},function(){}).then(function(){
                             if(add_cart_id != null){
                                 if(Number.isInteger(parseInt(add_cart_id))){
-                                    mw.cart.add_item(add_cart_id);
+                                    mw.cart.add_item_v2(add_cart_id);
                                 }else{
-                                    mw.cart.add(add_cart_id);
+                                    mw.cart.add_v2(add_cart_id);
                                 }
                             }
                             mw.reload_module('shop/cart/quick_checkout');
@@ -727,9 +727,9 @@
                         $.post("<?php print url('api/v1/remove_session') ?>",{ key:'bundle_product_checkout'},function(){}).then(function(){
                             if(add_cart_id != null){
                                 if(Number.isInteger(parseInt(add_cart_id))){
-                                    mw.cart.add_item(add_cart_id);
+                                    mw.cart.add_item_v2(add_cart_id);
                                 }else{
-                                    mw.cart.add(add_cart_id);
+                                    mw.cart.add_v2(add_cart_id);
                                 }
                             }
                             mw.reload_module('shop/cart/quick_checkout');
@@ -740,9 +740,9 @@
 
                 }else{
                     if(Number.isInteger(parseInt(add_cart_id))){
-                        mw.cart.add_item(add_cart_id);
+                        mw.cart.add_item_v2(add_cart_id);
                     }else{
-                        mw.cart.add(add_cart_id);
+                        mw.cart.add_v2(add_cart_id);
                     }
                 $("#cartModal").modal('show');
 

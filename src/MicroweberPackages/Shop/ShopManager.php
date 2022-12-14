@@ -112,6 +112,11 @@ class ShopManager
         return $this->app->cart_manager->update_cart($data);
     }
 
+    public function update_cart_v2($data)
+    {
+        return $this->app->cart_manager->update_cart_v2($data);
+    }
+
     public function payment_options($option_key = false)
     {
         return $this->app->checkout_manager->payment_options($option_key);
