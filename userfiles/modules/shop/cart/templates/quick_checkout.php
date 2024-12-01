@@ -163,8 +163,8 @@ $bumbs = true;
 ?>
 
 <?php if (is_array($data)) :
-
-    $upsellingCount=DB::table("selected_product_upselling_item")->where('user_id',user_id())->get()->count();
+    $upsellingCount=DB::table("selected_product_upselling_item")->where('user_id',user_id())->pluck('id')->count();
+    $checkoutBumbs = DB::table('checkout_bumbs')->where('show_cart',1)->pluck('product_id')->toArray();
     $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
     $value_need_to_reduce = 0;
 
@@ -321,8 +321,8 @@ $bumbs = true;
                                                                     // mw.notification.success('<?php //_e('You have changed the product quantity. So now the further process will be managed from general cart.'); ?>');
                                                                     var id = $("#id_val<?=$item['id']?>").val();
                                                                     data = {
-                                                                        key:'bundle_product_checkout',  
-                                                                        key1 :<?php print $bundle_details['id']; ?> 
+                                                                        key:'bundle_product_checkout',
+                                                                        key1 :<?php print $bundle_details['id']; ?>
                                                                     };
                                                                     $.post("<?php print url('api/v1/remove_session') ?>",data,function(){}).then(function(){
                                                                         remove_cart_data(id);
@@ -366,8 +366,8 @@ $bumbs = true;
                                                                     currentVal = parseInt(currentVal)-1;
                                                                     // mw.notification.success('<?php //_e('You have changed the product quantity. So now the further process will be managed from general cart.'); ?>');
                                                                     data = {
-                                                                        key:'bundle_product_checkout',  
-                                                                        key1 :<?php print $bundle_details['id']; ?> 
+                                                                        key:'bundle_product_checkout',
+                                                                        key1 :<?php print $bundle_details['id']; ?>
                                                                     };
                                                                     $.post("<?php print url('api/v1/remove_session') ?>",data,function(){}).then(function(){
                                                                         mw.cart.qty(id,currentVal);
@@ -407,8 +407,8 @@ $bumbs = true;
                                                                     // mw.notification.success('<?php //_e('You have changed the product quantity. So now the further process will be managed from general cart.'); ?>');
                                                                     var id = $("#id_val<?=$item['id']?>").val();
                                                                     data = {
-                                                                        key:'bundle_product_checkout',  
-                                                                        key1 :<?php print $bundle_details['id']; ?> 
+                                                                        key:'bundle_product_checkout',
+                                                                        key1 :<?php print $bundle_details['id']; ?>
                                                                     };
                                                                     $.post("<?php print url('api/v1/remove_session') ?>",data,function(){}).then(function(){
                                                                         remove_cart_data(id);
@@ -452,8 +452,8 @@ $bumbs = true;
                                                                     currentVal = parseInt(currentVal)-1;
                                                                     // mw.notification.success('<?php //_e('You have changed the product quantity. So now the further process will be managed from general cart.'); ?>');
                                                                     data = {
-                                                                        key:'bundle_product_checkout',  
-                                                                        key1 :<?php print $bundle_details['id']; ?> 
+                                                                        key:'bundle_product_checkout',
+                                                                        key1 :<?php print $bundle_details['id']; ?>
                                                                     };
                                                                     $.post("<?php print url('api/v1/remove_session') ?>",data,function(){}).then(function(){
                                                                         mw.cart.qty(id,currentVal);
@@ -476,7 +476,15 @@ $bumbs = true;
                                         </script>
                                         <td class="mw-cart-table-price">
                                             <?php
-                                                $selectedUpselling = DB::table("selected_product_upselling_item")->where('product_id', $item['rel_id'] )->where('user_id',user_id())->get();
+                                                $key = sha1($item['rel_id'] . "_" . user_id() . "_" . session_id() . "_upselling");
+                                                if(array_key_exists($key, $GLOBALS)){
+                                                    $selectedUpselling = $GLOBALS[$key];
+                                                }else{
+                                                    $selectedUpselling = DB::table("selected_product_upselling_item")->where('product_id', $value['rel_id'] )->where('user_id',user_id())->get();
+                                                    $GLOBALS = array_merge($GLOBALS, array(
+                                                        $key => $selectedUpselling
+                                                    ));
+                                                }
                                                 $servicePrice = 0;
                                                 if($selectedUpselling->count()){
                                                     foreach($selectedUpselling as $selectValue){
@@ -494,7 +502,7 @@ $bumbs = true;
                                                 $total = $total + ((roundPrice($item['price']) +$servicePrice) * $item['qty']);
                                             ?>
                                         </td>
-                                        <?php if(DB::table("selected_product_upselling_item")->where('user_id',user_id())->get()->count() > 0): ?>
+                                        <?php if($upsellingCount > 0): ?>
                                             <td class="mw-cart-table-price"><?php print currency_format($servicePrice); ?></td>
                                         <?php endif; ?>
                                         <td class="mw-cart-table-price"><?php print currency_format((roundPrice($item['price']) +$servicePrice) * $item['qty']); ?></td>
@@ -506,8 +514,8 @@ $bumbs = true;
                                                     if($('.bundle-id-tr-'+bid).length == 1){
                                                         jQuery('.bundle-div-id-'+bid).remove();
                                                         data = {
-                                                                key:'bundle_product_checkout',  
-                                                                key1 :bid 
+                                                                key:'bundle_product_checkout',
+                                                                key1 :bid
                                                             };
                                                             $.post("<?php print url('api/v1/remove_session') ?>",data,function(){}).then(function(){
                                                                 remove_cart_data(id);
@@ -526,8 +534,8 @@ $bumbs = true;
                                                             .then((willDelete) => {
                                                                 if (willDelete) {
                                                                     data = {
-                                                                        key:'bundle_product_checkout',  
-                                                                        key1 :<?php print $bundle_details['id']; ?> 
+                                                                        key:'bundle_product_checkout',
+                                                                        key1 :<?php print $bundle_details['id']; ?>
                                                                     };
                                                                     $.post("<?php print url('api/v1/remove_session') ?>",data,function(){}).then(function(){
                                                                         sessionStorage.setItem('cart_update_for_bundle_product', 'false');
@@ -599,7 +607,7 @@ $bumbs = true;
             }
         }
     }
-    
+
     if (is_array($data) && !empty($data)) :
     ?>
         <table class="table <?php if($upsellingCount <= 0): ?>upsellingCartTable<?php endif; ?> table-bordered table-striped mw-cart-table mw-cart-table-medium mw-cart-big-table table-responsive cart-table <?php print($serviceTag) ?>" >
@@ -636,7 +644,7 @@ $bumbs = true;
                 $default_tax = single_tax($tax_rels);
                 if(!isset($_GET['slug'])){
                     foreach ($data as $item) :
-                        if(DB::table('checkout_bumbs')->where('product_id',$item['rel_id'])->where('show_cart',1)->get()->count()){
+                        if(in_array($item['rel_id'], $checkoutBumbs)){
                             $bumbs = false;
                         }
                         //$total += $item['price']* $item['qty'];
@@ -694,10 +702,10 @@ $bumbs = true;
                                                 mw.reload_module('shop/cart');
                                             }
                                         });
-                                    
+
                                 });
                                 $("#b_minus<?=$item['id']?>").on('click', function(e) {
-                                    
+
                                     swal({
                                         text: "<?php _e('If you reduce the product quantity then you won\'t get the bundle offer! Do you still want to increase the quantity'); ?>"+".",
                                         dangerMode: true,
@@ -750,7 +758,15 @@ $bumbs = true;
                             </script>
                             <td class="mw-cart-table-price">
                                 <?php
-                                    $selectedUpselling = DB::table("selected_product_upselling_item")->where('product_id', $item['rel_id'] )->where('user_id',user_id())->get();
+                                    $key = sha1($item['rel_id'] . "_" . user_id() . "_" . session_id() . "_upselling");
+                                    if(array_key_exists($key, $GLOBALS)){
+                                        $selectedUpselling = $GLOBALS[$key];
+                                    }else{
+                                        $selectedUpselling = DB::table("selected_product_upselling_item")->where('product_id', $item['rel_id'] )->where('user_id',user_id())->get();
+                                        $GLOBALS = array_merge($GLOBALS, array(
+                                            $key => $selectedUpselling
+                                        ));
+                                    }
                                     $servicePrice = 0;
                                     if($selectedUpselling->count()){
                                         foreach($selectedUpselling as $selectValue){
@@ -768,7 +784,7 @@ $bumbs = true;
                                     $total = $total + ((roundPrice($item['price']) +$servicePrice) * $item['qty']);
                                 ?>
                             </td>
-                            <?php if(DB::table("selected_product_upselling_item")->where('user_id',user_id())->get()->count() > 0): ?>
+                            <?php if($upsellingCount > 0): ?>
                                 <td class="mw-cart-table-price"><?php print currency_format($servicePrice); ?></td>
                             <?php endif; ?>
                             <td class="mw-cart-table-price"><?php print currency_format((roundPrice($item['price']) +$servicePrice) * $item['qty']); ?></td>
@@ -814,18 +830,11 @@ $bumbs = true;
     </div>
 <?php
  else: ?>
-    <?php
-        if(isset(mw()->template->get_config()['optimized_template']) && mw()->template->get_config()['optimized_template'] =='yes'){
-            $product_limit = DB::table('products')->get()->count() ?? 0;
-        }else{
-            $product_limit = DB::table('content')->where('content_type','product')->where('is_active',1)->where('is_deleted',0)->get()->count() ?? 0;
-        }
-    ?>
     <div class="col-12 blankCartBox">
             <div class="cart-modal-primary text-center">
                 <i class="fa fa-shopping-cart" aria-hidden="true"></i>
                 <h4 class="edit" field="empty_cart_first_part" rel="global">Ihr Warenkorb ist noch leer.</h4>
-                <p class="lead">Über <?php print $product_limit;  ?> Produkte warten auf Sie!</p>
+                <p class="lead"></p>
                 <hr>
                 <?php if(!is_logged()):
                 ?>
@@ -848,7 +857,7 @@ $bumbs = true;
 
 <?php endif; ?>
 
-<?php if(DB::table('checkout_bumbs')->where('show_cart',1)->get()->count()): ?>
+<?php if(!empty($checkoutBumbs)): ?>
     <?php if($bumbs): ?>
     <module type="shop/Checkout_Bumbs" template="cart_bumbs" />
     <?php endif; ?>
@@ -905,7 +914,7 @@ if(!empty(mw()->user_manager->session_get('bundle_product_checkout'))) {
                             $total -= $value_need_to_reduce;
                             if($total > 0) print currency_format($total);
                             else print currency_format(0);
-                            
+
                         }else{
                             print currency_format($total);
                         }

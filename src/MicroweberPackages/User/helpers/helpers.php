@@ -207,6 +207,16 @@ function user_id()
     return mw()->user_manager->id();
 }
 
+function user_group_id()
+{
+    return mw()->user_manager->user_group_id();
+}
+
+function user_group_info()
+{
+    return mw()->user_manager->user_group_info();
+}
+
 function has_access($function_name = '')
 {
     return mw()->user_manager->has_access($function_name);

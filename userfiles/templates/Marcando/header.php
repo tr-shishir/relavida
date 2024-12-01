@@ -67,7 +67,8 @@
 
     <link rel="stylesheet" href="<?php print template_url(); ?>assets/css/sm-simple.css" />
     <link rel="stylesheet" href="<?php print template_url(); ?>assets/plugins/meanmenu/meanmenu.min.css" />
-    <?php if(isset(get_content_by_id(CONTENT_ID)['url']) && get_content_by_id(CONTENT_ID)['url'] == 'shop'): ?>
+    <?php $url_segment = url_segment(); ?>
+    <?php if(isset($url_segment[0]) and $url_segment[0] == 'shop'): ?>
         <?php if(is_logged()): ?>
             <script src="<?php print template_url(); ?>assets/js/select2.min.js"></script>
             <link href="<?php print template_url(); ?>assets/css/select2.min.css" rel="stylesheet"/>
@@ -101,8 +102,9 @@
             if (!empty($active)) {
                 $showHeader = header_cate_status();
             }
+            if($headerShowCss == 'block'):
         ?>
-        <header class="header" style="display:<?php print $headerShowCss; ?>;">
+        <header class="header">
             <div class="header-top">
                 <div class="container">
                     <div class="logo">
@@ -175,6 +177,10 @@
                                             }
                                         });
                                     }
+                                });
+
+                                $.get("<?=url('api/v1/get_total_products_count') ?>", function(res){
+                                    $(".cart-modal-primary .lead").text("Über " + res + " Produkte warten auf Sie!");
                                 });
                             });
                         </script>
@@ -302,6 +308,10 @@
                                 padding: 5px 10px;
                             }
 
+                            .product-search-box .autocomplete input#productSearchInput:focus {
+                                outline: none;
+                            }
+
                             .product-search-box button.btn {
                                 background-color: #41544A;
                                 position: absolute;
@@ -310,6 +320,24 @@
                                 height: 40px;
                                 border-radius: 0px;
                                 color: #fff;
+                            }
+
+                            .header-search.overlay-show {
+                                position: relative;
+                                z-index: 9999;
+                            }
+
+                            .header-search.overlay-show:after {
+                                content: "";
+                                position: fixed;
+                                width: 100%;
+                                height: 100%;
+                                background-color: rgba(0, 0, 0, .5);
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                z-index: -1;
                             }
                         </style>
                         <!-- <form class="search-header-form" action="<?php print site_url(); ?>search" method="get">
@@ -438,6 +466,8 @@
 
                                 </script>
                     </div>
+
+
                     <div class="header-member">
                         <ul>
                             <li class="header-member-user">
@@ -445,6 +475,7 @@
                                 <ul class="header-user-dropdown">
                                         <?php if (user_id()) : ?>
                                             <li><a href="" data-toggle="modal" data-target="#loginModal">Profil</a></li>
+                                            <li><a href="" data-toggle="modal" data-target="#addressbook">Adressbuch</a></li>
                                             <li><a href="" data-toggle="modal" data-target="#ordersModal">Meine Bestellungen</a></li>
                                         <?php else : ?>
                                             <li><a href="" data-toggle="modal" data-target="#loginModal" class="login_register"><?php _lang("Anmeldung"); ?></a></li>
@@ -590,6 +621,7 @@
                                 <ul class="dropdown-menu">
                                     <?php if (user_id()): ?>
                                         <li><a href="#" data-toggle="modal" data-target="#loginModal">Profil</a></li>
+                                        <li><a href="" data-toggle="modal" data-target="#addressbook">Adressbuch</a></li>
                                         <li><a href="#" data-toggle="modal" data-target="#ordersModal">Meine Bestellungen</a></li>
                                     <?php else: ?>
                                         <li><a href="#" data-toggle="modal" data-target="#loginModal" class="login_register"><?php _lang("Anmeldung", 'templates/bamboo'); ?></a></li>
@@ -619,6 +651,7 @@
             </div>
 
         </header>
+        <?php endif; ?>
         <?php
             $update_global_bundle_discount_condition = get_option('update_global_bundle_discount_condition','update_global_bundle_discount_condition') ?? 0;
         ?>
@@ -836,6 +869,11 @@
                     });
                 });
             </script>
+            <!-- Address book -->
+            <div class="modal login-modal" id="addressbook" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel">
+                <module type="users/address_book">
+            </div>
+
             <!-- Orders Modal -->
             <div class="modal fade my-orders-modal" id="ordersModal" tabindex="-1" role="dialog" aria-labelledby="ordersModalLabel">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">

@@ -6,7 +6,7 @@ use MicroweberPackages\Backup\DatabaseSave;
 trait DatabaseTaggingTaggedWriter
 {
 	private function _getTagginTaggedDatabase($item) {
-		
+
 		$dbSelectParams = array();
 		$dbSelectParams['no_cache'] = true;
 		$dbSelectParams['limit'] = 1;
@@ -19,26 +19,26 @@ trait DatabaseTaggingTaggedWriter
 		
 		return db_get('tagging_tagged', $dbSelectParams);
 	}
-	
+
 	private function _taggingTagged($item) {
-		
+
 		// Save new item
 		$saveNewTaggingTagged = $item;
-		
+
 		// Its founded in import file database
 		$content = $this->_getContentById($item['taggable_id']);
 		if (!empty($content)) {
 			$contentDatabase = $this->_getContentDatabase($content);
-			
+
 			if (! empty($contentDatabase)) {
 				$saveNewTaggingTagged['taggable_id'] = $contentDatabase['id'];
 			}
 		}
-		
+
 		// Save item
 		if (!empty($saveNewTaggingTagged)) {
 			unset($saveNewTaggingTagged['id']);
-			
+
 			$itemDatabase = $this->_getTagginTaggedDatabase($saveNewTaggingTagged);
 
 			if (empty($itemDatabase)) {

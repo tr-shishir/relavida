@@ -183,7 +183,7 @@ class Front
                 $post_params['limit'] = $posts_limit;
             }
         }
-        
+
         if(CATEGORY_ID == false){
             $posts_parent_category = $posts_parent_category_cfg = get_option('data-category-id', $params['id']);
             if(get_option('data-category-id', $params['id'])){
@@ -742,6 +742,7 @@ class Front
                         $products = collect($content);
                         $products_id = $products->pluck('id')->toArray();
                         $data = DB::table('products')
+                        ->select('products.title','products.url','products.price','products.content_id','products.quantity','products.tax_type','products.image')
                         ->whereIn('content_id',$products_id)
                         ->where('category_hide',0)
                         ->orderByRaw(DB::raw('FIELD(content_id, '.implode(', ', $products_id).')'))
@@ -957,7 +958,11 @@ class Front
 
         if ($cfg_data_hide_paging != 'y') {
 
-            $pages_of_posts = get_content($post_params_paging);
+            if(isset($post_params['content_type']) && $post_params['content_type']==='product' && isset($post_params['data-limit'])){
+                $pages_of_posts = DB::table('products')->select('id')->paginate($post_params['data-limit'])->total();
+            }else{
+                $pages_of_posts = get_content($post_params_paging);
+            }
             $pages_count = intval($pages_of_posts);
             //   dd($pages_count,__FILE__,__LINE__);
         } else {

@@ -207,7 +207,9 @@ function get_products($params = false)
  */
 function get_content_by_id($params = false)
 {
-    $posts = app()->content_manager->get_by_id($params);
+    $posts = DB::table('content')->where('id',$params)->get()->map(function($item){
+        return (array)$item;
+    })->toArray();
     $status = Config::get('custom.blog_status');
     if(@$posts['content_type'] == "post" && trim(strip_tags($posts['content']))){
         if($status == 1 or $posts['require_login'] == 1) {

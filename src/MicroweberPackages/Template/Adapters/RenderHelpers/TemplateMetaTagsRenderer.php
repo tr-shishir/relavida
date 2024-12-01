@@ -53,7 +53,6 @@ class TemplateMetaTagsRenderer
                 }
             }
 
-
             if ($meta_category_id > 0) {
                 $meta_category_data = $this->app->category_manager->get_by_id($meta_category_id);
 
@@ -79,13 +78,13 @@ class TemplateMetaTagsRenderer
                     }
                 }
             } else if ($meta_content_id > 0) {
-                $meta = $this->app->content_manager->get_by_id($meta_content_id);
+                $meta = $params['content'];
                 $content_image = $this->app->media_manager->get_picture($meta_content_id);
                 if ($content_image) {
                     $meta['content_image'] = $content_image;
                 } else {
                     $meta['content_image'] = '';
-                    $cont_id = get_content_by_id($meta_content_id);
+                    $cont_id = $params['content'];
 
                     if ($cont_id and isset($cont_id['content'])) {
                         $img = $this->app->media_manager->get_first_image_from_html(html_entity_decode($cont_id['content']));
@@ -99,7 +98,7 @@ class TemplateMetaTagsRenderer
 
 
                 }
-                $meta['content_url'] = $this->app->content_manager->link($meta_content_id);
+                $meta['content_url'] = url($meta['url']);
                 if (isset($meta['content_type'])) {
                     $meta['og_type'] = $meta['content_type'];
                     if ($meta['content_type'] == 'post') {
@@ -136,11 +135,13 @@ class TemplateMetaTagsRenderer
                         $meta['og_description'] = trim($this->app->format->limit($this->app->format->clean_html(strip_tags($meta['content'])), 500));
                     }
                 }
+
             } else {
                 $meta['title'] = $this->app->option_manager->get('website_title', 'website');
                 $meta['description'] = $this->app->option_manager->get('website_description', 'website');
                 $meta['content_meta_keywords'] = $this->app->option_manager->get('website_keywords', 'website');
             }
+
 
             $meta['og_site_name'] = $this->app->option_manager->get('website_title', 'website');
 

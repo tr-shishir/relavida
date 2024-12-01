@@ -74,8 +74,9 @@ class MediaManager
                 return $images[0];
             }
         } else {
+
             if ($for == 'content') {
-                $cont_id = $this->app->content_manager->get_by_id($content_id);
+                // $cont_id = $this->app->content_manager->get_by_id($content_id);
 
                 /*if (isset($cont_id['content'])) {
                     $img = $this->get_first_image_from_html(html_entity_decode($cont_id['content']));
@@ -95,6 +96,7 @@ class MediaManager
                     }
                 }*/
             }
+
         }
 
         return false;
@@ -432,7 +434,7 @@ class MediaManager
             $instagram_feed = $instagram_feed->whereIntegerInRaw('media_id',$media_id)->get()->keyBy('media_id')->toArray();
 
         }elseif(count($media_id) == 1){
-            $instagram_feed = $instagram_feed->where('media_id',$media_id[0])->get()->keyBy('media_id')->toArray();
+            if($media_id[0]) $instagram_feed = $instagram_feed->where('media_id',$media_id[0])->get()->keyBy('media_id')->toArray();
         }else{
             $instagram_feed = null;
         }

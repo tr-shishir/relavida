@@ -57,7 +57,9 @@
     </div>
 </div>
 <?php
-if(isset(get_content_by_id(CONTENT_ID)['url']) && get_content_by_id(CONTENT_ID)['url'] == 'shop'): ?>
+// $single_content = get_content_by_id(CONTENT_ID);
+$single_content = DB::table('content')->where('id', CONTENT_ID)->select('url')->get()->pluck('url')->toArray();
+if(isset($single_content[0]) && $single_content[0] == 'shop'): ?>
     <?php if(is_logged()): ?>
         <script type="text/javascript" src="<?php print modules_url(); ?>microweber/js/bootstrap-toggle.min.js"></script>
         <link href="<?php print modules_url(); ?>microweber/css/bootstrap-toggle.min.css" rel="stylesheet"/>
@@ -73,81 +75,81 @@ if(isset(get_content_by_id(CONTENT_ID)['url']) && get_content_by_id(CONTENT_ID)[
 
 <style>
 
-.manage-posts-holder-inner .card-body .row {
-    flex-wrap: nowrap !important;
-}
-.product-quantity_number .input-group .quantity-field[type=number] {
-    -moz-appearance:textfield;
-}
-.navigation .menu .list {
-    padding: 15px 0;
-    max-width: 1100px;
-}
-#header-menu .owl-nav {
-    position: absolute;
-    content: '';
-    width: 100%;
-    top: 18px;
-}
-#header-menu .owl-nav button:focus{
-    outline: 0;
-}
-#header-menu .owl-nav button.owl-prev {
-    position: absolute;
-    content: '';
-    top: 0;
-    left: -10px;
-    font-size: 24px;
-}
-#header-menu .owl-nav button.owl-next {
-    position: absolute;
-    content: '';
-    top: 0;
-    right: -10px;
-    font-size: 24px;
-}
-#header-menu .owl-dots {
-    display: none;
-}
-#header-menu .list .owl-stage>.owl-item>li>a{
-    padding: 8px 30px !important;
-    font-size:20px;
-}
+    .manage-posts-holder-inner .card-body .row {
+        flex-wrap: nowrap !important;
+    }
+    .product-quantity_number .input-group .quantity-field[type=number] {
+        -moz-appearance:textfield;
+    }
+    .navigation .menu .list {
+        padding: 15px 0;
+        max-width: 1100px;
+    }
+    #header-menu .owl-nav {
+        position: absolute;
+        content: '';
+        width: 100%;
+        top: 18px;
+    }
+    #header-menu .owl-nav button:focus{
+        outline: 0;
+    }
+    #header-menu .owl-nav button.owl-prev {
+        position: absolute;
+        content: '';
+        top: 0;
+        left: -10px;
+        font-size: 24px;
+    }
+    #header-menu .owl-nav button.owl-next {
+        position: absolute;
+        content: '';
+        top: 0;
+        right: -10px;
+        font-size: 24px;
+    }
+    #header-menu .owl-dots {
+        display: none;
+    }
+    #header-menu .list .owl-stage>.owl-item>li>a{
+        padding: 8px 30px !important;
+        font-size:20px;
+    }
 
-#header-menu .list .owl-stage>.owl-item>li.active>a{
-    font-weight:700;
-}
-#header-menu ul li ul li>a {
-    color: #fff;
-}
-#header-menu .owl-carousel .owl-stage-outer {
-    overflow: unset !important;
-    clip-path: inset( -100vw 0 -100vw 0 );
-}
-@media (max-width: 1366px) and (min-width: 1281px){
-    .navigation .menu .list {
-        padding: 15px 0;
-        max-width: 800px;
+    #header-menu .list .owl-stage>.owl-item>li.active>a{
+        font-weight:700;
     }
-}
-@media (max-width: 1280px) and (min-width: 1201px){
-    .navigation .menu .list {
-        padding: 15px 0;
-        max-width: 630px;
+    #header-menu ul li ul li>a {
+        color: #fff;
     }
-}
-@media (max-width: 1200px) and (min-width: 1025px){
-    .navigation .menu .list {
-        padding: 15px 0;
-        max-width: 600px;
+    #header-menu .owl-carousel .owl-stage-outer {
+        overflow: unset !important;
+        clip-path: inset( -100vw 0 -100vw 0 );
     }
-}
-@media (max-width: 1024px) and (min-width: 1000px){
-    .navigation .menu .list {
-        padding: 15px 0;
-        max-width: 430px;
+    @media (max-width: 1366px) and (min-width: 1281px){
+        .navigation .menu .list {
+            padding: 15px 0;
+            max-width: 800px;
+        }
     }
-}
+    @media (max-width: 1280px) and (min-width: 1201px){
+        .navigation .menu .list {
+            padding: 15px 0;
+            max-width: 630px;
+        }
+    }
+    @media (max-width: 1200px) and (min-width: 1025px){
+        .navigation .menu .list {
+            padding: 15px 0;
+            max-width: 600px;
+        }
+    }
+    @media (max-width: 1024px) and (min-width: 1000px){
+        .navigation .menu .list {
+            padding: 15px 0;
+            max-width: 430px;
+        }
+    }
 </style>
 <script>
     <?php if(is_admin()): ?>
@@ -503,13 +505,13 @@ if( isset($_SERVER['HTTP_ACCEPT']) && strpos( $_SERVER['HTTP_ACCEPT'], 'image/we
                                     <div class="form-group">
                                         <label><?php _e('Country'); ?> *</label>
                                         <?php
-                                            $all_country = DB::table('tax_rates')->get('country');
+                                            $all_country = DB::table('tax_rates')->select('country')->get()->pluck('country')->toArray();
                                             // dd($all_country);
                                         ?>
                                         <select class="form-control" required name="country" id="country">
                                             <?php if($all_country): ?>
                                                 <?php foreach($all_country as $country): ?>
-                                                    <option value="<?php print $country->country; ?>"><?php print $country->country; ?></option>
+                                                    <option value="<?php print $country; ?>"><?php print $country; ?></option>
                                                 <?php endforeach; ?>
                                             <?php else: ?>
                                                 <option value="Germany">Germany</option>

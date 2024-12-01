@@ -15,4 +15,4 @@ use Illuminate\Support\Facades\Route;
 
 
 
-// Route::get('favorite-drink', '\App\Http\Controllers\Controller@favoriteDrink');
+// Route::get('shop', '\App\Http\Controllers\Controller@shop');
